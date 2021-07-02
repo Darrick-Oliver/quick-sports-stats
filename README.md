@@ -1,4 +1,4 @@
-# Fantasy Website (name WIP)
+# Arteo Fantasy
 
 Currently displays NBA scores using custom api
  - Can access current, past, and future fixtures
