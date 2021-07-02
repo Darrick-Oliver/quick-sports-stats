@@ -112,8 +112,8 @@ const App = () => {
   return (
     <div className="App">
       <div className="top">
-        <Login />
         <h1>NBA Scores</h1>
+        <Login />
       </div>
 
       <br style={{clear: 'both'}} />

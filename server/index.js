@@ -2,9 +2,12 @@ const express = require("express");
 const fetch = require("node-fetch");
 const template = require("nba-client-template");
 const mongoose = require("mongoose");
-const User = require('./model/user');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+
+const User = require('./model/user');
+// const { requireAuth, checkUser } = require('./middleware/authMiddleware');
+
 require('dotenv').config();
 
 const PORT = process.env.PORT || 3001;
@@ -13,7 +16,7 @@ mongoose.connect('mongodb://localhost:27017/login-app-db', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true
-});
+}).then(() => console.log("Connected to MongoDB")).catch(err => console.error(`Error connecting to MongoDB: ${err}`));
 
 const app = express();
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}`) );
@@ -47,7 +50,7 @@ app.get('/api/nba/:gameId', async (request, response) => {
         console.log(err);
     }
 
-    response.json(json);
+    return response.json(json);
 });
 
 // NBA get scoreboard by date
@@ -180,23 +183,20 @@ app.get('/api/logout', async (request, response) => {
     return response.json({ status: 'ok' });
 });
 
-// Get user
-app.get('/api/user', async (request, response) => {
-    const token = request.cookies.jwt;
-
+// Return user info
+app.get('/api/me', async (req, res) => {
+    let token = req.headers.cookie;
     if (token) {
-        jwt.verify(token, process.env.JWT_SECRET, async (err, decodedToken) => {
+        jwt.verify(token.slice(4), process.env.JWT_SECRET, async (err, decodedToken) => {
             if (err) {
                 console.log(err.message);
-                return response.json({ status: 'error', error: err.message, user: null });
+                return res.json({ status: 'error', error: err.message, user: null });
             } else {
-                console.log(decodedToken);
                 const user = await User.findById(decodedToken.id);
-                return response.json({ status: 'ok', user: user });
+                return res.json({ status: 'ok', user: user.username });
             }
         });
     } else {
-        console.log("No user found");
-        return response.json({ status: 'error', error: 'Token not found', user: null });
+        return res.json({ status: 'error', error: 'Not logged in', user: null });
     }
 });

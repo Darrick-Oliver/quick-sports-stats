@@ -1,5 +1,5 @@
 import './Login.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {Button} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Modal from 'react-modal';
@@ -20,6 +20,8 @@ Modal.setAppElement('#root');
 const Login = () => {
     const [regPopup, setRP] = useState(false);
     const [logPopup, setLP] = useState(false);
+    const [user, setUser] = useState(null);
+    const [login, setLogin] = useState(false);
 
     // Register account
     const regAttempt = async () => {
@@ -74,7 +76,7 @@ const Login = () => {
 
         // Check status
         if (result.status === 'ok') {
-            // Everything is ok
+            setRP(false);
         } else {
             switch(result.type) {
                 case 'username':
@@ -95,7 +97,6 @@ const Login = () => {
             }
         }
         
-        setRP(false);
         return;
     }
 
@@ -138,16 +139,15 @@ const Login = () => {
         }).then((res) => res.json());
     
         if (result.status === 'ok') {
-            // Everything is ok
             console.log("Got the token:", result.data);
+            setLP(false);
         } else {
             document.getElementById("login-user-err").innerHTML = result.error;
             user.classList.add('form-input-error');
             pass.classList.add('form-input-error');
-            return;
         }
-    
-        setLP(false);
+        setLogin(false);
+        
         return;
     }
 
@@ -160,19 +160,33 @@ const Login = () => {
             }
         }).then((res) => res.json());
         if (result.status !== 'ok') {
-            // Bad code
-            console.log("Error");
+            console.log(result);
         }
+        setLogin(false);
         return;
+    }
+
+    // Fetch username
+    if (!login) {
+        fetch('/api/me')
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.status === 'ok') {
+                    setUser(data.user);
+                    setLogin(true);
+                }
+            })
+            .catch(err => {
+                console.error("Error fetching data:", err);
+            });
     }
     
     return (
         <div>
-            <span className='header-login'>
-                <Button variant='link' style={{color: "white"}} onClick={() => logOut()} title='Log out'>Log out</Button>
-                <Button variant='success' onClick={() => setRP(!regPopup)} title='Sign Up'>Sign up</Button>
-                <Button variant='link' style={{color: "white"}} onClick={() => setLP(!logPopup)} title='Log in'>Log in</Button>
-            </span>
+                <span className='header-login'>
+                    {login ? `Hello, ${user}!` : <Button variant='link' style={{color: "white"}} onClick={() => setLP(!logPopup)} title='Log in'>Log in</Button> }
+                    {login ? <Button variant='link' style={{color: "white"}} onClick={() => logOut()} title='Log out'>Log out</Button> : <Button variant='success' onClick={() => setRP(!regPopup)} title='Sign Up'>Sign up</Button>}
+                </span>
             <Modal
                 className='rcontainer'
                 overlayClassName='rcontainer-overlay'
