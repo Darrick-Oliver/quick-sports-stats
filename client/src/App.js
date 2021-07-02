@@ -37,6 +37,7 @@ const App = () => {
   const [queryURL, setQueryURL] = useState(null);
   const [gameData, setGameData] = useState(null);
   const [date, setDate] = useState(null);
+  const [errmsg, setErrmsg] = useState(null);
   
   const api_url = `/api/nba`;
 
@@ -62,6 +63,7 @@ const App = () => {
     setGameData(null);
     setData(null);
     setQueryURL(null);
+    setErrmsg(null);
   }
 
   const dateToday = () => {
@@ -69,6 +71,7 @@ const App = () => {
     setDate(dateObj.toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit'}));
     setGameData(null);
     setData(null);
+    setErrmsg(null);
   }
 
   // Fetch from date
@@ -89,7 +92,11 @@ const App = () => {
 
       fetch(url)
         .then((res) => res.json())
-        .then((data) => setData(data.scoreboard))
+        .then((data) => {
+          setData(data.data);
+          if (data.status !== 'ok')
+            setErrmsg(data.error);
+        })
         .catch(err => {
           console.error("Error fetching data:", err);
           console.error(data);
@@ -102,9 +109,14 @@ const App = () => {
     if (queryURL) {
       fetch(queryURL)
         .then((res) => res.json())
-        .then((gameData) => setGameData(gameData))
+        .then((gameData) => {
+          if (gameData.status === 'ok')
+            setGameData(gameData.data);
+          else
+            setErrmsg("Box score unavailable");
+        })
         .catch(err => {
-          console.error("Error fetching data:", err);
+          console.error("Error fetching data: ", err);
         });
     }
   }, [queryURL]);
@@ -142,7 +154,7 @@ const App = () => {
         </div>
 
         <div className="boxscore">
-          {!gameData ? <span /> : BoxScore(gameData.game) }
+          {!gameData ? (errmsg ? <span><br /><h2>{errmsg}</h2></span> : <span />) : BoxScore(gameData) }
         </div>
       </div>
 
