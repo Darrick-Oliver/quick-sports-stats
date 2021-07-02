@@ -1,4 +1,4 @@
-# Arteo
+# Areto
 
 Currently displays NBA scores using custom api
  - Can access current, past, and future fixtures
