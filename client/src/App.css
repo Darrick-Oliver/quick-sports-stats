@@ -67,6 +67,10 @@
   font-size: 14px;
 }
 
+.boxscore table {
+  white-space: nowrap;
+}
+
 .boxscore table,
 th,
 td {
@@ -100,18 +104,55 @@ td {
   padding: 10px;
 }
 
-.boxscore div.card {
+@media (max-width: 1100px) {
+  .boxscore div.card {
+    width: 100%;
+  }
+}
+@media (min-width: 1100px) {
+  .boxscore div.card {
+    width: 1100px;
+  }
+}
+
+@media (max-width: 350px) {
+  .boxscore div.scoring-card {
+    width: 100%;
+  }
+}
+@media (min-width: 350px) {
+  .boxscore div.scoring-card {
+    width: 350px;
+  }
+}
+
+.boxscore div.card,
+div.scoring-card {
   background-color: white;
   color: black;
-  display: table;
   padding: 20px;
   text-align: center;
   margin: auto;
   transition: 0.3s;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-clip: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 0.25rem;
 }
 
-.boxscore div.card:hover {
+.boxscore div.card:hover,
+div.scoring-card:hover {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.table-container {
+  overflow-x: auto;
+  width: 100%;
 }
 
 #load {
