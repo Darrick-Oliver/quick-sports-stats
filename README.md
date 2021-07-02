@@ -9,7 +9,6 @@ Currently displays NBA scores using custom api
 Features a resgister/login system using MongoDB
 
 Planned features:
-  - Enhanced login system
   - Profile page
   - Player overall scores database
   - Weekly score database
