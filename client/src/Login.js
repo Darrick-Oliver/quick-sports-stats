@@ -1,5 +1,5 @@
 import './Login.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {Button} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Modal from 'react-modal';
@@ -163,17 +163,18 @@ const Login = () => {
             console.log(result);
         }
         setLogin(false);
+        setUser(null);
         return;
     }
 
     // Fetch username
     if (!login) {
+        setLogin(true);
         fetch('/api/me')
             .then((res) => res.json())
             .then((data) => {
                 if (data.status === 'ok') {
                     setUser(data.user);
-                    setLogin(true);
                 }
             })
             .catch(err => {
@@ -184,8 +185,8 @@ const Login = () => {
     return (
         <div>
                 <span className='header-login'>
-                    {login ? `Hello, ${user}!` : <Button variant='link' style={{color: "white"}} onClick={() => setLP(!logPopup)} title='Log in'>Log in</Button> }
-                    {login ? <Button variant='link' style={{color: "white"}} onClick={() => logOut()} title='Log out'>Log out</Button> : <Button variant='success' onClick={() => setRP(!regPopup)} title='Sign Up'>Sign up</Button>}
+                    {user ? `Hello, ${user}!` : <Button variant='link' style={{color: "white"}} onClick={() => setLP(!logPopup)} title='Log in'>Log in</Button> }
+                    {user ? <Button variant='link' style={{color: "white"}} onClick={() => logOut()} title='Log out'>Log out</Button> : <Button variant='success' onClick={() => setRP(!regPopup)} title='Sign Up'>Sign up</Button>}
                 </span>
             <Modal
                 className='rcontainer'
@@ -235,7 +236,7 @@ const Login = () => {
                     <Button className='form-button' onClick={() => loginAttempt()}>Continue</Button>
 
                     <p className='form-text'>
-                        <a href='#' className='form-link'>Forgot your password?</a>
+                        <a href='/' className='form-link'>Forgot your password?</a>
                     </p>
                 </form>
             </Modal>

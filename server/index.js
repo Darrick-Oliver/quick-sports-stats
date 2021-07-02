@@ -193,6 +193,7 @@ app.get('/api/me', async (req, res) => {
                 return res.json({ status: 'error', error: err.message, user: null });
             } else {
                 const user = await User.findById(decodedToken.id);
+                console.log(`Fetched ${user.username}`);
                 return res.json({ status: 'ok', user: user.username });
             }
         });
