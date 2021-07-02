@@ -185,9 +185,22 @@ app.get('/api/logout', async (request, response) => {
 
 // Return user info
 app.get('/api/me', async (req, res) => {
-    let token = req.headers.cookie;
-    if (token) {
-        jwt.verify(token.slice(4), process.env.JWT_SECRET, async (err, decodedToken) => {
+    // Get cookies from header
+    let cookies = req.headers.cookie;
+
+    if (cookies) {
+        // Extract jwt token from cookies
+        let token = null;
+        const value = `; ${cookies}`;
+        const parts = value.split('; jwt=');
+        if (parts.length === 2)
+            token = parts.pop().split(';').shift();
+        else
+            return res.json({ status: 'error', error: 'Not logged in', user: null });
+        console.log(token);
+
+        // Verify token
+        jwt.verify(token, process.env.JWT_SECRET, async (err, decodedToken) => {
             if (err) {
                 console.log(err.message);
                 return res.json({ status: 'error', error: err.message, user: null });

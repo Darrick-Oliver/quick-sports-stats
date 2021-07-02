@@ -139,7 +139,6 @@ const Login = () => {
         }).then((res) => res.json());
     
         if (result.status === 'ok') {
-            console.log("Got the token:", result.data);
             setLP(false);
         } else {
             document.getElementById("login-user-err").innerHTML = result.error;
