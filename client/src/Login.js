@@ -76,6 +76,12 @@ const Login = () => {
 
         // Check status
         if (result.status === 'ok') {
+            // Show login screen
+            setLP(true);
+            document.getElementById("login-announce").innerHTML = "Account creation successful, please re-enter your login info";
+            document.getElementById("login-announce").classList.add('form-message-success');
+
+            // Close register
             setRP(false);
         } else {
             switch(result.type) {
@@ -223,7 +229,7 @@ const Login = () => {
             >
                 <form className='form' id='login'>
                     <h1 className='form-title'>Log in</h1>
-                    <div className='form-message form-message-error'></div>
+                    <div id='login-announce' className='form-message'></div>
                     <div className='form-input-group'>
                         <input id='login-user' type='text' className='form-input' onInput={() => {clearErr('login-pass', 'login-pass-err'); clearErr('login-user', 'login-user-err')}} autoFocus placeholder='Username or email' />
                         <div id='login-user-err' className='form-input-error-message'></div>
