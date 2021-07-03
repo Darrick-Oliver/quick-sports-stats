@@ -24,7 +24,8 @@ const Login = () => {
     const [login, setLogin] = useState(false);
 
     // Register account
-    const regAttempt = async () => {
+    const regAttempt = async (event) => {
+        event.preventDefault();
         let user = document.getElementById("reg-user");
         let em = document.getElementById("reg-email");
         let pwd = document.getElementById("reg-pass");
@@ -76,6 +77,12 @@ const Login = () => {
 
         // Check status
         if (result.status === 'ok') {
+            // Show login screen
+            setLP(true);
+            document.getElementById("login-announce").innerHTML = "Account creation successful, please re-enter your login info";
+            document.getElementById("login-announce").classList.add('form-message-success');
+
+            // Close register
             setRP(false);
         } else {
             switch(result.type) {
@@ -101,7 +108,8 @@ const Login = () => {
     }
 
     // Log in to account
-    const loginAttempt = async () => {
+    const loginAttempt = async (event) => {
+        event.preventDefault();
         const user = document.getElementById("login-user");
         const pass = document.getElementById("login-pass");
     
@@ -184,7 +192,7 @@ const Login = () => {
     return (
         <div>
                 <span className='header-login'>
-                    {user ? `Hello, ${user}!` : <Button variant='link' style={{color: "white"}} onClick={() => setLP(!logPopup)} title='Log in'>Log in</Button> }
+                    {user ? `Logged in as ${user}` : <Button variant='link' style={{color: "white"}} onClick={() => setLP(!logPopup)} title='Log in'>Log in</Button> }
                     {user ? <Button variant='link' style={{color: "white"}} onClick={() => logOut()} title='Log out'>Log out</Button> : <Button variant='success' onClick={() => setRP(!regPopup)} title='Sign Up'>Sign up</Button>}
                 </span>
             <Modal
@@ -193,7 +201,7 @@ const Login = () => {
                 isOpen={regPopup}
                 onRequestClose={() => setRP(false)}
             >
-                <form className='form' id='register'>
+                <form className='form' id='register' onSubmit={regAttempt}>
                     <h1 className='form-title'>Register</h1>
                     <div className='form-message form-message-error'></div>
                     <div className='form-input-group'>
@@ -212,7 +220,7 @@ const Login = () => {
                         <input id='reg-pass-confirm' type='password' className='form-input' onInput={() => clearErr('reg-pass-confirm', 'reg-pass-err')} placeholder='Confirm password' />
                         <div id='reg-pass-err' className='form-input-error-message'></div>
                     </div>
-                    <Button className='form-button' onClick={() => regAttempt()}>Continue</Button>
+                    <Button type='submit' className='form-button'>Continue</Button>
                 </form>
             </Modal>
             <Modal
@@ -221,9 +229,9 @@ const Login = () => {
                 isOpen={logPopup}
                 onRequestClose={() => setLP(false)}
             >
-                <form className='form' id='login'>
+                <form className='form' id='login' onSubmit={loginAttempt}>
                     <h1 className='form-title'>Log in</h1>
-                    <div className='form-message form-message-error'></div>
+                    <div id='login-announce' className='form-message'></div>
                     <div className='form-input-group'>
                         <input id='login-user' type='text' className='form-input' onInput={() => {clearErr('login-pass', 'login-pass-err'); clearErr('login-user', 'login-user-err')}} autoFocus placeholder='Username or email' />
                         <div id='login-user-err' className='form-input-error-message'></div>
@@ -232,7 +240,7 @@ const Login = () => {
                         <input id='login-pass' type='password' className='form-input' onInput={() => {clearErr('login-pass', 'login-pass-err'); clearErr('login-user', 'login-user-err')} } placeholder='Password' />
                         <div id='login-pass-err' className='form-input-error-message'></div>
                     </div>
-                    <Button className='form-button' onClick={() => loginAttempt()}>Continue</Button>
+                    <Button type='submit' className='form-button'>Continue</Button>
 
                     <p className='form-text'>
                         <a href='/' className='form-link'>Forgot your password?</a>
