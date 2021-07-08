@@ -143,6 +143,7 @@ div.scoring-card {
   background-clip: border-box;
   border: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: 0.25rem;
+  margin-bottom: 30px;
 }
 
 .boxscore div.card:hover,

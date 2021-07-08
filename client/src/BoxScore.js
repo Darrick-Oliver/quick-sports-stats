@@ -206,14 +206,12 @@ const BoxScore = (game) => {
                         {generateScores(game.homeTeam, game.awayTeam)}
                     </div>
                 </div>
-                <br />
                 <div className="card">
                     <h2><img src={getImage(game.homeTeam.teamId)} height='50' alt={game.homeTeam.teamName}></img> {game.homeTeam.teamCity} {game.homeTeam.teamName}</h2>
                     <div className="table-container">
                         {generateTable('home', game.homeTeam.players, scoreHome, scoreAway)}
                     </div>
                 </div>
-                <br />
                 <div className="card">
                     <h2><img src={getImage(game.awayTeam.teamId)} height='50' alt={game.awayTeam.teamName}></img> {game.awayTeam.teamCity} {game.awayTeam.teamName}</h2>
                     <div className="table-container">

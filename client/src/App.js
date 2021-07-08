@@ -4,6 +4,7 @@ import {Button} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import BoxScore from './BoxScore.js';
 import Login from './Login.js';
+import { displayComments } from './comments.js';
 
 let dateObj = new Date();
 const currDate = new Date();
@@ -154,7 +155,9 @@ const App = () => {
         </div>
 
         <div className="boxscore">
-          {!gameData ? (errmsg ? <span><br /><h2>{errmsg}</h2></span> : <span />) : BoxScore(gameData) }
+          {!gameData ? errmsg && <span><br /><h2>{errmsg}</h2></span> : BoxScore(gameData) }
+          {gameData && <hr /> }
+          {gameData && displayComments()}
         </div>
       </div>
 

@@ -1,0 +1,37 @@
+.comment-container {
+  text-align: left;
+  margin-top: 30px;
+  margin-left: 50px;
+}
+
+.comment-textarea {
+  width: 500px;
+  height: 100px;
+  border-color: #8f8f8f;
+  border-radius: 5px;
+  transition: 0.2s;
+  resize: none;
+  background-color: #eeeeee;
+}
+
+.comment-textarea:focus {
+  outline: none !important;
+  border: 1px solid #8f8f8f;
+  background-color: #ffffff;
+}
+
+#submit-comment {
+  border-color: #8f8f8f;
+  color: #8f8f8f;
+}
+
+#submit-comment:hover {
+  color: white;
+}
+
+.comment-error-message {
+  margin-top: 0.1rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.85rem;
+  color: #cc3333;
+}

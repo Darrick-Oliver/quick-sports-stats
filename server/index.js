@@ -119,6 +119,20 @@ app.post('/api/register', async (req, res) => {
             error: 'Password too short. Should be at least 6 characters.'
         })
     }
+    if (username.length < 4) {
+        return res.json({
+            status: 'error',
+            type: 'username',
+            error: 'Username too short. Should be at least 4 characters.'
+        })
+    }
+    if (username.length > 20) {
+        return res.json({
+            status: 'error',
+            type: 'username',
+            error: 'Username too long. Should be no more than 20 characters.'
+        })
+    }
 
     // Hash password
     const password = await bcrypt.hash(pass, 10);
@@ -130,7 +144,7 @@ app.post('/api/register', async (req, res) => {
             email,
             password
         });
-        console.log(response);
+        console.log(`${username} has been created`);
     } catch (err) {
         if (err.code === 11000) {
             // Duplicate key
@@ -226,4 +240,27 @@ app.get('/api/me', async (req, res) => {
     } else {
         return res.json({ status: 'error', error: 'Not logged in', user: null });
     }
+});
+
+// Log in to account
+app.post('/api/comment', async (req, res) => {
+    const { username, content, gameId } = req.body;
+
+    // Error checking
+    if (!username || typeof username !== 'string') {
+        return res.json({
+            status: 'error',
+            type: 'username',
+            error: 'Invalid username'
+        })
+    }
+    if (!content || typeof content !== 'string') {
+        return res.json({
+            status: 'error',
+            type: 'content',
+            error: 'Invalid content'
+        })
+    }
+
+    return res.json({ status: 'error', error: 'Invalid username/password' });
 });
