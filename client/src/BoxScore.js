@@ -101,7 +101,10 @@ const generateTeamStats = (team) => {
             return (
                 <tr key={player.personId}>
                     <td>{player.nameI}</td>
-                    <td colSpan='20' style={{textAlign: 'center'}}>OUT{player.notPlayingDescription != undefined && player.notPlayingDescription != ''  ? ' - ' + player.notPlayingDescription : ''}</td>
+                    <td colSpan='20' style={{textAlign: 'center'}}>
+                        OUT
+                        {player.notPlayingDescription != undefined && player.notPlayingDescription != ''  ? ' - ' + player.notPlayingDescription : ''}
+                    </td>
                 </tr>
             )
         }

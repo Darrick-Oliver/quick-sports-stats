@@ -113,9 +113,11 @@ const Comments = (req) => {
                 <textarea id='comment-text' className='comment-textarea'/><br />
                 <div id='comment-err' className='comment-error-message'></div>
                 <Button id='submit-comment' variant='outline-success' onClick={() => handleSubmit(req.gameData.gameId).then((newComment) => {
-                    if (newComment) {
+                    if (newComment && comments) {
                         comments.push(newComment);
                         setComments([...comments]);
+                    } else if (newComment) {
+                        setComments([newComment]);
                     }
                 })}>Submit</Button>
             </div>
