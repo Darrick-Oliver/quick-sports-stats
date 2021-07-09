@@ -235,7 +235,7 @@ app.get('/api/me', async (req, res) => {
 });
 
 // Post a comment
-app.post('/api/post-comment', requireAuth, async (req, res) => {
+app.post('/api/comments/post', requireAuth, async (req, res) => {
     const { content, gameId } = req.body;
     const date = new Date();
     const username = res.locals.token.username;
@@ -270,14 +270,14 @@ app.post('/api/post-comment', requireAuth, async (req, res) => {
             gameId,
             date
         });
-        return res.json({ status: 'ok' });
+        return res.json({ status: 'ok', data: response });
     } catch (err) {
         return res.json({ status: 'error', error: 'Invalid content' });
     }
 });
 
 // Retrieve comments
-app.get('/api/comments/:gameId', async (req, res) => {
+app.get('/api/comments/get/:gameId', async (req, res) => {
     const gameId = req.params.gameId;
 
     const comments = await Comment.find({gameId: gameId});

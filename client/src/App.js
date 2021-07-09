@@ -4,7 +4,7 @@ import {Button} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import BoxScore from './BoxScore.js';
 import Login from './Login.js';
-import { submitComments, displayComments } from './comments.js';
+import Comments from './comments.js';
 
 let dateObj = new Date();
 const currDate = new Date();
@@ -39,7 +39,6 @@ const App = () => {
   const [gameData, setGameData] = useState(null);
   const [date, setDate] = useState(null);
   const [errmsg, setErrmsg] = useState(null);
-  const [comments, setComments] = useState(null);
   
   const api_url = `/api/nba`;
 
@@ -56,27 +55,29 @@ const App = () => {
       setGameData(null);
       setQueryURL(null);
     }
-    setComments(null);
   }
 
   // Date buttons handler
   const datePress = (dir) => {
-    dateObj.setDate(dateObj.getDate() + dir);
-    setDate(dateObj.toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit'}));
-    setGameData(null);
-    setData(null);
-    setQueryURL(null);
-    setErrmsg(null);
-    setComments(null);
+    if (data) {
+      dateObj.setDate(dateObj.getDate() + dir);
+      setDate(dateObj.toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit'}));
+      setGameData(null);
+      setData(null);
+      setQueryURL(null);
+      setErrmsg(null);
+    }
   }
 
+  // Set date to today
   const dateToday = () => {
-    dateObj.setTime(currDate.getTime());
-    setDate(dateObj.toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit'}));
-    setGameData(null);
-    setData(null);
-    setErrmsg(null);
-    setComments(null);
+    if (data) {
+      dateObj.setTime(currDate.getTime());
+      setDate(dateObj.toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit'}));
+      setGameData(null);
+      setData(null);
+      setErrmsg(null);
+    }
   }
 
   // Fetch from date
@@ -127,61 +128,52 @@ const App = () => {
     }
   }, [queryURL]);
 
-  // Fetch comments (WIP)
-  useEffect(() => {
-    if (gameData) {
-      fetch(`/api/comments/${gameData.gameId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.status === 'ok') {
-            setComments(data.comments);
-          }
-        })
-        .catch(err => {
-          console.error("Error fetching data:", err);
-        });
-    }
-  }, [gameData]);
-
   return (
-    <div className="App">
-      <div className="top">
+    <div className='App'>
+      <div className='top'>
         <h1>NBA Scores</h1>
         <Login />
       </div>
 
       <br style={{clear: 'both'}} />
-      <div className="nba">
+      <div className='nba'>
         <span id='controls'>
           <Button variant='success' onClick={() => datePress(-7)} title='Back 1 week'>{"<<"}</Button>{' '}
           <Button variant='success' onClick={() => datePress(-1)} title='Back 1 day'>{"<"}</Button>
-          <Button variant='link' style={{color: 'black'}} onClick={() => dateToday()}>{ date === new Date().toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit'}) ? "Today" : date }</Button>
+          <Button variant='link' style={{color: 'black'}} onClick={() => dateToday()}>{ date === new Date().toLocaleString('en-US', { 
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit'
+          }) ? 'Today' : date }</Button>
           <Button variant='success' onClick={() => datePress(1)} title='Forward 1 day'>{">"}</Button>{' '}
           <Button variant='success' onClick={() => datePress(7)} title='Forward 1 week'>{">>"}</Button>
         </span>
         <br />
         { !data && <img id='load' src={`${process.env.PUBLIC_URL}/assets/loading/load_ring.svg`} alt='Fetching data...' /> }
-        <div className="games">{!data ? '' : (
+        <div className='games'>{!data ? '' : (
           data.games.map(game => {
             return (
               <div key={game.gameId}>
-                <h2><img src={getImage(game.homeTeam.teamId)} alt={game.homeTeam.teamName} height='50'></img> {game.homeTeam.teamTricode} vs {game.awayTeam.teamTricode} <img src={getImage(game.awayTeam.teamId)} alt={game.awayTeam.teamName} height='50'></img></h2>
+                <h2>
+                  <img src={getImage(game.homeTeam.teamId)} alt={game.homeTeam.teamName} height='50'></img>
+                  {game.homeTeam.teamTricode} vs {game.awayTeam.teamTricode}
+                  <img src={getImage(game.awayTeam.teamId)} alt={game.awayTeam.teamName} height='50'></img>
+                </h2>
                 <p>{game.homeTeam.score} : {game.awayTeam.score}</p>
                 {getStatus(game)}
-                <Button variant="dark" onClick={() => boxPress(game)}>Box Score</Button>{' '}
+                <Button variant='dark' onClick={() => boxPress(game)}>Box Score</Button>{' '}
               </div>
             );
           })
         )}
         </div>
 
-        <div className="boxscore">
+        <div className='boxscore'>
           { gameData && <span><hr className='separator' /><br /></span> }
           { !gameData ? errmsg && <span><br /><h2>{errmsg}</h2></span> : BoxScore(gameData) }
         </div>
         { gameData && <hr className='separator' /> }
-        { gameData && submitComments(gameData.gameId) }
-        { comments && displayComments(comments) }
+        { gameData && <Comments gameData={gameData} /> }
       </div>
     </div>
   );

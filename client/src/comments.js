@@ -1,5 +1,5 @@
 import './comments.css';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {Button} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -19,20 +19,29 @@ const replyToComment = (id) => {
 }
 
 const displayComments = (comments) => {
+    // Sort comments by newest
+    comments = comments.sort((a, b) => {
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+    })
+
+
     return (
         <div className='comments-container'>
             {comments.map(comment => {
                 return (
                     <div className='comment' key={comment._id}>
-                        <p className='username'>{comment.username}</p>
-                        <p className='date'>
-                            {new Date(comment.date).toLocaleDateString() + ' '}
-                            {new Date(comment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
+                        <p className='tagline'>
+                            <span className='username'>{comment.username}</span>
+                            {' • '}
+                            <span className='date'>
+                                {new Date(comment.date).toLocaleDateString() + ' '}
+                                {new Date(comment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
+                            </span>
                         </p>
                         <p id={comment._id} className='content'>{comment.content}</p>
-                        <a className='comment-buttons' onClick={() => {editComment(comment._id)}}>edit</a>
-                        <a className='comment-buttons' onClick={() => {deleteComment(comment._id)}}>delete</a>
-                        <a className='comment-buttons' onClick={() => {replyToComment(comment._id)}}>reply</a>
+                        <button className='comment-buttons' onClick={() => {editComment(comment._id)}}>edit</button>
+                        <button className='comment-buttons' onClick={() => {deleteComment(comment._id)}}>delete</button>
+                        <button className='comment-buttons' onClick={() => {replyToComment(comment._id)}}>reply</button>
                     </div>
                 );
             })}
@@ -50,7 +59,7 @@ const handleSubmit = async (gameId) => {
     }
 
     // Submit comment
-    const result = await fetch('/api/post-comment', {
+    const result = await fetch('/api/comments/post', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -71,17 +80,48 @@ const handleSubmit = async (gameId) => {
 
     // Clear textarea
     document.getElementById('comment-text').value = '';
+
+    // Refresh comments
+    return result.data;
 }
 
-const submitComments = (gameId) => {
+const Comments = (req) => {
+    const [ comments, setComments ] = useState(null);
+
+    // Fetch comments
+    useEffect(() => {
+        fetch(`/api/comments/get/${req.gameData.gameId}`)
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.status === 'ok') {
+                    setComments(data.comments);
+                }
+            })
+            .catch(err => {
+                console.error("Error fetching data:", err);
+            });
+    }, [req]);
+
+    useEffect(() => {
+
+    }, [comments]);
+
     return (
-        <div className='submit-comment-container'>
-            <h1>Comments</h1>
-            <textarea id='comment-text' className='comment-textarea'/><br />
-            <div id='comment-err' className='comment-error-message'></div>
-            <Button id='submit-comment' variant='outline-success' onClick={() => handleSubmit(gameId)}>Submit</Button>
+        <div>
+            <div className='submit-comment-container'>
+                <h1>Comments</h1>
+                <textarea id='comment-text' className='comment-textarea'/><br />
+                <div id='comment-err' className='comment-error-message'></div>
+                <Button id='submit-comment' variant='outline-success' onClick={() => handleSubmit(req.gameData.gameId).then((newComment) => {
+                    if (newComment) {
+                        comments.push(newComment);
+                        setComments([...comments]);
+                    }
+                })}>Submit</Button>
+            </div>
+            {comments && displayComments(comments)}
         </div>
     );
 }
 
-export { submitComments, displayComments };
+export default Comments;

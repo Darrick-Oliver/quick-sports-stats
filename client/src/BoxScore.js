@@ -191,35 +191,32 @@ const generateScores = (home, away) => {
  *  Creates the box score for the given game
  */
 const BoxScore = (game) => {
-    if (game) {
-        let scoreHome = game.homeTeam.score;
-        let scoreAway = game.awayTeam.score;
+    let scoreHome = game.homeTeam.score;
+    let scoreAway = game.awayTeam.score;
 
-        // Creating the Box Score Area
-        return (
-            <div>
-                <div className="scoring-card">
-                    <h2>Scoring by Quarter</h2>
-                    <div className="table-container">
-                        {generateScores(game.homeTeam, game.awayTeam)}
-                    </div>
-                </div>
-                <div className="card">
-                    <h2><img src={getImage(game.homeTeam.teamId)} height='50' alt={game.homeTeam.teamName}></img> {game.homeTeam.teamCity} {game.homeTeam.teamName}</h2>
-                    <div className="table-container">
-                        {generateTable('home', game.homeTeam.players, scoreHome, scoreAway)}
-                    </div>
-                </div>
-                <div className="card">
-                    <h2><img src={getImage(game.awayTeam.teamId)} height='50' alt={game.awayTeam.teamName}></img> {game.awayTeam.teamCity} {game.awayTeam.teamName}</h2>
-                    <div className="table-container">
-                        {generateTable('away', game.awayTeam.players, scoreAway, scoreHome)}
-                    </div>
+    // Creating the Box Score Area
+    return (
+        <div>
+            <div className="scoring-card">
+                <h2>Scoring by Quarter</h2>
+                <div className="table-container">
+                    {generateScores(game.homeTeam, game.awayTeam)}
                 </div>
             </div>
-        )
-    }
-    return;
+            <div className="card">
+                <h2><img src={getImage(game.homeTeam.teamId)} height='50' alt={game.homeTeam.teamName}></img> {game.homeTeam.teamCity} {game.homeTeam.teamName}</h2>
+                <div className="table-container">
+                    {generateTable('home', game.homeTeam.players, scoreHome, scoreAway)}
+                </div>
+            </div>
+            <div className="card">
+                <h2><img src={getImage(game.awayTeam.teamId)} height='50' alt={game.awayTeam.teamName}></img> {game.awayTeam.teamCity} {game.awayTeam.teamName}</h2>
+                <div className="table-container">
+                    {generateTable('away', game.awayTeam.players, scoreAway, scoreHome)}
+                </div>
+            </div>
+        </div>
+    );
 }
 
 export default BoxScore;

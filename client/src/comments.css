@@ -48,12 +48,14 @@
 }
 
 .username {
-  color: black;
+  font-size: 15px;
+  font-weight: bold;
+  color: #777daf;
 }
 
 .date {
-  font-style: italic;
-  color:#8f8f8f;
+  font-size: 15px;
+  color: #8f8f8f;
   margin-top: -15px;
 }
 
@@ -73,13 +75,16 @@
   transition: 0.3s;
 }
 
-.comment:hover {
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-}
+/* .comment:hover > .content {
+  background-color: #e9e9e9;
+} */
 
 .comment-buttons {
-  margin-right: 10px;
+  font-size: 15px;
+  font-weight: bold;
   color: grey;
+  border: none;
+  background: none;
 }
 
 .comment-buttons:hover {
