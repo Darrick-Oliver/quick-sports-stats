@@ -12,7 +12,7 @@ const requireAuth = (req, res, next) => {
         if (parts.length === 2)
             token = parts.pop().split(';').shift();
         else
-            return res.json({ status: 'error', error: 'You must be logged in to comment'});
+            return res.json({ status: 'error', error: 'You must be logged in to do that'});
 
         // Verify token
         jwt.verify(token, process.env.JWT_SECRET, async (err, decodedToken) => {
@@ -26,7 +26,7 @@ const requireAuth = (req, res, next) => {
             }
         });
     } else {
-        return res.json({ status: 'error', error: 'You must be logged in to comment'});
+        return res.json({ status: 'error', error: 'You must be logged in to do that'});
     }
 }
 

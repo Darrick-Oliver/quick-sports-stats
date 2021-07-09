@@ -286,6 +286,25 @@ app.get('/api/comments/get/:gameId', async (req, res) => {
         return res.json({ status: 'ok', comments: comments });
     } else {
         // Return nothing
-        return res.json({ status: 'error', comments: null });
+        return res.json({ status: 'error', error: 'No comments', comments: null });
+    }
+});
+
+// Retrieve comments
+app.get('/api/comments/:_id/delete', requireAuth, async (req, res) => {
+    const _id = req.params._id;
+
+    const comment = await Comment.find({_id: _id});
+    if (comment.length && (res.locals.token.username !== comment[0].username)) {
+        return res.json({ status: 'error', error: 'You cannot delete other users\' comments' });
+    } else if (!comment.length) {
+        return res.json({ status: 'error', error: 'Comment does not exist' });
+    }
+
+    try {
+        await Comment.deleteOne({_id: _id});
+        return res.json({ status: 'ok' });
+    } catch (err) {
+        return res.json({ status: 'error', error: err })
     }
 });
