@@ -1,4 +1,4 @@
-.comment-container {
+.submit-comment-container {
   text-align: left;
   margin-top: 30px;
   margin-left: 50px;
@@ -20,6 +20,10 @@
   background-color: #ffffff;
 }
 
+.comment-textarea:hover {
+  background-color: #ffffff;
+}
+
 #submit-comment {
   border-color: #8f8f8f;
   color: #8f8f8f;
@@ -34,4 +38,61 @@
   margin-bottom: 0.3rem;
   font-size: 0.85rem;
   color: #cc3333;
+}
+
+.comments-container {
+  text-align: left;
+  margin-top: 30px;
+  margin-left: 60px;
+  white-space: pre-wrap;
+}
+
+.username {
+  color: black;
+}
+
+.date {
+  font-style: italic;
+  color:#8f8f8f;
+  margin-top: -15px;
+}
+
+.content {
+  margin-top: -10px;
+  margin-left: 10px;
+  margin-bottom: 5px;
+}
+
+.comment {
+  padding: 15px;
+  margin-top: 20px;
+  border: 1px solid #e4e4e4;
+  border-radius: 5px;
+  width: 90%;
+  overflow-wrap: break-word;
+  transition: 0.3s;
+}
+
+.comment:hover {
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.comment-buttons {
+  margin-right: 10px;
+  color: grey;
+}
+
+.comment-buttons:hover {
+  color: rgb(65, 65, 65);
+  cursor: pointer;
+}
+
+@media (max-width: 550px) {
+  .comment-textarea {
+    width: 75%;
+  }
+
+  .comment {
+    margin-left: -15px;
+  }
 }

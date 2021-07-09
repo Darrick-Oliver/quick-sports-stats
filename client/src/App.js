@@ -4,7 +4,7 @@ import {Button} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import BoxScore from './BoxScore.js';
 import Login from './Login.js';
-import { displayComments } from './comments.js';
+import { submitComments, displayComments } from './comments.js';
 
 let dateObj = new Date();
 const currDate = new Date();
@@ -56,6 +56,7 @@ const App = () => {
       setGameData(null);
       setQueryURL(null);
     }
+    setComments(null);
   }
 
   // Date buttons handler
@@ -66,6 +67,7 @@ const App = () => {
     setData(null);
     setQueryURL(null);
     setErrmsg(null);
+    setComments(null);
   }
 
   const dateToday = () => {
@@ -74,6 +76,7 @@ const App = () => {
     setGameData(null);
     setData(null);
     setErrmsg(null);
+    setComments(null);
   }
 
   // Fetch from date
@@ -157,7 +160,7 @@ const App = () => {
           <Button variant='success' onClick={() => datePress(7)} title='Forward 1 week'>{">>"}</Button>
         </span>
         <br />
-        {!data ? <img id='load' src={`${process.env.PUBLIC_URL}/assets/loading/load_ring.svg`} alt='Fetching data...' /> : ''}
+        { !data && <img id='load' src={`${process.env.PUBLIC_URL}/assets/loading/load_ring.svg`} alt='Fetching data...' /> }
         <div className="games">{!data ? '' : (
           data.games.map(game => {
             return (
@@ -173,10 +176,12 @@ const App = () => {
         </div>
 
         <div className="boxscore">
-          {!gameData ? errmsg && <span><br /><h2>{errmsg}</h2></span> : BoxScore(gameData) }
-          {gameData && <hr /> }
-          {gameData && displayComments(gameData.gameId)}
+          { gameData && <span><hr className='separator' /><br /></span> }
+          { !gameData ? errmsg && <span><br /><h2>{errmsg}</h2></span> : BoxScore(gameData) }
         </div>
+        { gameData && <hr className='separator' /> }
+        { gameData && submitComments(gameData.gameId) }
+        { comments && displayComments(comments) }
       </div>
     </div>
   );

@@ -198,8 +198,6 @@ const BoxScore = (game) => {
         // Creating the Box Score Area
         return (
             <div>
-                <hr />
-                <br />
                 <div className="scoring-card">
                     <h2>Scoring by Quarter</h2>
                     <div className="table-container">

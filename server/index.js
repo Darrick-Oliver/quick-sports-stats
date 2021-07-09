@@ -36,9 +36,7 @@ app.get('/api/nba', async (req, res) => {
         if (!json.scoreboard.games.length) {
             return res.json({ status: 'error', error: 'No games scheduled', data: {games: []} });
         }
-        console.log("Fetched scoreboard");
     } catch (err) {
-        console.log(err);
         return res.json({ status: 'error', error: err, data: {games: []} });
     }
 
@@ -52,9 +50,7 @@ app.get('/api/nba/:gameId', async (req, res) => {
     try {
         const fetch_response = await fetch(api_url);
         json = await fetch_response.json();
-        console.log(`Fetched ${req.params.gameId}`);
     } catch (err) {
-        console.log(err);
         return res.json({ status: 'error', error: err, data: null });
     }
 
@@ -78,9 +74,7 @@ app.get('/api/nba/date/:date', async (req, res) => {
         if (!json.scoreboard.games.length) {
             return res.json({ status: 'error', error: 'No games scheduled', data: {games: []} });
         }
-        console.log(`Fetched ${req.params.date}`);
     } catch (err) {
-        console.log(err);
         return res.json({ status: 'error', error: err, data: {games: []} });
     }
 
@@ -146,7 +140,6 @@ app.post('/api/register', async (req, res) => {
             password,
             admin: false
         });
-        console.log(`${username} has been created`);
     } catch (err) {
         if (err.code === 11000) {
             // Duplicate key
@@ -165,8 +158,6 @@ app.post('/api/register', async (req, res) => {
                 });
             }
         }
-        // Unknown error
-        console.log(err);
     }
 
     return res.json({ status: 'ok' });
@@ -232,11 +223,9 @@ app.get('/api/me', async (req, res) => {
         // Verify token
         jwt.verify(token, process.env.JWT_SECRET, async (err, decodedToken) => {
             if (err) {
-                console.log(err.message);
                 return res.json({ status: 'error', error: err.message, user: null });
             } else {
                 const user = await User.findById(decodedToken.id);
-                console.log(`Fetched ${user.username}`);
                 return res.json({ status: 'ok', user: user.username });
             }
         });
@@ -281,22 +270,22 @@ app.post('/api/post-comment', requireAuth, async (req, res) => {
             gameId,
             date
         });
-        console.log(`${username} commented on ${gameId}`);
         return res.json({ status: 'ok' });
     } catch (err) {
-        console.log(err);
+        return res.json({ status: 'error', error: 'Invalid content' });
     }
-
-    return res.json({ status: 'error', error: 'Invalid content' });
 });
 
 // Retrieve comments
 app.get('/api/comments/:gameId', async (req, res) => {
-    const gameId = req.params.gameId
-    console.log(gameId);
+    const gameId = req.params.gameId;
 
     const comments = await Comment.find({gameId: gameId});
-    console.log(comments);
-
-    return res.json({ status: 'error', error: 'Unknown' });
+    if (comments.length > 0) {
+        // Return all comments
+        return res.json({ status: 'ok', comments: comments });
+    } else {
+        // Return nothing
+        return res.json({ status: 'error', comments: null });
+    }
 });
