@@ -127,10 +127,12 @@ const App = () => {
   // Fetch comments (WIP)
   useEffect(() => {
     if (gameData) {
-      fetch('/api/get-comments')
+      fetch(`/api/comments/${gameData.gameId}`)
         .then((res) => res.json())
         .then((data) => {
-
+          if (data.status === 'ok') {
+            setComments(data.comments);
+          }
         })
         .catch(err => {
           console.error("Error fetching data:", err);

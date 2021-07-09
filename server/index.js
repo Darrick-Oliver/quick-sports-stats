@@ -246,7 +246,7 @@ app.get('/api/me', async (req, res) => {
 });
 
 // Post a comment
-app.post('/api/comment', requireAuth, async (req, res) => {
+app.post('/api/post-comment', requireAuth, async (req, res) => {
     const { content, gameId } = req.body;
     const date = new Date();
     const username = res.locals.token.username;
@@ -291,6 +291,12 @@ app.post('/api/comment', requireAuth, async (req, res) => {
 });
 
 // Retrieve comments
-app.get('/api/get-comments', async (req, res) => {
-    return res.json({ status: 'ok' });
+app.get('/api/comments/:gameId', async (req, res) => {
+    const gameId = req.params.gameId
+    console.log(gameId);
+
+    const comments = await Comment.find({gameId: gameId});
+    console.log(comments);
+
+    return res.json({ status: 'error', error: 'Unknown' });
 });

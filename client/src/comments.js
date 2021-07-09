@@ -24,10 +24,8 @@ const handleSubmit = async (gameId) => {
         return;
     }
 
-    // console.log(content);
-
     // Submit comment
-    const result = await fetch('/api/comment', {
+    const result = await fetch('/api/post-comment', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
