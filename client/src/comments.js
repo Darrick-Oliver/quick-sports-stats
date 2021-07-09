@@ -5,35 +5,57 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const MAXLEN = 200;
 
-const getComments = () => {
+const getComments = (comments) => {
+    console.log(comments);
 
+    return (
+        <div className='all-comments-container'>
+            test
+        </div>
+    );
 }
 
-const handleSubmit = () => {
-    const text = document.getElementById('comment-text').value;
+const handleSubmit = async (gameId) => {
+    const content = document.getElementById('comment-text').value;
 
-    console.log(text.length);
+    // Error checking
+    if (content.length > MAXLEN) {
+        document.getElementById('comment-err').innerHTML = `Number of characters exceeds maximum: (${content.length}/${MAXLEN})` ;
+        return;
+    }
 
-    if (text.length > MAXLEN) {
-        document.getElementById('comment-err').innerHTML = `Number of characters exceeds maximum: (${text.length}/${MAXLEN})` ;
+    // console.log(content);
+
+    // Submit comment
+    const result = await fetch('/api/comment', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            content,
+            gameId
+        })
+    }).then((res) => res.json());
+
+    // Check for errors
+    if (result.status === 'error') {
+        document.getElementById('comment-err').innerHTML = `${result.error}` ;
         return;
     } else {
         document.getElementById('comment-err').innerHTML = '';
     }
-    
-    // Later will submit comment (verify user is logged in)
-    console.log(text);
 }
 
-const displayComments = () => {
+const displayComments = (gameId, comments) => {
     return (
         <div className='comment-container'>
             <h1>Comments</h1>
             <textarea id='comment-text' className='comment-textarea'/><br />
             <div id='comment-err' className='comment-error-message'></div>
-            <Button id='submit-comment' variant='outline-success' onClick={() => handleSubmit()}>Submit</Button>
+            <Button id='submit-comment' variant='outline-success' onClick={() => handleSubmit(gameId)}>Submit</Button>
         </div>
     );
 }
 
-export { getComments, displayComments };
+export { displayComments };

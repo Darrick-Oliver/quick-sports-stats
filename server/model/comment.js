@@ -5,6 +5,6 @@ const CommentSchema = new mongoose.Schema({
     content: { type: String, required: true },
     gameId: { type: Number, required: true },
     date: { type: Date, required: true }
-}, { collection: 'users'} );
+}, { collection: 'comments'} );
 
 module.exports = mongoose.model('CommentSchema', CommentSchema);

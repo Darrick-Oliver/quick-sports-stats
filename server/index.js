@@ -6,7 +6,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const User = require('./model/user');
-// const { requireAuth, checkUser } = require('./middleware/authMiddleware');
+const Comment = require('./model/comment');
+const { requireAuth } = require('./middleware/authMiddleware');
 
 require('dotenv').config();
 
@@ -96,42 +97,42 @@ app.post('/api/register', async (req, res) => {
             status: 'error',
             type: 'username',
             error: 'Invalid username'
-        })
+        });
     }
     if (!email || typeof email !== 'string') {
         return res.json({
             status: 'error',
             type: 'email',
             error: 'Invalid email'
-        })
+        });
     }
     if (!pass || typeof pass !== 'string') {
         return res.json({
             status: 'error',
             type: 'password',
             error: 'Invalid password'
-        })
+        });
     }
     if (pass.length < 6) {
         return res.json({
             status: 'error',
             type: 'password',
             error: 'Password too short. Should be at least 6 characters.'
-        })
+        });
     }
     if (username.length < 4) {
         return res.json({
             status: 'error',
             type: 'username',
             error: 'Username too short. Should be at least 4 characters.'
-        })
+        });
     }
     if (username.length > 20) {
         return res.json({
             status: 'error',
             type: 'username',
             error: 'Username too long. Should be no more than 20 characters.'
-        })
+        });
     }
 
     // Hash password
@@ -142,7 +143,8 @@ app.post('/api/register', async (req, res) => {
         const response = await User.create({
             username,
             email,
-            password
+            password,
+            admin: false
         });
         console.log(`${username} has been created`);
     } catch (err) {
@@ -191,7 +193,8 @@ app.post('/api/login', async (req, res) => {
         // Passwords match
         const token = jwt.sign({
             id: user._id,
-            username: user.username
+            username: user.username,
+            admin: user.admin
         }, process.env.JWT_SECRET, {
             expiresIn: '3d'
         });
@@ -242,9 +245,11 @@ app.get('/api/me', async (req, res) => {
     }
 });
 
-// Log in to account
-app.post('/api/comment', async (req, res) => {
-    const { username, content, gameId } = req.body;
+// Post a comment
+app.post('/api/comment', requireAuth, async (req, res) => {
+    const { content, gameId } = req.body;
+    const date = new Date();
+    const username = res.locals.token.username;
 
     // Error checking
     if (!username || typeof username !== 'string') {
@@ -252,15 +257,40 @@ app.post('/api/comment', async (req, res) => {
             status: 'error',
             type: 'username',
             error: 'Invalid username'
-        })
+        });
     }
-    if (!content || typeof content !== 'string') {
+    if (!content) {
+        return res.json({
+            status: 'error',
+            type: 'content',
+            error: 'Comment cannot be empty'
+        });
+    } else if (typeof content !== 'string') {
         return res.json({
             status: 'error',
             type: 'content',
             error: 'Invalid content'
-        })
+        });
     }
 
-    return res.json({ status: 'error', error: 'Invalid username/password' });
+    // Create comment
+    try {
+        const response = await Comment.create({
+            username,
+            content,
+            gameId,
+            date
+        });
+        console.log(`${username} commented on ${gameId}`);
+        return res.json({ status: 'ok' });
+    } catch (err) {
+        console.log(err);
+    }
+
+    return res.json({ status: 'error', error: 'Invalid content' });
+});
+
+// Retrieve comments
+app.get('/api/get-comments', async (req, res) => {
+    return res.json({ status: 'ok' });
 });

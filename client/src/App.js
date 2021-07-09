@@ -39,6 +39,7 @@ const App = () => {
   const [gameData, setGameData] = useState(null);
   const [date, setDate] = useState(null);
   const [errmsg, setErrmsg] = useState(null);
+  const [comments, setComments] = useState(null);
   
   const api_url = `/api/nba`;
 
@@ -111,8 +112,9 @@ const App = () => {
       fetch(queryURL)
         .then((res) => res.json())
         .then((gameData) => {
-          if (gameData.status === 'ok')
+          if (gameData.status === 'ok') {
             setGameData(gameData.data);
+          }
           else
             setErrmsg("Box score unavailable");
         })
@@ -121,6 +123,20 @@ const App = () => {
         });
     }
   }, [queryURL]);
+
+  // Fetch comments (WIP)
+  useEffect(() => {
+    if (gameData) {
+      fetch('/api/get-comments')
+        .then((res) => res.json())
+        .then((data) => {
+
+        })
+        .catch(err => {
+          console.error("Error fetching data:", err);
+        });
+    }
+  }, [gameData]);
 
   return (
     <div className="App">
@@ -144,12 +160,12 @@ const App = () => {
           data.games.map(game => {
             return (
               <div key={game.gameId}>
-              <h2><img src={getImage(game.homeTeam.teamId)} alt={game.homeTeam.teamName} height='50'></img> {game.homeTeam.teamTricode} vs {game.awayTeam.teamTricode} <img src={getImage(game.awayTeam.teamId)} alt={game.awayTeam.teamName} height='50'></img></h2>
-              <p>{game.homeTeam.score} : {game.awayTeam.score}</p>
-              {getStatus(game)}
-              <Button variant="dark" onClick={() => boxPress(game)}>Box Score</Button>{' '}
+                <h2><img src={getImage(game.homeTeam.teamId)} alt={game.homeTeam.teamName} height='50'></img> {game.homeTeam.teamTricode} vs {game.awayTeam.teamTricode} <img src={getImage(game.awayTeam.teamId)} alt={game.awayTeam.teamName} height='50'></img></h2>
+                <p>{game.homeTeam.score} : {game.awayTeam.score}</p>
+                {getStatus(game)}
+                <Button variant="dark" onClick={() => boxPress(game)}>Box Score</Button>{' '}
               </div>
-            )
+            );
           })
         )}
         </div>
@@ -157,10 +173,9 @@ const App = () => {
         <div className="boxscore">
           {!gameData ? errmsg && <span><br /><h2>{errmsg}</h2></span> : BoxScore(gameData) }
           {gameData && <hr /> }
-          {gameData && displayComments()}
+          {gameData && displayComments(gameData.gameId)}
         </div>
       </div>
-
     </div>
   );
 }

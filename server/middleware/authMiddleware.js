@@ -1,46 +1,33 @@
 const jwt = require('jsonwebtoken');
 const User = require('../model/user');
 
-// Broken
 const requireAuth = (req, res, next) => {
-    const token = req.cookies.jwt;
+    let cookies = req.headers.cookie;
 
-    if (token) {
+    if (cookies) {
+        // Extract jwt token from cookies
+        let token = null;
+        const value = `; ${cookies}`;
+        const parts = value.split('; jwt=');
+        if (parts.length === 2)
+            token = parts.pop().split(';').shift();
+        else
+            return res.json({ status: 'error', error: 'You must be logged in to comment'});
+
+        // Verify token
         jwt.verify(token, process.env.JWT_SECRET, async (err, decodedToken) => {
             if (err) {
                 console.log(err.message);
-                next();
+                return res.json({ status: 'error', error: err.message});
             } else {
-                console.log(decodedToken);
+                // Set token and call next function
+                res.locals.token = decodedToken;
                 next();
             }
         });
     } else {
-        console.log("No user found");
-        return res.json({ status: 'error', error: 'Token not found', user: null });
+        return res.json({ status: 'error', error: 'You must be logged in to comment'});
     }
 }
 
-const checkUser = (req, res, next) => {
-    const token = req.cookies.jwt;
-
-    if (token) {
-        jwt.verify(token, process.env.JWT_SECRET, async (err, decodedToken) => {
-            if (err) {
-                console.log(err.message);
-                res.locals.user = null;
-                next();
-            } else {
-                console.log(decodedToken);
-                const user = await User.findById(decodedToken.id);
-                res.locals.user = user;
-                next();
-            }
-        });
-    } else {
-        res.locals.user = null;
-        next();
-    }
-}
-
-module.exports = { requireAuth, checkUser };
+module.exports = { requireAuth };
