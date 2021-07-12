@@ -191,10 +191,10 @@ const Login = () => {
     
     return (
         <div>
-                <span className='header-login'>
-                    {user ? `Logged in as ${user}` : <Button variant='link' style={{color: "white"}} onClick={() => setLP(!logPopup)} title='Log in'>Log in</Button> }
-                    {user ? <Button variant='link' style={{color: "white"}} onClick={() => logOut()} title='Log out'>Log out</Button> : <Button variant='success' onClick={() => setRP(!regPopup)} title='Sign Up'>Sign up</Button>}
-                </span>
+            <span className='header-login'>
+                {user ? `Logged in as ${user}` : <Button variant='link' style={{color: "white"}} onClick={() => setLP(!logPopup)} title='Log in'>Log in</Button> }
+                {user ? <Button variant='link' style={{color: "white"}} onClick={() => logOut()} title='Log out'>Log out</Button> : <Button variant='success' onClick={() => setRP(!regPopup)} title='Sign Up'>Sign up</Button>}
+            </span>
             <Modal
                 className='rcontainer'
                 overlayClassName='rcontainer-overlay'

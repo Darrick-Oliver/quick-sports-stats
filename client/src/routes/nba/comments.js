@@ -2,6 +2,8 @@ import './comments.css';
 import React, { useState, useEffect } from 'react';
 import {Button} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+const Filter = require('bad-words'),
+    filter = new Filter({ placeHolder: '█'});
 
 const MAXLEN = 500;
 
@@ -117,7 +119,7 @@ const Comments = (req) => {
                                     {new Date(comment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
                                 </span>
                             </p>
-                            <p id={comment._id} className='content'>{comment.content}</p>
+                            <p id={comment._id} className='content'>{filter.clean(comment.content)}</p>
                             <button className='comment-buttons' onClick={() => {editComment(comment._id)}}>edit</button>
                             <button className='comment-buttons' onClick={() => {deleteComment(comment._id).then((status) => {
                                 // Delete comment from comments if it was deleted from server
