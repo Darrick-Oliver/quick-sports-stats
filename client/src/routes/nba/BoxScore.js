@@ -193,7 +193,9 @@ const generateScores = (home, away) => {
 /**
  *  Creates the box score for the given game
  */
-const BoxScore = (game) => {
+const BoxScore = (data) => {
+    const game = data.gameData;
+
     let scoreHome = game.homeTeam.score;
     let scoreAway = game.awayTeam.score;
 

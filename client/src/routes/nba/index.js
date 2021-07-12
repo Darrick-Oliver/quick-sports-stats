@@ -35,12 +35,11 @@ const NBA = () => {
     const [data, setData] = useState(null);
     const [queryURL, setQueryURL] = useState(null);
     const [gameData, setGameData] = useState(null);
+    const [giTemp, setGITemp] = useState(null);
     const [date, setDate] = useState(null);
     const [errmsg, setErrmsg] = useState(null);
-    
-    const api_url = `/api/nba`;
-
-    document.title = 'NBA Scores';
+    const [gameInfo, setGameInfo] = useState(null);
+    const [boxClicked, setBoxClicked] = useState(false);
   
     // Initialize date
     if (!date)
@@ -53,12 +52,18 @@ const NBA = () => {
   
     // Box score button handler
     const boxPress = (game) => {
-        const url = `${api_url}/${game.gameId}`;
-        if (queryURL !== url)
+        const url = `/api/nba/${game.gameId}`;
+        setGameInfo(null);
+        setGameData(null);
+        setGITemp(game);
+        console.log(game);
+        if (queryURL !== url) {
             setQueryURL(url);
+            setBoxClicked(true);
+        }
         else {
-            setGameData(null);
             setQueryURL(null);
+            setBoxClicked(false);
         }
     }
   
@@ -71,6 +76,8 @@ const NBA = () => {
             setData(null);
             setQueryURL(null);
             setErrmsg(null);
+            setBoxClicked(false);
+            setGameInfo(null);
         }
     }
   
@@ -82,6 +89,8 @@ const NBA = () => {
             setGameData(null);
             setData(null);
             setErrmsg(null);
+            setBoxClicked(false);
+            setGameInfo(null);
         }
     }
   
@@ -96,9 +105,9 @@ const NBA = () => {
             const year = dateObj.getFullYear();
 
             if (dateObj.toLocaleString('en-US', options) === currDate.toLocaleString('en-US', options)) {
-                url = api_url;
+                url = '/api/nba';
             } else {
-                url =  `${api_url}/date/${month}${day}${year}`;
+                url =  `/api/nba/date/${month}${day}${year}`;
             }
 
             fetch(url)
@@ -113,7 +122,7 @@ const NBA = () => {
                 console.error(data);
             });
         }
-    }, [api_url, data]);
+    }, [data]);
 
     // Fetch box score
     useEffect(() => {
@@ -121,6 +130,7 @@ const NBA = () => {
             fetch(queryURL)
             .then((res) => res.json())
             .then((gameData) => {
+                setGameInfo(giTemp);
                 if (gameData.status === 'ok')
                     setGameData(gameData.data);
                 else
@@ -130,23 +140,18 @@ const NBA = () => {
                 console.error("Error fetching data: ", err);
             });
         }
-    }, [queryURL]);
+    }, [queryURL, giTemp]);
 
     return (
         <div className='body-container'>
             <span id='controls'>
                 <Button variant='success' onClick={() => datePress(-7)} title='Back 1 week'>{"<<"}</Button>{' '}
                 <Button variant='success' onClick={() => datePress(-1)} title='Back 1 day'>{"<"}</Button>
-                <Button variant='link' style={{color: 'black'}} onClick={() => dateToday()}>{ date === new Date().toLocaleString('en-US', { 
-                    year: 'numeric', 
-                    month: '2-digit', 
-                    day: '2-digit'
-                }) ? 'Today' : date }</Button>
+                <Button variant='link' style={{color: 'black'}} onClick={() => dateToday()}>{date}</Button>
                 <Button variant='success' onClick={() => datePress(1)} title='Forward 1 day'>{">"}</Button>{' '}
                 <Button variant='success' onClick={() => datePress(7)} title='Forward 1 week'>{">>"}</Button>
             </span>
             <br />
-            { !data && <img id='load' src={`${process.env.PUBLIC_URL}/assets/loading/load_ring.svg`} alt='Fetching data...' /> }
             <div className='games'>{!data ? '' : (
                 data.games.map(game => {
                     return (
@@ -163,13 +168,15 @@ const NBA = () => {
                     );
                 })
             )}</div>
+            { (!data || (boxClicked && (!gameData && !errmsg))) && <img id='load' src={`${process.env.PUBLIC_URL}/assets/loading/load_ring.svg`} alt='Fetching data...' /> }
 
             <div className='boxscore'>
-                { gameData && <span><hr className='separator' /><br /></span> }
-                { !gameData ? errmsg && <span><br /><h2>{errmsg}</h2></span> : BoxScore(gameData) }
+                { gameData && boxClicked && <span><hr className='separator' /><br /></span> }
+                { !gameData ? (errmsg === 'No games scheduled' ? <span><br /><h2>{errmsg}</h2></span> : boxClicked && <span><br /><h2>{errmsg}</h2></span> )
+                            : <BoxScore gameData={gameData} /> }
             </div>
-            { gameData && <hr className='separator' /> }
-            { gameData && <Comments gameData={gameData} /> }
+            { boxClicked && <hr className='separator' /> }
+            { boxClicked && gameInfo && <Comments id={gameInfo.gameId} type='nba' /> }
         </div>
     );
 }

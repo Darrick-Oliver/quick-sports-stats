@@ -8,21 +8,26 @@ import BoxScore from './BoxScore.js';
 let dateObj = new Date();
 const currDate = new Date();
 
+// Gets requested logo from public folder
 const getImage = (name) => {
     return `${process.env.PUBLIC_URL}/assets/images/mls_logos/${name}.svg`;
 }
 
+// Returns the score of the game
 const getScore = (scoreboard, id) => {
-    // Must be == instead of === because one is int, other is string
+    // Get corresponding scoreboard for game id
     const gameInd = scoreboard.findIndex((f) => { return f.game_id == id; });
     if (gameInd > -1) {
+        // Scoreboard found
         const gameScore = scoreboard[gameInd];
         return <p>{gameScore.home_club_match.score ? gameScore.home_club_match.score : 0} : {gameScore.away_club_match.score ? gameScore.away_club_match.score : 0}</p>;
     } else {
+        // Still fetching scoreboard
         return <p>Fetching...</p>;
     }
 }
 
+// Returns the game status
 const getStatus = (scoreboard, id) => {
     const gameInd = scoreboard.findIndex((f) => { return f.game_id == id; })
     if (gameInd > -1) {
@@ -45,6 +50,7 @@ const MLS = () => {
     const [gameInfo, setGameInfo] = useState(null);
     const [date, setDate] = useState(null);
     const [errmsg, setErrmsg] = useState(null);
+    const [boxClicked, setBoxClicked] = useState(false);
   
     // Initialize date
     if (!date)
@@ -58,13 +64,14 @@ const MLS = () => {
     // Box score button handler
     const boxPress = (game) => {
         const url = `/api/mls/game/${game.optaId}/boxscore`;
+        setGameInfo(null);
         if (queryURL !== url) {
             setQueryURL(url);
             setGITemp(game);
+            setBoxClicked(true);
         } else {
-            setGameData(null);
-            setGameInfo(null);
             setQueryURL(null);
+            setBoxClicked(false);
         }
     }
   
@@ -78,6 +85,7 @@ const MLS = () => {
             setErrmsg(null);
             setScoreboards(null);
             setGameInfo(null);
+            setBoxClicked(false);
         }
     }
   
@@ -91,10 +99,11 @@ const MLS = () => {
             setErrmsg(null);
             setScoreboards(null);
             setGameInfo(null);
+            setBoxClicked(false);
         }
     }
   
-    // Fetch from date
+    // Fetch games data from date
     useEffect(() => {
         if (!data) {
             const month = ("0" + (dateObj.getMonth() + 1)).slice(-2);
@@ -149,10 +158,9 @@ const MLS = () => {
             fetch(queryURL)
             .then((res) => res.json())
             .then((gameData) => {
-                if (gameData.status === 'ok') {
+                setGameInfo(giTemp);
+                if (gameData.status === 'ok')
                     setGameData(gameData.data);
-                    setGameInfo(giTemp);
-                }
                 else
                     setErrmsg("Box score unavailable");
             })
@@ -160,23 +168,18 @@ const MLS = () => {
                 console.error("Error fetching data: ", err);
             });
         }
-    }, [queryURL]);
+    }, [queryURL, giTemp]);
 
     return (
         <div className='body-container'>
             <span id='controls'>
                 <Button variant='success' onClick={() => datePress(-7)} title='Back 1 week'>{"<<"}</Button>{' '}
                 <Button variant='success' onClick={() => datePress(-1)} title='Back 1 day'>{"<"}</Button>
-                <Button variant='link' style={{color: 'black'}} onClick={() => dateToday()}>{ date === new Date().toLocaleString('en-US', { 
-                    year: 'numeric', 
-                    month: '2-digit', 
-                    day: '2-digit'
-                }) ? 'Today' : date }</Button>
+                <Button variant='link' style={{color: 'black'}} onClick={() => dateToday()}>{date}</Button>
                 <Button variant='success' onClick={() => datePress(1)} title='Forward 1 day'>{">"}</Button>{' '}
                 <Button variant='success' onClick={() => datePress(7)} title='Forward 1 week'>{">>"}</Button>
             </span>
             <br />
-            { !data && <img id='load' src={`${process.env.PUBLIC_URL}/assets/loading/load_ring.svg`} alt='Fetching data...' /> }
             <div className='games'>{data && scoreboards && (
                 data.map(game => {
                     return (
@@ -194,12 +197,15 @@ const MLS = () => {
                 })
             )}</div>
 
+            { (!data || (boxClicked && !gameInfo)) && <img id='load' src={`${process.env.PUBLIC_URL}/assets/loading/load_ring.svg`} alt='Fetching data...' /> }
+
             <div className='boxscore'>
-                { gameData && <span><hr className='separator' /><br /></span> }
-                { !gameData ? errmsg && <span><br /><h2>{errmsg}</h2></span> : gameInfo && <BoxScore gameData={gameData} gameInfo={gameInfo} /> }
+                { gameData && boxClicked && <span><hr className='separator' /><br /></span> }
+                { !gameData ? (errmsg === 'No games scheduled' ? <span><br /><h2>{errmsg}</h2></span> : boxClicked && <span><br /><h2>{errmsg}</h2></span> ) 
+                            : gameInfo && <BoxScore gameData={gameData} gameInfo={gameInfo} /> }
             </div>
-            {/* { gameData && <hr className='separator' /> }
-            { gameData && <Comments gameData={gameData} /> } */}
+            { boxClicked && <hr className='separator' /> }
+            { boxClicked && gameInfo && <Comments id={gameInfo.optaId} type='mls' /> }
         </div>
     );
 }

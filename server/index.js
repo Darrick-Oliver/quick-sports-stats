@@ -308,7 +308,7 @@ app.get('/api/me', async (req, res) => {
 
 // Post a comment
 app.post('/api/comments/post', requireAuth, async (req, res) => {
-    let { content, gameId } = req.body;
+    let { content, type, gameId } = req.body;
     const date = new Date();
     const username = res.locals.token.username;
 
@@ -349,6 +349,7 @@ app.post('/api/comments/post', requireAuth, async (req, res) => {
         const response = await Comment.create({
             username,
             content,
+            type,
             gameId,
             date
         });
@@ -359,10 +360,11 @@ app.post('/api/comments/post', requireAuth, async (req, res) => {
 });
 
 // Retrieve comments
-app.get('/api/comments/get/:gameId', async (req, res) => {
+app.get('/api/comments/get/:type/:gameId', async (req, res) => {
     const gameId = req.params.gameId;
+    const type = req.params.type;
 
-    const comments = await Comment.find({gameId: gameId});
+    const comments = await Comment.find({type: type, gameId: gameId});
     if (comments.length > 0) {
         // Return all comments
         return res.json({ status: 'ok', comments: comments });

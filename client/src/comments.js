@@ -3,10 +3,9 @@ import React, { useState, useEffect } from 'react';
 import {Button} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const Filter = require('bad-words'),
-    filter = new Filter();
+const Filter = require('./bad-words-hacked'), filter = new Filter();
 
-const handleSubmit = async (gameId) => {
+const handleSubmit = async (type, gameId) => {
     const content = document.getElementById('comment-text').value;
 
     // Submit comment
@@ -17,6 +16,7 @@ const handleSubmit = async (gameId) => {
         },
         body: JSON.stringify({
             content,
+            type,
             gameId
         })
     }).then((res) => res.json());
@@ -58,7 +58,7 @@ const Comments = (req) => {
 
     // Fetch comments
     useEffect(() => {
-        fetch(`/api/comments/get/${req.gameData.gameId}`)
+        fetch(`/api/comments/get/${req.type}/${req.id}`)
             .then((res) => res.json())
             .then((data) => {
                 if (data.status === 'ok') {
@@ -78,7 +78,7 @@ const Comments = (req) => {
                 <h1>Comments</h1>
                 <textarea id='comment-text' className='comment-textarea'/><br />
                 <div id='comment-err' className='comment-error-message'></div>
-                <Button id='submit-comment' variant='outline-success' onClick={() => handleSubmit(req.gameData.gameId).then((newComment) => {
+                <Button id='submit-comment' variant='outline-success' onClick={() => handleSubmit(req.type, req.id).then((newComment) => {
                     if (newComment && comments) {
                         // Add comment to comments and sort
                         comments.push(newComment);
@@ -108,7 +108,7 @@ const Comments = (req) => {
                                 </span>
                             </p>
                             <div id={comment._id}>
-                                <p id={`${comment._id}-content`}className='content'>{filter.clean(comment.content)}</p>
+                                <p id={`${comment._id}-content`}className='content'>{filter.cleanHacked(comment.content)}</p>
                             </div>
 
                             <button className='comment-buttons' onClick={() => {deleteComment(comment._id).then((status) => {
