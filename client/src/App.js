@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Login from './Login.js';
 import NBA from './routes/nba/index.js';
+import MLS from './routes/mls/index.js';
 import Home from './routes/home/index.js';
 import NotFound from './NotFound.js';
 
@@ -17,8 +18,9 @@ const App = () => {
         </div>
         
         <Switch>
-          <Route exact path="/nba" component={NBA} />
-          <Route exact path="/" component={Home} />
+          <Route exact path='/nba' component={NBA} />
+          <Route exact path='/mls' component={MLS} />
+          <Route exact path='/' component={Home} />
           <Route component={NotFound} />
         </Switch>
       </Router>

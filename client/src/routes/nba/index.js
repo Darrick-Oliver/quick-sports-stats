@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import {Button} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import BoxScore from './BoxScore.js';
-import Comments from './comments.js';
+import Comments from '../../comments.js';
 
 let dateObj = new Date();
 const currDate = new Date();
 
 const getImage = (name) => {
-  return `${process.env.PUBLIC_URL}/assets/images/${name}.svg`;
+  return `${process.env.PUBLIC_URL}/assets/images/nba_logos/${name}.svg`;
 }
 
 const getGameTime = (game) => {
@@ -45,6 +45,11 @@ const NBA = () => {
     // Initialize date
     if (!date)
         setDate(dateObj.toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit'}));
+
+    // Set title
+    useEffect(() => {
+        document.title = 'NBA Scores';
+    }, []);
   
     // Box score button handler
     const boxPress = (game) => {
@@ -147,9 +152,9 @@ const NBA = () => {
                     return (
                     <div key={game.gameId}>
                         <h2>
-                        <img src={getImage(game.homeTeam.teamId)} alt={game.homeTeam.teamName} height='50'></img>
-                        {game.homeTeam.teamTricode} vs {game.awayTeam.teamTricode}
-                        <img src={getImage(game.awayTeam.teamId)} alt={game.awayTeam.teamName} height='50'></img>
+                            <img src={getImage(game.homeTeam.teamId)} alt={game.homeTeam.teamName} height='50'></img>
+                            {game.homeTeam.teamTricode} vs {game.awayTeam.teamTricode}
+                            <img src={getImage(game.awayTeam.teamId)} alt={game.awayTeam.teamName} height='50'></img>
                         </h2>
                         <p>{game.homeTeam.score} : {game.awayTeam.score}</p>
                         {getStatus(game)}

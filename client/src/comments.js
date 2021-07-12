@@ -2,41 +2,12 @@ import './comments.css';
 import React, { useState, useEffect } from 'react';
 import {Button} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+
 const Filter = require('bad-words'),
-    filter = new Filter({ placeHolder: '█'});
-
-const MAXLEN = 500;
-
-const editComment = (id) => {
-    // Show a textarea to edit comment
-    // Include a button to send edits to server
-}
-
-const deleteComment = async (id) => {
-    // Remove comment from db
-    const result = await fetch(`/api/comments/${id}/delete`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    }).then((res) => res.json());
-
-    return result.status;
-}
-
-const replyToComment = (id) => {
-    // Add reply to db
-
-}
+    filter = new Filter();
 
 const handleSubmit = async (gameId) => {
     const content = document.getElementById('comment-text').value;
-
-    // Error checking
-    if (content.length > MAXLEN) {
-        document.getElementById('comment-err').innerHTML = `Number of characters exceeds maximum: (${content.length}/${MAXLEN})` ;
-        return;
-    }
 
     // Submit comment
     const result = await fetch('/api/comments/post', {
@@ -67,6 +38,23 @@ const handleSubmit = async (gameId) => {
 
 const Comments = (req) => {
     const [ comments, setComments ] = useState(null);
+
+    const deleteComment = async (id) => {
+        // Remove comment from db
+        const result = await fetch(`/api/comments/${id}/delete`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then((res) => res.json());
+    
+        return result.status;
+    }
+
+    const replyToComment = async (id) => {
+        // Add reply to db
+        
+    }
 
     // Fetch comments
     useEffect(() => {
@@ -119,8 +107,10 @@ const Comments = (req) => {
                                     {new Date(comment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
                                 </span>
                             </p>
-                            <p id={comment._id} className='content'>{filter.clean(comment.content)}</p>
-                            <button className='comment-buttons' onClick={() => {editComment(comment._id)}}>edit</button>
+                            <div id={comment._id}>
+                                <p id={`${comment._id}-content`}className='content'>{filter.clean(comment.content)}</p>
+                            </div>
+
                             <button className='comment-buttons' onClick={() => {deleteComment(comment._id).then((status) => {
                                 // Delete comment from comments if it was deleted from server
                                 if (status === 'ok') {

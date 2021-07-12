@@ -9,6 +9,8 @@ const User = require('./model/user');
 const Comment = require('./model/comment');
 const { requireAuth } = require('./middleware/authMiddleware');
 
+const COMMENT_MAXLEN = 500;
+
 require('dotenv').config();
 
 const PORT = process.env.PORT || 3001;
@@ -43,7 +45,7 @@ app.get('/api/nba', async (req, res) => {
     return res.json({ status: 'ok', data: json.scoreboard });
 });
 
-// NBA get (game specific)
+// NBA get boxscore
 app.get('/api/nba/:gameId', async (req, res) => {
     const api_url = `https://cdn.nba.com/static/json/liveData/boxscore/boxscore_${req.params.gameId}.json`;
     let json = null;
@@ -79,6 +81,72 @@ app.get('/api/nba/date/:date', async (req, res) => {
     }
 
     return res.json({ status: 'ok', data: json.scoreboard });
+});
+
+// MLS get games by date
+app.get('/api/mls/date/:date', async (req, res) => {
+    // Get currDate in right format
+    const currDate = `${req.params.date.slice(4)}-${req.params.date.slice(0,2)}-${req.params.date.slice(2,4)}`;
+
+    // Check from currDate - nextDate
+    const date = new Date(0).setFullYear(req.params.date.slice(4), req.params.date.slice(0,2) - 1, req.params.date.slice(2,4));
+    let nDateObj = new Date(date);
+    nDateObj.setDate(nDateObj.getDate() + 1);
+    const nextDate = `${nDateObj.getFullYear()}-${("0" + (nDateObj.getMonth() + 1)).slice(-2)}-${("0" + nDateObj.getDate()).slice(-2)}`;
+
+    const api_url=`https://sportapi.mlssoccer.com/api/matches?culture=en-us&dateFrom=${currDate}&dateTo=${nextDate}&competition=98&matchType=Regular&excludeSecondaryTeams=true`;
+    let json = null;
+    try {
+        const fetch_response = await fetch(api_url);
+        json = await fetch_response.json();
+
+        // Check game data
+        if (!json.length) {
+            return res.json({ status: 'error', error: 'No games scheduled', data: [] });
+        }
+    } catch (err) {
+        return res.json({ status: 'error', error: err, data: [] });
+    }
+
+    return res.json({ status: 'ok', data: json });
+});
+
+// MLS get scoreboard
+app.get('/api/mls/game/:gameId', async (req, res) => {
+    const api_url=`https://stats-api.mlssoccer.com/v1/matches?&match_game_id=${req.params.gameId}&include=away_club_match&include=home_club_match&include=venue&include=home_club&include=away_club`;
+    let json = null;
+    try {
+        const fetch_response = await fetch(api_url);
+        json = await fetch_response.json();
+
+        // Check game data
+        if (!json.length) {
+            return res.json({ status: 'error', error: 'Score unavailable', data: [] });
+        }
+    } catch (err) {
+        return res.json({ status: 'error', error: err, data: [] });
+    }
+
+    return res.json({ status: 'ok', data: json[0] });
+});
+
+// MLS get boxscore
+app.get('/api/mls/game/:gameId/boxscore', async (req, res) => {
+    const api_url=`https://stats-api.mlssoccer.com/v1/players/matches?&match_game_id=${req.params.gameId}&season_opta_id=2021&competition_opta_id=98&order_by=-player_match_stat_goals&include=match&include=statistics&include=club&include=player&order_by=player_last_name`;
+    let json = null;
+    try {
+        const fetch_response = await fetch(api_url);
+        json = await fetch_response.json();
+
+        // Check game data
+        if (!json.length) {
+            return res.json({ status: 'error', error: 'Box score unavailable', data: [] });
+        }
+    } catch (err) {
+        return res.json({ status: 'error', error: err, data: [] });
+    }
+
+    return res.json({ status: 'ok', data: json });
 });
 
 // Register account
@@ -226,7 +294,11 @@ app.get('/api/me', async (req, res) => {
                 return res.json({ status: 'error', error: err.message, user: null });
             } else {
                 const user = await User.findById(decodedToken.id);
-                return res.json({ status: 'ok', user: user.username });
+                if (user) {
+                    return res.json({ status: 'ok', user: user.username });
+                } else {
+                    return res.json({ status: 'error', error: 'Login not found', user: null });
+                }
             }
         });
     } else {
@@ -236,9 +308,12 @@ app.get('/api/me', async (req, res) => {
 
 // Post a comment
 app.post('/api/comments/post', requireAuth, async (req, res) => {
-    const { content, gameId } = req.body;
+    let { content, gameId } = req.body;
     const date = new Date();
     const username = res.locals.token.username;
+
+    // Remove leading spaces/newlines
+    content = content.trim();
 
     // Error checking
     if (!username || typeof username !== 'string') {
@@ -259,6 +334,13 @@ app.post('/api/comments/post', requireAuth, async (req, res) => {
             status: 'error',
             type: 'content',
             error: 'Invalid content'
+        });
+    }
+    if (content.length > COMMENT_MAXLEN) {
+        return res.json({
+            status: 'error',
+            type: 'content',
+            error: `Number of characters exceeds maximum (${content.length}/${COMMENT_MAXLEN})`
         });
     }
 
@@ -290,17 +372,19 @@ app.get('/api/comments/get/:gameId', async (req, res) => {
     }
 });
 
-// Retrieve comments
+// Delete comments
 app.get('/api/comments/:_id/delete', requireAuth, async (req, res) => {
     const _id = req.params._id;
 
+    // Ensure user is an admin, or is the user that posted
     const comment = await Comment.find({_id: _id});
-    if (comment.length && (res.locals.token.username !== comment[0].username)) {
+    if (comment.length && (res.locals.token.username !== comment[0].username) && !res.locals.token.admin) {
         return res.json({ status: 'error', error: 'You cannot delete other users\' comments' });
     } else if (!comment.length) {
         return res.json({ status: 'error', error: 'Comment does not exist' });
     }
 
+    // Delete the comment
     try {
         await Comment.deleteOne({_id: _id});
         return res.json({ status: 'ok' });

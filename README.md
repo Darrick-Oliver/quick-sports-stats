@@ -1,17 +1,20 @@
 # Areto
 
-Currently displays NBA scores using custom api
+Currently displays NBA and MLS scores
 
 - Can access current, past, and future fixtures
-- Box scores can be generated for present and most\* past games
+- Box scores can be generated for present and most\* past NBA games
+- MLS box scores still in progress
 
 <sub>\*only ones using nba api v3<sub>
 
-Features a resgister/login system using MongoDB
+Features a register/login system using MongoDB
 
 Planned features:
 
-- Commenting
+- Team stats to MLS box scores
+- Replying to comments
+- Better navigation system
 - Profile page
 - Player overall scores database
 - Weekly score database

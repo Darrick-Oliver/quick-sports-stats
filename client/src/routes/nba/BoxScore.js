@@ -22,7 +22,7 @@ const formatMinutes = (minutes) => {
  *  Returns the link to the image with the given name
  */
 const getImage = (name) => {
-    return `${process.env.PUBLIC_URL}/assets/images/` + name + '.svg'
+    return `${process.env.PUBLIC_URL}/assets/images/nba_logos/` + name + '.svg'
 }
 
 
