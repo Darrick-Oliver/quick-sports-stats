@@ -1,3 +1,4 @@
+import './index.css';
 import React, { useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import { Link } from "react-router-dom";
@@ -10,8 +11,15 @@ const Home = () => {
 
     return (
         <div className='body-container'>
-            <Link to='/nba'><Button>NBA</Button></Link>
-            <Link to='/mls'><Button>MLS</Button></Link>
+            <div className='nba'></div>
+            <div className='nba-title-container'>
+                <Link to='/nba'><h1>NBA</h1></Link>
+            </div>
+            <br /><br /><br />
+            <div className='mls'></div>
+            <div className='mls-title-container'>
+                <Link to='/mls'><h1>MLS</h1></Link>
+            </div>
         </div>
     );
 }
