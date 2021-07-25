@@ -11,14 +11,18 @@ const Home = () => {
 
     return (
         <div className='body-container'>
-            <div className='nba'></div>
-            <div className='nba-title-container'>
-                <Link to='/nba'><h1>NBA</h1></Link>
+            <div className='body-card'>
+                <div className='nba'></div>
+                <div className='nba-title-container'>
+                    <Link to='/nba'><h1>NBA</h1></Link>
+                </div>
             </div>
-            <br /><br /><br />
-            <div className='mls'></div>
-            <div className='mls-title-container'>
-                <Link to='/mls'><h1>MLS</h1></Link>
+            <br />
+            <div className='body-card'>
+                <div className='mls'></div>
+                <div className='mls-title-container'>
+                    <Link to='/mls'><h1>MLS</h1></Link>
+                </div>
             </div>
         </div>
     );

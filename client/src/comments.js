@@ -76,6 +76,7 @@ const Comments = (req) => {
         <div>
             <div className='submit-comment-container'>
                 <h1>Comments</h1>
+                <br />
                 <textarea id='comment-text' className='comment-textarea'/><br />
                 <div id='comment-err' className='comment-error-message'></div>
                 <Button id='submit-comment' variant='outline-success' onClick={() => handleSubmit(req.type, req.id).then((newComment) => {

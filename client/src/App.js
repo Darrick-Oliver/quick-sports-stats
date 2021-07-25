@@ -7,13 +7,14 @@ import NBA from './routes/nba/index.js';
 import MLS from './routes/mls/index.js';
 import Home from './routes/home/index.js';
 import NotFound from './NotFound.js';
+import { Link } from "react-router-dom";
 
 const App = () => {
   return (
     <div className='App'>
       <Router>
         <div className='top'>
-          <h1>Areto Fantasy</h1>
+          <Link to='/'><h1>Areto Fantasy</h1></Link>
           <Login />
         </div>
         

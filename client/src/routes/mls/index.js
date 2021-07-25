@@ -44,7 +44,7 @@ const getStatus = (scoreboard, id) => {
 const MLS = () => {
     const [data, setData] = useState(null);
     const [queryURL, setQueryURL] = useState(null);
-    const [scoreboards, setScoreboards] = useState([null]);
+    const [scoreboards, setScoreboards] = useState(null);
     const [gameData, setGameData] = useState(null);
     const [giTemp, setGITemp] = useState(null);
     const [gameInfo, setGameInfo] = useState(null);
