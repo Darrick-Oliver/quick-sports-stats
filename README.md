@@ -7,13 +7,12 @@ Currently displays NBA and MLS scores
 
 <sub>\*only ones using nba api v3<sub>
 
-Features a register/login system using MongoDB
+Features a register, login, and commenting system using MongoDB
 
 Planned features:
 
 - Team stats (posession, score, etc) to MLS box scores
 - Replying to comments
-- Better navigation system
 - Profile page
 - Player overall scores database
 - Weekly score database
