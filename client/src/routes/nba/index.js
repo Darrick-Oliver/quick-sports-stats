@@ -175,8 +175,8 @@ const NBA = () => {
                 { !gameData ? (errmsg === 'No games scheduled' ? <span><br /><h2>{errmsg}</h2></span> : boxClicked && <span><br /><h2>{errmsg}</h2></span> )
                             : <BoxScore gameData={gameData} /> }
             </div>
-            { boxClicked && <hr className='separator' /> }
-            { boxClicked && gameInfo && <Comments id={gameInfo.gameId} type='nba' /> }
+            { gameData && boxClicked && <hr className='separator' /> }
+            { gameData && boxClicked && gameInfo && <Comments id={gameInfo.gameId} type='nba' /> }
         </div>
     );
 }

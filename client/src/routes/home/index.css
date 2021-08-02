@@ -53,7 +53,6 @@
 
 .body-container h1 {
   transition: 0.3s;
-  cursor: pointer;
   display: inline-block;
   font-weight: none;
 }
@@ -67,9 +66,11 @@ a:hover {
 }
 
 .body-card {
+  margin-top: 50px;
   transition: 0.3s;
   filter: grayscale(100%);
   transform: scale(1);
+  cursor: pointer;
 }
 
 .body-card:hover {

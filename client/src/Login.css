@@ -2,6 +2,8 @@
   float: right;
   justify-content: space-between;
   padding: 20px;
+  height: 78px;
+  display: flex;
 }
 
 .lcontainer,
@@ -129,4 +131,16 @@
 
 .form-link:hover {
   text-decoration: underline;
+}
+
+.link-color {
+  color: white;
+}
+
+.link-color:hover {
+  color: rgb(212, 212, 212);
+}
+
+.logged-in {
+  margin-right: 10px;
 }

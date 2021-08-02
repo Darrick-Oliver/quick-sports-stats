@@ -64,6 +64,7 @@ const MLS = () => {
     // Box score button handler
     const boxPress = (game) => {
         const url = `/api/mls/game/${game.optaId}/boxscore`;
+        setGameData(null);
         setGameInfo(null);
         if (queryURL !== url) {
             setQueryURL(url);
@@ -204,8 +205,8 @@ const MLS = () => {
                 { !gameData ? (errmsg === 'No games scheduled' ? <span><br /><h2>{errmsg}</h2></span> : boxClicked && <span><br /><h2>{errmsg}</h2></span> ) 
                             : gameInfo && <BoxScore gameData={gameData} gameInfo={gameInfo} /> }
             </div>
-            { boxClicked && <hr className='separator' /> }
-            { boxClicked && gameInfo && <Comments id={gameInfo.optaId} type='mls' /> }
+            { gameData && boxClicked && <hr className='separator' /> }
+            { gameData && boxClicked && gameInfo && <Comments id={gameInfo.optaId} type='mls' /> }
         </div>
     );
 }

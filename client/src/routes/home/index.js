@@ -11,19 +11,22 @@ const Home = () => {
 
     return (
         <div className='body-container'>
-            <div className='body-card'>
-                <div className='nba'></div>
-                <div className='nba-title-container'>
-                    <Link to='/nba'><h1>NBA</h1></Link>
+            <Link to='/nba'>
+                <div className='body-card'>
+                    <div className='nba'></div>
+                    <div className='nba-title-container'>
+                        <h1>NBA</h1>
+                    </div>
                 </div>
-            </div>
-            <br />
-            <div className='body-card'>
-                <div className='mls'></div>
-                <div className='mls-title-container'>
-                    <Link to='/mls'><h1>MLS</h1></Link>
+            </Link>
+            <Link to='/mls'>
+                <div className='body-card'>
+                    <div className='mls'></div>
+                    <div className='mls-title-container'>
+                        <h1>MLS</h1>
+                    </div>
                 </div>
-            </div>
+            </Link>
         </div>
     );
 }

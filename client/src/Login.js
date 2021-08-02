@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import {Button} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Modal from 'react-modal';
+import { Link } from "react-router-dom";
 
 const validateEmail = (email) => {
     const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -167,7 +168,7 @@ const Login = () => {
             }
         }).then((res) => res.json());
         if (result.status !== 'ok') {
-            console.log(result);
+            return;
         }
         setLogin(false);
         setUser(null);
@@ -192,8 +193,8 @@ const Login = () => {
     return (
         <div>
             <span className='header-login'>
-                {user ? `Logged in as ${user}` : <Button variant='link' style={{color: "white"}} onClick={() => setLP(!logPopup)} title='Log in'>Log in</Button> }
-                {user ? <Button variant='link' style={{color: "white"}} onClick={() => logOut()} title='Log out'>Log out</Button> : <Button variant='success' onClick={() => setRP(!regPopup)} title='Sign Up'>Sign up</Button>}
+                {user ? <span className='logged-in'>Logged in as <Link to='/profile' className='link-color'>{user}</Link></span> : <Button variant='link' style={{color: "white"}} onClick={() => setLP(!logPopup)} title='Log in'>Log in</Button> }
+                {user ? <Link onClick={() => logOut()} className='link-color logged-in'>Log out</Link> : <Button variant='success' onClick={() => setRP(!regPopup)} title='Sign Up'>Sign up</Button>}
             </span>
             <Modal
                 className='rcontainer'
