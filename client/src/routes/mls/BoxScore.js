@@ -50,7 +50,7 @@ const getPassPercent = (player) => {
  *  Generates the totals for each stat on the given team
  *  Returns a table row with the summed stats in the correct columns
  */
- const generateTotals = (team, plusMinus) => {
+ const generateTotals = (team) => {
     return (
         <tr>
             <td colSpan='3'>Totals</td>
@@ -62,6 +62,7 @@ const getPassPercent = (player) => {
             <td>{(sumStat(team, 'ontarget_scoring_att')/sumStat(team, 'total_scoring_att') * 100).toFixed(1)}</td>
             <td>{sumStat(team, 'successful_passes')}-{sumStat(team, 'total_pass')}</td>
             <td>{(sumStat(team, 'successful_passes')/sumStat(team, 'total_pass') * 100).toFixed(1)}</td>
+            <td>{sumStat(team, 'own_goals')}</td>
             <td>{sumStat(team, 'fouls')}</td>
             <td>{sumStat(team, 'total_offside')}</td>
             <td>{sumStat(team, 'yellow_card')}</td>
@@ -91,6 +92,7 @@ const getPassPercent = (player) => {
                     <td>{getShotPercent(player)}</td>
                     <td>{player.statistics.successful_passes ? player.statistics.successful_passes : 0}-{player.statistics.total_pass ? player.statistics.total_pass : 0}</td>
                     <td>{getPassPercent(player)}</td>
+                    <td>{player.statistics.own_goals ? player.statistics.own_goals : 0}</td>
                     <td>{player.statistics.fouls ? player.statistics.fouls : 0}</td>
                     <td>{player.statistics.total_offside ? player.statistics.total_offside : 0}</td>
                     <td>{player.statistics.yellow_card ? player.statistics.yellow_card : 0}</td>
@@ -132,6 +134,7 @@ const getPassPercent = (player) => {
                     <th>SOT%</th>
                     <th>PC-PA</th>
                     <th>PASS%</th>
+                    <th>OG</th>
                     <th>FLS</th>
                     <th>OFF</th>
                     <th>YC</th>
@@ -155,7 +158,6 @@ const getPassPercent = (player) => {
 const BoxScore = (data) => {
     const home = data.gameInfo.home;
     const away = data.gameInfo.away;
-
     const stats = data.gameData;
 
     // Create home/away team stats
@@ -180,6 +182,12 @@ const BoxScore = (data) => {
     // Creating the Box Score Area
     return (
         <div>
+            <div className="scoring-card">
+                <h2>Team Stats</h2>
+                <div className="table-container">
+                    {/* {generateScores(homeTeam, awayTeam)} */}
+                </div>
+            </div>
             <div className="card">
                 <h2><img src={getImage(home.abbreviation)} height='50' alt={home.abbreviation}></img> {home.fullName}</h2>
                 <div className="table-container">

@@ -176,7 +176,7 @@ const MLS = () => {
             <span id='controls'>
                 <Button variant='success' onClick={() => datePress(-7)} title='Back 1 week'>{"<<"}</Button>{' '}
                 <Button variant='success' onClick={() => datePress(-1)} title='Back 1 day'>{"<"}</Button>
-                <Button variant='link' style={{color: 'black'}} onClick={() => dateToday()}>{date}</Button>
+                <Button variant='link' style={{color: 'black'}} onClick={() => dateToday()} title='Jump to today'>{date}</Button>
                 <Button variant='success' onClick={() => datePress(1)} title='Forward 1 day'>{">"}</Button>{' '}
                 <Button variant='success' onClick={() => datePress(7)} title='Forward 1 week'>{">>"}</Button>
             </span>
@@ -206,7 +206,7 @@ const MLS = () => {
                             : gameInfo && <BoxScore gameData={gameData} gameInfo={gameInfo} /> }
             </div>
             { gameData && boxClicked && <hr className='separator' /> }
-            { gameData && boxClicked && gameInfo && <Comments id={gameInfo.optaId} type='mls' /> }
+            { boxClicked && gameInfo && <Comments id={gameInfo.optaId} type='mls' /> }
         </div>
     );
 }

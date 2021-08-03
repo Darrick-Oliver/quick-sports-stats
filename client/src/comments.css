@@ -80,6 +80,7 @@
 } */
 
 .comment-buttons {
+  margin-left: -5px;
   font-size: 15px;
   font-weight: bold;
   color: grey;
@@ -100,4 +101,21 @@
   .comment {
     margin-left: -15px;
   }
+}
+
+.reply-textarea {
+  margin-top: 20px;
+}
+
+.reply {
+  padding-left: 20px;
+}
+
+.user-link {
+  color: #777daf;
+}
+
+.user-link:hover {
+  text-decoration: none;
+  color: #9ba2df;
 }

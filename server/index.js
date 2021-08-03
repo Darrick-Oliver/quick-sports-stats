@@ -308,7 +308,8 @@ app.get('/api/me', async (req, res) => {
 
 // Post a comment
 app.post('/api/comments/post', requireAuth, async (req, res) => {
-    let { content, type, gameId } = req.body;
+    let { content, type, gameId, parentId } = req.body;
+    let parentUser = 'none';
     const date = new Date();
     const username = res.locals.token.username;
 
@@ -343,6 +344,15 @@ app.post('/api/comments/post', requireAuth, async (req, res) => {
             error: `Number of characters exceeds maximum (${content.length}/${COMMENT_MAXLEN})`
         });
     }
+    if (parentId !== 'root') {
+        try {
+            const parent = await Comment.find({ _id: parentId });
+            parentUser = parent[0].username;
+        } catch (err) {
+            console.log(err);
+            return res.json({ status: 'error', error: 'Invalid parent' });
+        }
+    }
 
     // Create comment
     try {
@@ -351,6 +361,8 @@ app.post('/api/comments/post', requireAuth, async (req, res) => {
             content,
             type,
             gameId,
+            parentId,
+            parentUser,
             date
         });
         return res.json({ status: 'ok', data: response });

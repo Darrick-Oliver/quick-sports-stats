@@ -7,7 +7,7 @@ import NBA from './routes/nba/index.js';
 import MLS from './routes/mls/index.js';
 import Home from './routes/home/index.js';
 import Profile from './routes/profile/index.js';
-import NotFound from './NotFound.js';
+import NotFound from './routes/NotFound.js';
 
 const App = () => {
   return (
@@ -22,7 +22,7 @@ const App = () => {
           <Route exact path='/nba' component={NBA} />
           <Route exact path='/mls' component={MLS} />
           <Route exact path='/' component={Home} />
-          <Route exact path='/profile' component={Profile} />
+          <Route exact path='/my-profile' component={Profile} />
           <Route component={NotFound} />
         </Switch>
       </Router>

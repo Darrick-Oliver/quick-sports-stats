@@ -138,6 +138,8 @@
 }
 
 .link-color:hover {
+  text-decoration: underline;
+  cursor: pointer;
   color: rgb(212, 212, 212);
 }
 

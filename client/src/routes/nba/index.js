@@ -176,7 +176,7 @@ const NBA = () => {
                             : <BoxScore gameData={gameData} /> }
             </div>
             { gameData && boxClicked && <hr className='separator' /> }
-            { gameData && boxClicked && gameInfo && <Comments id={gameInfo.gameId} type='nba' /> }
+            { boxClicked && gameInfo && <Comments id={gameInfo.gameId} type='nba' /> }
         </div>
     );
 }

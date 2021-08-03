@@ -193,8 +193,8 @@ const Login = () => {
     return (
         <div>
             <span className='header-login'>
-                {user ? <span className='logged-in'>Logged in as <Link to='/profile' className='link-color'>{user}</Link></span> : <Button variant='link' style={{color: "white"}} onClick={() => setLP(!logPopup)} title='Log in'>Log in</Button> }
-                {user ? <Link onClick={() => logOut()} className='link-color logged-in'>Log out</Link> : <Button variant='success' onClick={() => setRP(!regPopup)} title='Sign Up'>Sign up</Button>}
+                {user ? <span className='logged-in'>Logged in as <Link to='/my-profile' className='link-color'>{user}</Link></span> : <Button variant='link' style={{color: "white"}} onClick={() => setLP(!logPopup)} title='Log in'>Log in</Button> }
+                {user ? <p onClick={() => logOut()} className='link-color'>Log out</p> : <Button variant='success' onClick={() => setRP(!regPopup)} title='Sign Up'>Sign up</Button>}
             </span>
             <Modal
                 className='rcontainer'
