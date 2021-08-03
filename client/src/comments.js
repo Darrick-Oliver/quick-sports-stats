@@ -5,43 +5,46 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Filter = require('./bad-words-hacked'), filter = new Filter();
 
-const handleSubmit = async (type, gameId) => {
-    const content = document.getElementById('comment-text').value;
-    const parentId = 'root';
-
-    // Submit comment
-    const result = await fetch('/api/comments/post', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            content,
-            type,
-            gameId,
-            parentId
-        })
-    }).then((res) => res.json());
-
-    // Check for errors
-    if (result.status === 'error') {
-        document.getElementById('comment-err').innerHTML = `${result.error}` ;
-        return;
-    } else {
-        document.getElementById('comment-err').innerHTML = '';
-    }
-
-    // Clear textarea
-    document.getElementById('comment-text').value = '';
-
-    // Refresh comments
-    return result.data;
-}
 
 const Comments = (req) => {
     const [ comments, setComments ] = useState(null);
     const [ reply, setReply ] = useState(null);
 
+    // Handles comment submission
+    const submitComment = async (type, gameId) => {
+        const content = document.getElementById('comment-text').value;
+        const parentId = 'root';
+    
+        // Submit comment
+        const result = await fetch('/api/comments/post', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                content,
+                type,
+                gameId,
+                parentId
+            })
+        }).then((res) => res.json());
+    
+        // Check for errors
+        if (result.status === 'error') {
+            document.getElementById('comment-err').innerHTML = `${result.error}` ;
+            return;
+        } else {
+            document.getElementById('comment-err').innerHTML = '';
+        }
+    
+        // Clear textarea
+        document.getElementById('comment-text').value = '';
+    
+        // Refresh comments
+        return result.data;
+    }
+
+    // Sends a delete request to the server
     const deleteComment = async (id) => {
         // Remove comment from db
         const result = await fetch(`/api/comments/${id}/delete`, {
@@ -54,6 +57,7 @@ const Comments = (req) => {
         return result.status;
     }
 
+    // Sends a reply to the server
     const replyToComment = async (type, gameId, parentId, i) => {
         // Add reply to db
         const content = document.getElementById(`reply-${parentId}-text`).value;
@@ -84,6 +88,7 @@ const Comments = (req) => {
         return result.data;
     }
 
+    // Loads a reply box to the requested comment
     const loadReply = async (i) => {
         if (reply) {
             reply[i] = !reply[i];
@@ -117,7 +122,7 @@ const Comments = (req) => {
                 <br />
                 <textarea id='comment-text' className='comment-textarea'/><br />
                 <div id='comment-err' className='comment-error-message'></div>
-                <Button id='submit-comment' variant='outline-success' onClick={() => handleSubmit(req.type, req.id).then((newComment) => {
+                <Button id='submit-comment' variant='outline-success' onClick={() => submitComment(req.type, req.id).then((newComment) => {
                     if (newComment && comments) {
                         // Add comment to comments and sort
                         comments.push(newComment);
@@ -125,9 +130,15 @@ const Comments = (req) => {
                             return new Date(b.date).getTime() - new Date(a.date).getTime();
                         }));
                         setComments([...comments]);
+
+                        // Close new reply
+                        setReply([false, ...reply]);
                     } else if (newComment) {
                         // If single comment added, only add that one
                         setComments([newComment]);
+
+                        // Set replies
+                        setReply([false]);
                     }
                 })}>Submit</Button>
             </div>
