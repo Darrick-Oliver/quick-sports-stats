@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './index.css';
 
 const getImage = (name) => {
@@ -13,6 +13,11 @@ const Profile = () => {
     // Verify login and get username
     const [user, setUser] = useState(null);
     const [login, setLogin] = useState(false);
+
+    // Set title
+    useEffect(() => {
+        document.title = 'My profile';
+    }, []);
 
     // Fetch username
     if (!login) {

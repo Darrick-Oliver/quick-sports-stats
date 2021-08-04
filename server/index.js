@@ -15,7 +15,7 @@ require('dotenv').config();
 
 const PORT = process.env.PORT || 3001;
 
-mongoose.connect('mongodb://localhost:27017/login-app-db', {
+mongoose.connect('mongodb://localhost:27017/areto-db', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true

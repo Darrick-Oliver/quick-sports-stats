@@ -8,7 +8,7 @@ const Filter = require('./bad-words-hacked'), filter = new Filter();
 
 const Comments = (req) => {
     const [ comments, setComments ] = useState(null);
-    const [ reply, setReply ] = useState(null);
+    const [ replyBoxes, setReplyBoxes ] = useState(null);
 
     // Handles comment submission
     const submitComment = async (type, gameId) => {
@@ -90,10 +90,75 @@ const Comments = (req) => {
 
     // Loads a reply box to the requested comment
     const loadReply = async (i) => {
-        if (reply) {
-            reply[i] = !reply[i];
-            setReply([...reply]);
+        if (replyBoxes) {
+            replyBoxes[i] = !replyBoxes[i];
+            setReplyBoxes([...replyBoxes]);
         }
+    }
+
+    // Recursively loads replies
+    const showReplies = (comments, comment, indent) => {
+        const replies = comments.filter((e) => { if (e) return e.parentId === comment._id; else return 0;});
+    
+        // Recursive end condition
+        if (replies.length === 0)
+            return;
+    
+        return (
+            replies.map(reply => {
+                return (
+                    <div key={reply._id} className='comment-and-replies'>
+                        <div className='comment' style={{marginLeft: indent + 20}}>
+                            <p className='tagline'>
+                                <a className='username' href={`./user/${reply.username}`}>{reply.username}</a>
+                                {' • '}
+                                <span className='date'>
+                                    {new Date(reply.date).toLocaleDateString() + ' '}
+                                    {new Date(reply.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
+                                </span>
+                            </p>
+                            <div id={reply._id}>
+                                <p id={`${reply._id}-content`}className='content'>
+                                    {reply.parentId !== 'root' && <a className='user-link' href={`./user/${reply.parentUser}`}>@{reply.parentUser}</a>}
+                                    {reply.parentId !== 'root' && ' '}
+                                    {filter.cleanHacked(reply.content)}
+                                </p>
+                            </div>
+        
+                            <button className='comment-buttons' onClick={() => {deleteComment(reply._id).then((status) => {
+                                // Delete comment from comments if it was deleted from server
+                                if (status === 'ok') {
+                                    delete replyBoxes[comments.indexOf(reply)];
+                                    delete comments[comments.indexOf(reply)];
+                                    // Update components
+                                    setComments([...comments]);
+                                }
+                            })}}>delete</button>
+        
+                            <button className='comment-buttons' id={`reply-${reply._id}`} onClick={() => loadReply(comments.indexOf(reply))}>{replyBoxes[comments.indexOf(reply)] ? 'cancel' : 'reply'}</button>
+        
+                            {replyBoxes[comments.indexOf(reply)] &&
+                                <div className='reply-box'>
+                                    <textarea id={`reply-${reply._id}-text`} autoFocus className='comment-textarea reply-textarea'/><br />
+                                    <div id={`reply-${reply._id}-err`} className='comment-error-message'></div>
+                                    <Button id='submit-reply' variant='outline-success' onClick={() => replyToComment(req.type, req.id, reply._id, comments.indexOf(reply)).then((newReply) => {
+                                        if (newReply && comments) {
+                                            // Add comment to comments and sort
+                                            comments.push(newReply);
+                                            setComments(comments.sort((a, b) => {
+                                                return new Date(b.date).getTime() - new Date(a.date).getTime();
+                                            }));
+                                            setComments([...comments]);
+                                        }
+                                    })}>Reply</Button>
+                                </div>
+                            }
+                        </div>
+                        {showReplies(comments, reply, indent + 20)}
+                    </div>
+                );
+            })
+        );
     }
 
     // Fetch comments
@@ -108,7 +173,7 @@ const Comments = (req) => {
                 }
 
                 if (data.comments)
-                    setReply(new Array(data.comments.length).fill(false));
+                    setReplyBoxes(new Array(data.comments.length).fill(false));
             })
             .catch(err => {
                 console.error("Error fetching data:", err);
@@ -132,13 +197,13 @@ const Comments = (req) => {
                         setComments([...comments]);
 
                         // Close new reply
-                        setReply([false, ...reply]);
+                        setReplyBoxes([false, ...replyBoxes]);
                     } else if (newComment) {
                         // If single comment added, only add that one
                         setComments([newComment]);
 
                         // Set replies
-                        setReply([false]);
+                        setReplyBoxes([false]);
                     }
                 })}>Submit</Button>
             </div>
@@ -147,52 +212,56 @@ const Comments = (req) => {
                 {comments.map(comment => {
                     return (
                         // Make sure comment exists
-                        comment && reply &&
-                        <div className='comment' key={comment._id} id={comment._id}>
-                            <p className='tagline'>
-                                <span className='username'>{comment.username}</span>
-                                {' • '}
-                                <span className='date'>
-                                    {new Date(comment.date).toLocaleDateString() + ' '}
-                                    {new Date(comment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
-                                </span>
-                            </p>
-                            <div id={comment._id}>
-                                <p id={`${comment._id}-content`}className='content'>
-                                    {comment.parentId !== 'root' && <a className='user-link' href='./my-profile'>@{comment.parentUser}</a>}
-                                    {comment.parentId !== 'root' && ' '}
-                                    {filter.cleanHacked(comment.content)}
+                        comment && comment.parentId === 'root' && replyBoxes &&
+                        <div className='comment-and-replies' key={comment._id}>
+                            <div className='comment'>
+                                <p className='tagline'>
+                                    <a className='username' href={`./user/${comment.username}`}>{comment.username}</a>
+                                    {' • '}
+                                    <span className='date'>
+                                        {new Date(comment.date).toLocaleDateString() + ' '}
+                                        {new Date(comment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
+                                    </span>
                                 </p>
+                                <div id={comment._id}>
+                                    <p id={`${comment._id}-content`}className='content'>
+                                        {comment.parentId !== 'root' && <a className='user-link' href={`./user/${comment.parentUser}`}>@{comment.parentUser}</a>}
+                                        {comment.parentId !== 'root' && ' '}
+                                        {filter.cleanHacked(comment.content)}
+                                    </p>
+                                </div>
+
+                                <button className='comment-buttons' onClick={() => {deleteComment(comment._id).then((status) => {
+                                    // Delete comment from comments if it was deleted from server
+                                    if (status === 'ok') {
+                                        delete replyBoxes[comments.indexOf(comment)];
+                                        delete comments[comments.indexOf(comment)];
+                                        // Update components
+                                        setComments([...comments]);
+                                    }
+                                })}}>delete</button>
+
+                                <button className='comment-buttons' id={`reply-${comment._id}`} onClick={() => loadReply(comments.indexOf(comment))}>{replyBoxes[comments.indexOf(comment)] ? 'cancel' : 'reply'}</button>
+
+                                {replyBoxes[comments.indexOf(comment)] &&
+                                    <div className='reply-box'>
+                                        <textarea id={`reply-${comment._id}-text`} autoFocus className='comment-textarea reply-textarea'/><br />
+                                        <div id={`reply-${comment._id}-err`} className='comment-error-message'></div>
+                                        <Button id='submit-reply' variant='outline-success' onClick={() => replyToComment(req.type, req.id, comment._id, comments.indexOf(comment)).then((newReply) => {
+                                            if (newReply && comments) {
+                                                // Add comment to comments and sort
+                                                comments.push(newReply);
+                                                setComments(comments.sort((a, b) => {
+                                                    return new Date(b.date).getTime() - new Date(a.date).getTime();
+                                                }));
+                                                setComments([...comments]);
+                                            }
+                                        })}>Reply</Button>
+                                    </div>
+                                }
                             </div>
 
-                            <button className='comment-buttons' onClick={() => {deleteComment(comment._id).then((status) => {
-                                // Delete comment from comments if it was deleted from server
-                                if (status === 'ok') {
-                                    delete reply[comments.indexOf(comment)];
-                                    delete comments[comments.indexOf(comment)];
-                                    // Update components
-                                    setComments([...comments]);
-                                }
-                            })}}>delete</button>
-
-                            <button className='comment-buttons' id={`reply-${comment._id}`} onClick={() => loadReply(comments.indexOf(comment))}>{reply[comments.indexOf(comment)] ? 'cancel' : 'reply'}</button>
-
-                            {reply[comments.indexOf(comment)] &&
-                                <div className='reply'>
-                                    <textarea id={`reply-${comment._id}-text`} className='comment-textarea reply-textarea'/><br />
-                                    <div id={`reply-${comment._id}-err`} className='comment-error-message'></div>
-                                    <Button id='submit-reply' variant='outline-success' onClick={() => replyToComment(req.type, req.id, comment._id, comments.indexOf(comment)).then((newReply) => {
-                                        if (newReply && comments) {
-                                            // Add comment to comments and sort
-                                            comments.push(newReply);
-                                            setComments(comments.sort((a, b) => {
-                                                return new Date(b.date).getTime() - new Date(a.date).getTime();
-                                            }));
-                                            setComments([...comments]);
-                                        }
-                                    })}>Reply</Button>
-                                </div>
-                            }
+                            {showReplies(comments, comment, 0)}
                         </div>
                     );
                 })}
