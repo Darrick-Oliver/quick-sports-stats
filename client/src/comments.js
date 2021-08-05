@@ -13,7 +13,6 @@ const Comments = (req) => {
     const submitComment = async (type, gameId) => {
         const content = document.getElementById('comment-text').value;
         const parentId = 'root';
-
         // Submit comment
         const result = await fetch('/api/comments/post', {
             method: 'POST',
@@ -52,7 +51,6 @@ const Comments = (req) => {
                 'Content-Type': 'application/json'
             }
         }).then((res) => res.json());
-
         return result.status;
     }
 
@@ -83,7 +81,6 @@ const Comments = (req) => {
         }
 
         loadReply(i);
-
         return result.data;
     }
 
@@ -180,7 +177,6 @@ const Comments = (req) => {
                 console.error("Error fetching data:", err);
             });
     }, [req]);
-
     return (
         <div>
             <div className='submit-comment-container'>

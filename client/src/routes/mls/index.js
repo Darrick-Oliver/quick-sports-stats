@@ -60,7 +60,6 @@ const MLS = () => {
     useEffect(() => {
         document.title = 'MLS Scores';
     }, []);
-
     // Box score button handler
     const boxPress = (game) => {
         const url = `/api/mls/game/${game.optaId}/boxscore`;
@@ -75,7 +74,6 @@ const MLS = () => {
             setBoxClicked(false);
         }
     }
-
     // Date buttons handler
     const datePress = (dir) => {
         if (data) {
@@ -89,7 +87,6 @@ const MLS = () => {
             setBoxClicked(false);
         }
     }
-
     // Set date to today
     const dateToday = () => {
         if (data) {
@@ -103,7 +100,6 @@ const MLS = () => {
             setBoxClicked(false);
         }
     }
-
     // Fetch games data from date
     useEffect(() => {
         if (!data) {

@@ -17,7 +17,6 @@ const App = () => {
           <Link to='/'><h1>Areto Fantasy</h1></Link>
           <Login />
         </div>
-
         <Switch>
           <Route exact path='/nba' component={NBA} />
           <Route exact path='/mls' component={MLS} />

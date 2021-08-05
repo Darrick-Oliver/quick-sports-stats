@@ -62,7 +62,6 @@ const Login = () => {
         const username = user.value;
         const email = em.value;
         const pass = pwd.value;
-
         // Send data as JSON
         const result = await fetch('/api/register', {
             method: 'POST',
@@ -104,7 +103,6 @@ const Login = () => {
                     console.log(result.error);
             }
         }
-
         return;
     }
 
@@ -127,13 +125,11 @@ const Login = () => {
             pass.classList.remove('form-input-error');
             document.getElementById("login-pass-err").innerHTML = "";
         }
-
         if (validateEmail(username)) {
             // Given an email
             email = username;
             username = null;
         }
-
         // Send data as JSON
         const result = await fetch('/api/login', {
             method: 'POST',
@@ -146,7 +142,6 @@ const Login = () => {
                 password
             })
         }).then((res) => res.json());
-
         if (result.status === 'ok') {
             setLP(false);
         } else {
@@ -155,7 +150,6 @@ const Login = () => {
             pass.classList.add('form-input-error');
         }
         setLogin(false);
-
         return;
     }
 
