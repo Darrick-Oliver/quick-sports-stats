@@ -1,7 +1,7 @@
 import './Login.css';
 import React, { useState } from 'react';
-import {Button} from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { Button } from 'react-bootstrap';
+import './css/bootstrap.min.css';
 import Modal from 'react-modal';
 import { Link } from "react-router-dom";
 
@@ -62,7 +62,7 @@ const Login = () => {
         const username = user.value;
         const email = em.value;
         const pass = pwd.value;
-        
+
         // Send data as JSON
         const result = await fetch('/api/register', {
             method: 'POST',
@@ -86,7 +86,7 @@ const Login = () => {
             // Close register
             setRP(false);
         } else {
-            switch(result.type) {
+            switch (result.type) {
                 case 'username':
                     document.getElementById("reg-user-err").innerHTML = result.error;
                     user.classList.add('form-input-error');
@@ -104,7 +104,7 @@ const Login = () => {
                     console.log(result.error);
             }
         }
-        
+
         return;
     }
 
@@ -113,11 +113,11 @@ const Login = () => {
         event.preventDefault();
         const user = document.getElementById("login-user");
         const pass = document.getElementById("login-pass");
-    
+
         let username = user.value;
         const password = pass.value;
         let email = null;
-    
+
         // Clear errors
         if (user.classList.contains('form-input-error')) {
             user.classList.remove('form-input-error');
@@ -127,13 +127,13 @@ const Login = () => {
             pass.classList.remove('form-input-error');
             document.getElementById("login-pass-err").innerHTML = "";
         }
-    
+
         if (validateEmail(username)) {
             // Given an email
             email = username;
             username = null;
         }
-    
+
         // Send data as JSON
         const result = await fetch('/api/login', {
             method: 'POST',
@@ -146,7 +146,7 @@ const Login = () => {
                 password
             })
         }).then((res) => res.json());
-    
+
         if (result.status === 'ok') {
             setLP(false);
         } else {
@@ -155,7 +155,7 @@ const Login = () => {
             pass.classList.add('form-input-error');
         }
         setLogin(false);
-        
+
         return;
     }
 
@@ -189,11 +189,11 @@ const Login = () => {
                 console.error("Error fetching data:", err);
             });
     }
-    
+
     return (
         <div>
             <span className='header-login'>
-                {user ? <span className='logged-in'>Logged in as <Link to='/my-profile' className='link-color'>{user}</Link></span> : <Button variant='link' style={{color: "white"}} onClick={() => setLP(!logPopup)} title='Log in'>Log in</Button> }
+                {user ? <span className='logged-in'>Logged in as <Link to='/my-profile' className='link-color'>{user}</Link></span> : <Button variant='link' style={{ color: "white" }} onClick={() => setLP(!logPopup)} title='Log in'>Log in</Button>}
                 {user ? <p onClick={() => logOut()} className='link-color'>Log out</p> : <Button variant='success' onClick={() => setRP(!regPopup)} title='Sign Up'>Sign up</Button>}
             </span>
             <Modal
@@ -234,11 +234,11 @@ const Login = () => {
                     <h1 className='form-title'>Log in</h1>
                     <div id='login-announce' className='form-message'></div>
                     <div className='form-input-group'>
-                        <input id='login-user' type='text' className='form-input' onInput={() => {clearErr('login-pass', 'login-pass-err'); clearErr('login-user', 'login-user-err')}} autoFocus placeholder='Username or email' />
+                        <input id='login-user' type='text' className='form-input' onInput={() => { clearErr('login-pass', 'login-pass-err'); clearErr('login-user', 'login-user-err') }} autoFocus placeholder='Username or email' />
                         <div id='login-user-err' className='form-input-error-message'></div>
                     </div>
                     <div className='form-input-group'>
-                        <input id='login-pass' type='password' className='form-input' onInput={() => {clearErr('login-pass', 'login-pass-err'); clearErr('login-user', 'login-user-err')} } placeholder='Password' />
+                        <input id='login-pass' type='password' className='form-input' onInput={() => { clearErr('login-pass', 'login-pass-err'); clearErr('login-user', 'login-user-err') }} placeholder='Password' />
                         <div id='login-pass-err' className='form-input-error-message'></div>
                     </div>
                     <Button type='submit' className='form-button'>Continue</Button>

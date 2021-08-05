@@ -1,7 +1,7 @@
 import './index.css';
 import React, { useEffect } from 'react';
 import { Link } from "react-router-dom";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import '../../css/bootstrap.min.css';
 
 const Home = () => {
     useEffect(() => {

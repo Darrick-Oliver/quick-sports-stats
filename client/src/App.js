@@ -1,7 +1,7 @@
 import './App.css';
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import './css/bootstrap.min.css';
 import Login from './Login.js';
 import NBA from './routes/nba/index.js';
 import MLS from './routes/mls/index.js';
@@ -17,7 +17,7 @@ const App = () => {
           <Link to='/'><h1>Areto Fantasy</h1></Link>
           <Login />
         </div>
-        
+
         <Switch>
           <Route exact path='/nba' component={NBA} />
           <Route exact path='/mls' component={MLS} />
