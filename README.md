@@ -1,5 +1,7 @@
 # Areto
 
+https://areto.herokuapp.com
+
 Currently displays NBA and MLS scores
 
 - Can access current, past, and future fixtures
