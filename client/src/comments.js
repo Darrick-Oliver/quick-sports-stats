@@ -3,8 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import './css/bootstrap.min.css';
 
-const Filter = require('./bad-words-hacked'), filter = new Filter();
-
+const Filter = require('bad-words'), filter = new Filter();
 
 const Comments = (req) => {
     const [comments, setComments] = useState(null);
@@ -121,7 +120,7 @@ const Comments = (req) => {
                                 <p id={`${reply._id}-content`} className='content'>
                                     {reply.parentId !== 'root' && <a className='user-link' href={`./user/${reply.parentUser}`}>@{reply.parentUser}</a>}
                                     {reply.parentId !== 'root' && ' '}
-                                    {filter.cleanHacked(reply.content)}
+                                    {filter.clean(reply.content)}
                                 </p>
                             </div>
 
@@ -229,7 +228,7 @@ const Comments = (req) => {
                                         <p id={`${comment._id}-content`} className='content'>
                                             {comment.parentId !== 'root' && <a className='user-link' href={`./user/${comment.parentUser}`}>@{comment.parentUser}</a>}
                                             {comment.parentId !== 'root' && ' '}
-                                            {filter.cleanHacked(comment.content)}
+                                            {filter.clean(comment.content)}
                                         </p>
                                     </div>
 
