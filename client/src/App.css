@@ -1,0 +1,169 @@
+.App {
+  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Roboto", sans-serif;
+  text-align: center;
+}
+
+.top {
+  top: 0;
+  width: 100%;
+  position: fixed;
+  background-color: rgb(37, 37, 37);
+  color: white;
+  overflow: hidden;
+  z-index: 4;
+}
+
+.top h1 {
+  color: white;
+  cursor: pointer;
+  display: inline-block;
+  margin-top: 8px;
+}
+
+.body-container {
+  margin-top: 155px;
+}
+
+.games {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.games div {
+  background-color: white;
+  color: black;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  flex: 0 0 calc(16.66% - 20px);
+  padding: 20px;
+  margin: 10px;
+
+  transition: 0.3s;
+}
+
+.games div:hover {
+  transform: scale(1.05);
+}
+
+.games h2 {
+  font-size: 23px;
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+}
+
+.games h3 {
+  color: black;
+  font-size: 14px;
+}
+
+.games h4 {
+  color: black;
+  font-size: 23px;
+  font-weight: bold;
+  margin: auto;
+  width: 50%;
+}
+
+.boxscore {
+  font-size: 14px;
+}
+
+.boxscore table {
+  white-space: nowrap;
+}
+
+.boxscore table,
+th,
+td {
+  margin-left: auto;
+  margin-right: auto;
+  padding: 5px 10px;
+}
+
+.boxscore tr:nth-child(even) {
+  color: black;
+  background-color: #f2f2f2;
+}
+
+.boxscore tbody tr:hover {
+  background-color: #c5c5c5;
+}
+
+.boxscore th {
+  background-color: #2e2e2e;
+  color: white;
+}
+
+.boxscore tfoot {
+  border-top: 1px solid rgb(180, 180, 180);
+  font-weight: bold;
+  color: black;
+}
+
+.boxscore h2 {
+  text-align: center;
+  padding: 10px;
+}
+
+@media (max-width: 1100px) {
+  .boxscore div.card {
+    width: 95%;
+  }
+}
+@media (min-width: 1100px) {
+  .boxscore div.card {
+    width: 1100px;
+  }
+}
+
+@media (max-width: 350px) {
+  .boxscore div.scoring-card {
+    width: 95%;
+  }
+}
+@media (min-width: 350px) {
+  .boxscore div.scoring-card {
+    width: 350px;
+  }
+}
+
+.boxscore div.card,
+div.scoring-card {
+  background-color: white;
+  color: black;
+  padding: 20px;
+  text-align: center;
+  margin: auto;
+  transition: 0.3s;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-clip: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 0.25rem;
+  margin-bottom: 30px;
+}
+
+/* .boxscore div.card:hover,
+div.scoring-card:hover {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+} */
+
+.table-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+#load {
+  margin: auto;
+}
+
+.separator {
+  margin-left: 5%;
+  margin-right: 5%;
+}
