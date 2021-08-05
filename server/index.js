@@ -17,18 +17,18 @@ require('dotenv').config();
 const PORT = process.env.PORT || 3001;
 
 // Server
-mongoose.connect(`mongodb+srv://${process.env.MDB_USER}:${process.env.MDB_PASS}@areto-db.f2kke.mongodb.net/areto-main?retryWrites=true&w=majority`, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true
-}).then(() => console.log("Connected to MongoDB")).catch(err => console.error(`Error connecting to MongoDB: ${err}`));
-
-// Dev tests
-// mongoose.connect('mongodb://localhost:27017/areto-db', {
+// mongoose.connect(`mongodb+srv://${process.env.MDB_USER}:${process.env.MDB_PASS}@areto-db.f2kke.mongodb.net/areto-main?retryWrites=true&w=majority`, {
 //     useNewUrlParser: true,
 //     useUnifiedTopology: true,
 //     useCreateIndex: true
 // }).then(() => console.log("Connected to MongoDB")).catch(err => console.error(`Error connecting to MongoDB: ${err}`));
+
+// Dev tests
+mongoose.connect('mongodb://localhost:27017/areto-db', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true
+}).then(() => console.log("Connected to MongoDB")).catch(err => console.error(`Error connecting to MongoDB: ${err}`));
 
 const app = express();
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
@@ -413,6 +413,24 @@ app.get('/api/comments/:_id/delete', requireAuth, async (req, res) => {
         return res.json({ status: 'ok' });
     } catch (err) {
         return res.json({ status: 'error', error: err })
+    }
+});
+
+// Get user info
+app.get('/api/user/:userId', async (req, res) => {
+    const user = await User.findOne({ username: req.params.userId }).lean();
+
+    if (!user)
+        return res.json({ status: 'error', error: 'User not found' });
+    const userInfo = { username: user.username };
+
+    const comments = await Comment.find({ username: req.params.userId });
+    if (comments.length > 0) {
+        // Return all comments
+        return res.json({ status: 'ok', user: userInfo, comments: comments });
+    } else {
+        // Return nothing
+        return res.json({ status: 'ok', user: userInfo, comments: null });
     }
 });
 

@@ -49,6 +49,7 @@ const NBA = () => {
     useEffect(() => {
         document.title = 'NBA Scores';
     }, []);
+
     // Box score button handler
     const boxPress = (game) => {
         const url = `/api/nba/${game.gameId}`;
@@ -65,6 +66,7 @@ const NBA = () => {
             setBoxClicked(false);
         }
     }
+
     // Date buttons handler
     const datePress = (dir) => {
         if (data) {
@@ -78,6 +80,7 @@ const NBA = () => {
             setGameInfo(null);
         }
     }
+
     // Set date to today
     const dateToday = () => {
         if (data) {
@@ -90,6 +93,7 @@ const NBA = () => {
             setGameInfo(null);
         }
     }
+
     // Fetch from date
     useEffect(() => {
         if (!data) {

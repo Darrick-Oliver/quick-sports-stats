@@ -7,6 +7,7 @@ import NBA from './routes/nba/index.js';
 import MLS from './routes/mls/index.js';
 import Home from './routes/home/index.js';
 import Profile from './routes/profile/index.js';
+import PublicProfile from './routes/public-profile/index.js';
 import NotFound from './routes/NotFound.js';
 
 const App = () => {
@@ -22,6 +23,7 @@ const App = () => {
           <Route exact path='/mls' component={MLS} />
           <Route exact path='/' component={Home} />
           <Route exact path='/my-profile' component={Profile} />
+          <Route path='/user/:userId' component={PublicProfile} />
           <Route component={NotFound} />
         </Switch>
       </Router>

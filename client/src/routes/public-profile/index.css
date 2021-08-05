@@ -1,0 +1,20 @@
+.profile {
+    margin-top: 155px;
+}
+
+.profile h2 {
+    text-align: left;
+    margin-left: 10%;
+}
+
+.user-comment {
+    margin-right: auto;
+    margin-left: auto;
+    padding: 15px;
+    margin-top: 20px;
+    border: 1px solid #e4e4e4;
+    border-radius: 5px;
+    width: 50%;
+    overflow-wrap: break-word;
+    transition: 0.3s;
+}

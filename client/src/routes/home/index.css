@@ -30,6 +30,7 @@
 }
 
 .nba-title-container {
+  color: white;
   height: 48px;
   position: absolute;
   margin: auto;
@@ -41,6 +42,7 @@
 }
 
 .mls-title-container {
+  color: white;
   height: 48px;
   position: absolute;
   margin: auto;
@@ -58,11 +60,11 @@
 }
 
 a {
-  color: black;
+  color: white;
 }
 
 a:hover {
-  color: black;
+  color: white;
 }
 
 .body-card {
