@@ -16,7 +16,15 @@ require('dotenv').config();
 
 const PORT = process.env.PORT || 3001;
 
-mongoose.connect(`mongodb+srv://${process.env.MDB_USER}:${process.env.MDB_PASS}@areto-db.f2kke.mongodb.net/areto-main?retryWrites=true&w=majority`, {
+// Server
+// mongoose.connect(`mongodb+srv://${process.env.MDB_USER}:${process.env.MDB_PASS}@areto-db.f2kke.mongodb.net/areto-main?retryWrites=true&w=majority`, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+//     useCreateIndex: true
+// }).then(() => console.log("Connected to MongoDB")).catch(err => console.error(`Error connecting to MongoDB: ${err}`));
+
+// Dev tests
+mongoose.connect('mongodb://localhost:27017/areto-db', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true
@@ -408,7 +416,7 @@ app.get('/api/comments/:_id/delete', requireAuth, async (req, res) => {
     }
 });
 
-// All other GET requests not handled before will return our React app
+// All other GET requests not handled before will return the React app
 app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
 });

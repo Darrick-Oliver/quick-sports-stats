@@ -14,4 +14,4 @@ class FilterHacked extends Filter {
   }
 }
 
-module.exports = FilterHacked
+export default FilterHacked;

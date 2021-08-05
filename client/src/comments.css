@@ -48,6 +48,7 @@
 }
 
 .username {
+  text-decoration: none;
   font-size: 15px;
   font-weight: bold;
   color: #777daf;
@@ -113,6 +114,7 @@
 }
 
 .user-link {
+  text-decoration: none;
   color: #777daf;
 }
 
