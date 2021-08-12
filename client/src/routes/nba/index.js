@@ -56,7 +56,7 @@ const NBA = () => {
         setGameInfo(null);
         setGameData(null);
         setGITemp(game);
-        console.log(game);
+
         if (queryURL !== url) {
             setQueryURL(url);
             setBoxClicked(true);
@@ -71,7 +71,11 @@ const NBA = () => {
     const datePress = (dir) => {
         if (data) {
             dateObj.setDate(dateObj.getDate() + dir);
+
+            // Set new date
             setDate(dateObj.toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }));
+
+            // Set all others to null
             setGameData(null);
             setData(null);
             setQueryURL(null);

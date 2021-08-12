@@ -3,8 +3,33 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Button } from 'react-bootstrap';
 import './css/bootstrap.min.css';
 import { UserContext } from './App.js';
+import { Link } from "react-router-dom";
 
 const Filter = require('bad-words'), filter = new Filter();
+
+// Set plain text to clickable URLs
+export const linkify = (inputText) => {
+    var replacedText, replacePattern1, replacePattern2, replacePattern3;
+
+    //URLs starting with http://, https://, or ftp://
+    replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/gim;
+    replacedText = inputText.replace(replacePattern1, '<a class="user-link" href="$1" target="_blank">$1</a>');
+
+    //URLs starting with "www." (without // before it, or it'd re-link the ones done above).
+    replacePattern2 = /(^|[^/])(www\.[\S]+(\b|$))/gim;
+    replacedText = replacedText.replace(replacePattern2, '$1<a class="user-link" href="http://$2" target="_blank">$2</a>');
+
+    //Change email addresses to mailto:: links.
+    replacePattern3 = /(([a-zA-Z0-9\-_.])+@[a-zA-Z_]+?(\.[a-zA-Z]{2,6})+)/gim;
+    replacedText = replacedText.replace(replacePattern3, '<a class="user-link" href="mailto:$1">$1</a>');
+
+    return replacedText;
+}
+
+const setCommentHTML = (comment) => {
+    if (document.getElementById(`${comment._id}-content-text`))
+        document.getElementById(`${comment._id}-content-text`).innerHTML = linkify(filter.clean(comment.content));
+}
 
 const Comments = (req) => {
     const [comments, setComments] = useState(null);
@@ -124,7 +149,7 @@ const Comments = (req) => {
         return (
             <div className='comment' style={{ marginLeft: indent }} id={comment._id}>
                 <p className='tagline'>
-                    <a className='username' href={`./user/${comment.username}`}>{comment.username}</a>
+                    <Link className='username' to={`./user/${comment.username}`}>{comment.username}</Link>
                     {' • '}
                     <span className='date'>
                         {new Date(comment.date).toLocaleDateString() + ' '}
@@ -133,9 +158,12 @@ const Comments = (req) => {
                 </p>
                 <div id={comment._id}>
                     <p id={`${comment._id}-content`} className='content'>
-                        {comment.parentId !== 'root' && <a className='user-link' href={`./user/${comment.parentUser}`}>@{comment.parentUser}</a>}
+                        {comment.parentId !== 'root' && <Link className='user-link' to={`./user/${comment.parentUser}`}>@{comment.parentUser}</Link>}
                         {comment.parentId !== 'root' && ' '}
-                        {filter.clean(comment.content)}
+                        <span id={`${comment._id}-content-text`}>
+                            {setCommentHTML(comment)}
+                        </span>
+                        
                     </p>
                 </div>
 

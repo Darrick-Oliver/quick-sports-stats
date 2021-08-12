@@ -1,21 +1,41 @@
 .profile {
-    margin-top: 155px;
+  margin-top: 155px;
 }
 
 .profile h2 {
-    text-align: left;
-    margin-left: 10%;
+  text-align: left;
+  margin-left: 10%;
 }
 
 .user-comment {
-    max-width: 600px;
-    margin-right: auto;
-    margin-left: auto;
-    padding: 15px;
-    margin-top: 20px;
-    border: 1px solid #e4e4e4;
-    border-radius: 5px;
-    width: 50%;
-    overflow-wrap: break-word;
-    transition: 0.3s;
+  max-width: 600px;
+  margin-right: auto;
+  margin-left: auto;
+  padding: 15px;
+  margin-top: 20px;
+  border: 1px solid #e4e4e4;
+  border-radius: 5px;
+  width: 75%;
+  overflow-wrap: break-word;
+  transition: 0.3s;
+}
+
+.edit-dropdown {
+  height: 200px;
+  overflow-y: scroll;
+}
+
+.edit-profile-container {
+  width: 80%;
+  margin-top: 15px;
+  margin-right: auto;
+  margin-left: auto;
+  padding: 15px;
+  border: 1px solid #0d6efd;
+  border-radius: 5px;
+  max-width: 400px;
+}
+
+.edit-text {
+  margin-right: 5px;
 }

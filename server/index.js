@@ -215,7 +215,9 @@ app.post('/api/register', async (req, res) => {
             username,
             email,
             password,
-            admin: false
+            admin: false,
+            favNBA: null,
+            favMLS: null
         });
     } catch (err) {
         if (err.code === 11000) {
