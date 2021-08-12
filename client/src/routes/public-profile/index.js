@@ -1,7 +1,10 @@
 import './index.css';
-import React, { useState, useEffect } from 'react';
-import { useParams, Redirect } from "react-router-dom";
+import React, { useState, useEffect, useContext } from 'react';
+import { useParams } from "react-router-dom";
+import { Button } from 'react-bootstrap';
+import '../../css/bootstrap.min.css';
 import NotFound from '../NotFound.js';
+import { UserContext } from '../../App.js';
 
 const Filter = require('bad-words'), filter = new Filter();
 
@@ -9,13 +12,15 @@ const PublicProfile = () => {
     const { userId } = useParams();
     const [userInfo, setUserInfo] = useState(null);
     const [error, setError] = useState(false);
+    const [edit, setEdit] = useState(false);
+    const myUser = useContext(UserContext).user;
 
     // Set title
     useEffect(() => {
         document.title = `${userId}'s profile`;
-    }, []);
+    }, [userId]);
 
-    // Fetch from date
+    // Fetch user's comments
     useEffect(() => {
         fetch(`/api/user/${userId}`)
             .then((res) => res.json())
@@ -28,7 +33,6 @@ const PublicProfile = () => {
                     });
 
                     setUserInfo(data);
-                    console.log(data);
                 }
             })
             .catch(err => {
@@ -42,6 +46,10 @@ const PublicProfile = () => {
             {!error && userInfo &&
                 <div>
                     <h2>{userInfo.user.username}</h2>
+
+                    {userId === myUser && <Button onClick={() => setEdit(!edit)}>Edit profile</Button>}
+                    {edit && <h3>Editing</h3>}
+
                     {userInfo.comments && userInfo.comments.map(comment => {
                         return (
                             comment &&

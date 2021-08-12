@@ -1,9 +1,10 @@
 import './Login.css';
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Button } from 'react-bootstrap';
 import './css/bootstrap.min.css';
 import Modal from 'react-modal';
 import { Link } from "react-router-dom";
+import { UserContext } from './App.js';
 
 const validateEmail = (email) => {
     const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -21,8 +22,7 @@ Modal.setAppElement('#root');
 const Login = () => {
     const [regPopup, setRP] = useState(false);
     const [logPopup, setLP] = useState(false);
-    const [user, setUser] = useState(null);
-    const [login, setLogin] = useState(false);
+    let { user, setUser } = useContext(UserContext);
 
     // Register account
     const regAttempt = async (event) => {
@@ -143,13 +143,13 @@ const Login = () => {
             })
         }).then((res) => res.json());
         if (result.status === 'ok') {
+            setUser(result.user);
             setLP(false);
         } else {
             document.getElementById("login-user-err").innerHTML = result.error;
             user.classList.add('form-input-error');
             pass.classList.add('form-input-error');
         }
-        setLogin(false);
         return;
     }
 
@@ -164,30 +164,14 @@ const Login = () => {
         if (result.status !== 'ok') {
             return;
         }
-        setLogin(false);
         setUser(null);
         return;
-    }
-
-    // Fetch username
-    if (!login) {
-        setLogin(true);
-        fetch('/api/me')
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.status === 'ok') {
-                    setUser(data.user);
-                }
-            })
-            .catch(err => {
-                console.error("Error fetching data:", err);
-            });
     }
 
     return (
         <div>
             <span className='header-login'>
-                {user ? <span className='logged-in'>Logged in as <Link to='/my-profile' className='link-color'>{user}</Link></span> : <Button variant='link' style={{ color: "white" }} onClick={() => setLP(!logPopup)} title='Log in'>Log in</Button>}
+                {user ? <span className='logged-in'>Logged in as <Link to={`/user/${user}`} className='link-color'>{user}</Link></span> : <Button variant='link' style={{ color: "white" }} onClick={() => setLP(!logPopup)} title='Log in'>Log in</Button>}
                 {user ? <p onClick={() => logOut()} className='link-color'>Log out</p> : <Button variant='success' onClick={() => setRP(!regPopup)} title='Sign Up'>Sign up</Button>}
             </span>
             <Modal

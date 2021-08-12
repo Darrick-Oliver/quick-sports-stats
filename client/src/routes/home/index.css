@@ -59,14 +59,6 @@
   font-weight: none;
 }
 
-a {
-  color: white;
-}
-
-a:hover {
-  color: white;
-}
-
 .body-card {
   margin-top: 50px;
   transition: 0.3s;

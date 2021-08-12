@@ -269,7 +269,7 @@ app.post('/api/login', async (req, res) => {
         const maxAge = 3 * 24 * 60 * 60; // 3 days (in seconds)
 
         res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
-        return res.json({ status: 'ok', data: token });
+        return res.json({ status: 'ok', data: token, user: user.username });
     }
 
     return res.json({ status: 'error', error: 'Invalid username/password' });
@@ -434,7 +434,7 @@ app.get('/api/user/:userId', async (req, res) => {
     }
 });
 
-// All other GET requests not handled before will return the React app
+// All other GET requests not handled before will return the app
 app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
 });

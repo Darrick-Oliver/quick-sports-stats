@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
 import './index.css';
+import React, { useEffect, useContext } from 'react';
+import { UserContext } from '../../App.js';
 
 const getImage = (name) => {
     return `${process.env.PUBLIC_URL}/assets/images/nba_logos/${name}.svg`;
@@ -10,41 +11,24 @@ const changeTeam = (team) => {
 }
 
 const Profile = () => {
-    // Verify login and get username
-    const [user, setUser] = useState(null);
-    const [login, setLogin] = useState(false);
+    const myUser = useContext(UserContext).user;
 
     // Set title
     useEffect(() => {
         document.title = 'My profile';
     }, []);
 
-    // Fetch username
-    if (!login) {
-        setLogin(true);
-        fetch('/api/me')
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.status === 'ok') {
-                    setUser(data.user);
-                }
-            })
-            .catch(err => {
-                console.error("Error fetching data:", err);
-            });
-    }
-
     return (
-        <div className='my-profile'>
-            {user && login ? `Welcome back, ${user}` : login ? 'You must be logged in to access this page' : 'Loading...'}
-            {user &&
+        <div className='edit-profile'>
+            {myUser ? `Welcome back, ${myUser}` : 'You must be logged in to access this page'}
+            {myUser &&
                 <div className='edit-profile-container'>
                     <span className='edit-text'>Favorite NBA team:</span>
 
-                    <div class="dropdown">
+                    <div className="dropdown">
                         <p id='drop' className='drop-value'>Favorite Team</p>
                         <div className="dropdown-content">
-                            <p onClick={() => changeTeam('None')}><img height='50'></img>None</p>
+                            <p onClick={() => changeTeam('None')} style={{ height: 50, textAlign: 'center', top: '50%', bottom: '50%' }}>None</p>
                             <p onClick={() => changeTeam('Atlanta Hawks')}><img src={getImage(1610612737)} alt='Atlanta Hawks' height='50'></img> Atlanta Hawks</p>
                             <p onClick={() => changeTeam('Boston Celtics')}><img src={getImage(1610612738)} alt='Boston Celtics' height='50'></img> Boston Celtics</p>
                             <p onClick={() => changeTeam('Brooklyn Nets')}><img src={getImage(1610612751)} alt='Brooklyn Nets' height='50'></img> Brooklyn Nets</p>
@@ -79,8 +63,6 @@ const Profile = () => {
                     </div>
 
                     <br />
-                    <span className='edit-text'>Avatar:</span>
-                    <input type="file" id="myFile" name="filename" />
                     <input type='submit' />
                 </div>
             }

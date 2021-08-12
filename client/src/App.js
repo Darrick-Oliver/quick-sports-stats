@@ -1,34 +1,58 @@
 import './App.css';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import './css/bootstrap.min.css';
 import Login from './Login.js';
 import NBA from './routes/nba/index.js';
 import MLS from './routes/mls/index.js';
 import Home from './routes/home/index.js';
-import Profile from './routes/profile/index.js';
+import Profile from './routes/edit-profile/index.js';
 import PublicProfile from './routes/public-profile/index.js';
 import NotFound from './routes/NotFound.js';
 
+export const UserContext = React.createContext({
+  user: null,
+  setUser: () => {}
+});
+
 const App = () => {
-  return (
-    <div className='App'>
-      <Router>
-        <div className='top'>
-          <Link to='/'><h1>Areto Fantasy</h1></Link>
-          <Login />
+    const [user, setUser] = useState(null);
+
+    const value = { user, setUser };
+
+    useEffect(() => {
+        fetch('/api/me')
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.status === 'ok') {
+                    setUser(data.user);
+                }
+            })
+            .catch(err => {
+                console.error("Error fetching login data:", err);
+            });
+    }, []);
+
+    return (
+        <div className='App'>
+            <Router>
+                    <UserContext.Provider value={value}>
+                        <div className='top'>
+                            <Link to='/'><h1>Areto Fantasy</h1></Link>
+                            <Login onLogin={(newUser) => setUser(newUser)}/>
+                        </div>
+                        <Switch>
+                            <Route exact path='/nba' component={NBA} />
+                            <Route exact path='/mls' component={MLS} />
+                            <Route exact path='/' component={Home} />
+                            <Route exact path='/edit-profile' component={Profile} />
+                            <Route path='/user/:userId' component={PublicProfile} />
+                            <Route component={NotFound} />
+                        </Switch>
+                </UserContext.Provider>
+            </Router>
         </div>
-        <Switch>
-          <Route exact path='/nba' component={NBA} />
-          <Route exact path='/mls' component={MLS} />
-          <Route exact path='/' component={Home} />
-          <Route exact path='/my-profile' component={Profile} />
-          <Route path='/user/:userId' component={PublicProfile} />
-          <Route component={NotFound} />
-        </Switch>
-      </Router>
-    </div>
-  );
+    );
 }
 
 export default App;

@@ -8,6 +8,7 @@
 }
 
 .user-comment {
+    max-width: 600px;
     margin-right: auto;
     margin-left: auto;
     padding: 15px;
