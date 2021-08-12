@@ -12,8 +12,10 @@ Currently displays NBA and MLS scores
 One major bug I plan on fixing is that the NBA blacklists Heroku applications from accessing certain parts of their API. Scores from past games, and future scheduled games will be taken from a different sports API.
 
 Features a register, login, and commenting system using MongoDB
+
 TODO:
 
+- Fix deleted comments with replies issue
 - Team stats (posession, score, etc) in MLS box scores
 - Team scores database (retrieves if not stored)
 - Player stats database (?)
