@@ -1,6 +1,8 @@
 # Areto
 
-<a href="https://areto.herokuapp.com" target="_blank">Areto Homepage</a> (hosted on Heroku, may take a while to load at first)
+[Areto Homepage](https://areto.herokuapp.com) (hosted on Heroku, may take a while to load at first)
+
+To see a list of the most recent changes, visit the [changelog](https://github.com/Darrick-Oliver/areto/wiki/Changelog)
 
 Currently displays NBA and MLS scores
 
