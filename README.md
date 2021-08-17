@@ -20,7 +20,6 @@ TODO:
 
 TODAY//
 
-- Stringify user data, parse inside each js file
 - Let users select favorite team
 
 MAYBE TODAY//

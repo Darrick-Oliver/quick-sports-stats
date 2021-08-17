@@ -474,22 +474,27 @@ app.post('/api/comments/edit', requireAuth, async (req, res) => {
 
 // Get user info
 app.get('/api/user/:userId', async (req, res) => {
+    // Escape all special characters
+    const regexUserId = req.params.userId.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+
+    // Find the user
     const user = await User.findOne({ username: {
-        $regex : new RegExp(req.params.userId, "i") } }
+        $regex : new RegExp(regexUserId, "i") } }
     ).lean();
 
+    // Check if user was found
     if (!user)
         return res.json({ status: 'error', error: 'User not found' });
     const userInfo = { username: user.username };
 
     const comments = await Comment.find({ username: {
-        $regex : new RegExp(req.params.userId, "i") } }
+        $regex : new RegExp(regexUserId, "i") } }
     );
     if (comments.length > 0) {
         // Return all comments
         return res.json({ status: 'ok', user: userInfo, comments: comments });
     } else {
-        // Return nothing
+        // Return null if no comments found
         return res.json({ status: 'ok', user: userInfo, comments: null });
     }
 });

@@ -12,8 +12,7 @@ const Comments = (req) => {
     const [replyBoxes, setReplyBoxes] = useState(null);
     const [editBoxes, setEditBoxes] = useState(null);
     const [delConfirm, setDelConfirm] = useState(null);
-    const myUser = useContext(UserContext).user;
-    const admin = useContext(UserContext).admin;
+    const myUser = JSON.parse(useContext(UserContext).user);
 
     // Handles comment submission
     const submitComment = async (type, gameId) => {
@@ -203,7 +202,7 @@ const Comments = (req) => {
                                 <div id={`edit-${comment._id}-err`} className='comment-error-message'></div>
                                 <Button id='submit-edit' variant='outline-success' onClick={() => editComment(comment._id, comments.indexOf(comment), comment.content).then((result) => {
                                     // Update edited comment
-                                    if (result.comment && result.comment.length === 1) {
+                                    if (result && result.comment && result.comment.length === 1) {
                                         comments[comments.indexOf(comment)] = result.comment[0];
 
                                         // Update components
@@ -215,9 +214,9 @@ const Comments = (req) => {
                     </span>
                 </div>
 
-                {comment.username === myUser && <button className='comment-buttons' id={`edit-${comment._id}`} onClick={() => loadEdit(comments.indexOf(comment))}>{editBoxes[comments.indexOf(comment)] ? 'cancel' : 'edit'}</button>}
+                {myUser && comment.username === myUser.username && <button className='comment-buttons' id={`edit-${comment._id}`} onClick={() => loadEdit(comments.indexOf(comment))}>{editBoxes[comments.indexOf(comment)] ? 'cancel' : 'edit'}</button>}
 
-                {(comment.username === myUser || admin) && !delConfirm[comments.indexOf(comment)] && <button className='comment-buttons' onClick={() => {
+                {myUser && (comment.username === myUser.username || myUser.admin) && !delConfirm[comments.indexOf(comment)] && <button className='comment-buttons' onClick={() => {
                     if (delConfirm) {
                         delConfirm[comments.indexOf(comment)] = true;
                         setDelConfirm([...delConfirm]);

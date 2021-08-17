@@ -11,7 +11,7 @@ const changeTeam = (team) => {
 }
 
 const Profile = () => {
-    const myUser = useContext(UserContext).user;
+    const myUser = JSON.parse(useContext(UserContext).user);
 
     // Set title
     useEffect(() => {
@@ -20,8 +20,8 @@ const Profile = () => {
 
     return (
         <div className='edit-profile'>
-            {myUser ? `Welcome back, ${myUser}` : 'You must be logged in to access this page'}
-            {myUser &&
+            {myUser && myUser.username ? `Welcome back, ${myUser.username}` : 'You must be logged in to access this page'}
+            {myUser && myUser.username &&
                 <div className='edit-profile-container'>
                     <span className='edit-text'>Favorite NBA team:</span>
 

@@ -18,11 +18,12 @@ const PublicProfile = () => {
     const [userInfo, setUserInfo] = useState(null);
     const [error, setError] = useState(false);
     const [edit, setEdit] = useState(false);
-    const myUser = useContext(UserContext).user;
+    const myUser = JSON.parse(useContext(UserContext).user);
 
     // Set title
     useEffect(() => {
         document.title = `${userId}'s profile`;
+        setError(false);
     }, [userId]);
 
     // Fetch user's comments
@@ -63,7 +64,7 @@ const PublicProfile = () => {
                 <div>
                     <h2>{userInfo.user.username}</h2>
 
-                    {userInfo.user.username === myUser && <Button onClick={() => setEdit(!edit)}>{edit ? 'Cancel' : 'Edit profile'}</Button>}
+                    {myUser && userInfo.user.username === myUser.username && <Button onClick={() => setEdit(!edit)}>{edit ? 'Cancel' : 'Edit profile'}</Button>}
                     {edit && 
                         <div className='edit-profile-container'>
                             <span className='edit-text'>Favorite NBA team:</span>

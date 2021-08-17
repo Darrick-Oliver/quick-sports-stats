@@ -22,7 +22,8 @@ Modal.setAppElement('#root');
 const Login = () => {
     const [regPopup, setRP] = useState(false);
     const [logPopup, setLP] = useState(false);
-    let { user, setUser, setAdmin } = useContext(UserContext);
+    const user = JSON.parse(useContext(UserContext).user);
+    const setUser = useContext(UserContext).setUser;
 
     // Register account
     const regAttempt = async (event) => {
@@ -83,8 +84,7 @@ const Login = () => {
             setRP(false);
 
             // Set username and admin
-            setUser(result.user.username);
-            setAdmin(result.user.admin);
+            setUser(JSON.stringify(result.user));
             return;
         } else {
             switch (result.type) {
@@ -146,8 +146,7 @@ const Login = () => {
         }).then((res) => res.json());
 
         if (result.status === 'ok') {
-            setUser(result.user.username);
-            setAdmin(result.user.admin);
+            setUser(JSON.stringify(result.user));
             setLP(false);
         } else {
             document.getElementById("login-user-err").innerHTML = result.error;
@@ -169,14 +168,13 @@ const Login = () => {
             return;
         }
         setUser(null);
-        setAdmin(false);
         return;
     }
 
     return (
         <div>
             <span className='header-login'>
-                {user ? <span className='logged-in'>Logged in as <Link to={`/user/${user}`} className='link-color'>{user}</Link></span> : <Button variant='link' style={{ color: "white" }} onClick={() => setLP(!logPopup)} title='Log in'>Log in</Button>}
+                {user ? <span className='logged-in'>Logged in as <Link to={`/user/${user.username}`} className='link-color'>{user.username}</Link></span> : <Button variant='link' style={{ color: "white" }} onClick={() => setLP(!logPopup)} title='Log in'>Log in</Button>}
                 {user ? <p onClick={() => logOut()} className='link-color'>Log out</p> : <Button variant='success' onClick={() => setRP(!regPopup)} title='Sign Up'>Sign up</Button>}
             </span>
             <Modal

@@ -12,15 +12,12 @@ import NotFound from './routes/NotFound.js';
 
 export const UserContext = React.createContext({
   user: null,
-  setUser: () => {},
-  admin: null,
-  setAdmin: () => {}
+  setUser: () => {}
 });
 
 const App = () => {
     const [user, setUser] = useState(null);
-    const [admin, setAdmin] = useState(false);
-    const value = { user, setUser, admin, setAdmin };
+    const value = { user, setUser };
 
     // Get user info from server
     useEffect(() => {
@@ -28,8 +25,7 @@ const App = () => {
             .then((res) => res.json())
             .then((data) => {
                 if (data.status === 'ok') {
-                    setUser(data.user.username);
-                    setAdmin(data.user.admin);
+                    setUser(JSON.stringify(data.user));
                 }
             })
             .catch(err => {
