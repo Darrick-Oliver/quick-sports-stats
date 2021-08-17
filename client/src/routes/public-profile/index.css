@@ -39,3 +39,7 @@
 .edit-text {
   margin-right: 5px;
 }
+
+.user-comment {
+  white-space: pre-line;
+}

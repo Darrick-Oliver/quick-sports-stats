@@ -130,7 +130,7 @@
 }
 
 .edit-box {
-  margin-left: -15px;
+  margin-left: -20px;
 }
 
 .edit-date {
@@ -139,4 +139,21 @@
   color: #8f8f8f;
   margin-top: -15px;
   background-color: #ffff6588;
+}
+
+.delete-confirm {
+  color: red;
+}
+
+.delete-buttons {
+  font-size: 15px;
+  font-weight: bold;
+  color: grey;
+  border: none;
+  background: none;
+}
+
+.delete-buttons:hover {
+  color: rgb(65, 65, 65);
+  cursor: pointer;
 }

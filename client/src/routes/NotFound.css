@@ -1,3 +1,7 @@
+.not-found-container {
+  margin-top: 155px;
+}
+
 .not-found-container a {
   text-decoration: none;
   color: rgb(100, 100, 100);

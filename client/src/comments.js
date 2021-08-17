@@ -11,6 +11,7 @@ const Comments = (req) => {
     const [comments, setComments] = useState(null);
     const [replyBoxes, setReplyBoxes] = useState(null);
     const [editBoxes, setEditBoxes] = useState(null);
+    const [delConfirm, setDelConfirm] = useState(null);
     const myUser = useContext(UserContext).user;
     const admin = useContext(UserContext).admin;
 
@@ -56,6 +57,13 @@ const Comments = (req) => {
                 'Content-Type': 'application/json'
             }
         }).then((res) => res.json());
+
+        // Check for errors
+        if (result.status === 'error') {
+            document.getElementById(`comment-${id}-err`).innerHTML = `${result.error}`;
+        } else {
+            document.getElementById(`comment-${id}-err`).innerHTML = '';
+        }
 
         return result;
     }
@@ -209,37 +217,65 @@ const Comments = (req) => {
 
                 {comment.username === myUser && <button className='comment-buttons' id={`edit-${comment._id}`} onClick={() => loadEdit(comments.indexOf(comment))}>{editBoxes[comments.indexOf(comment)] ? 'cancel' : 'edit'}</button>}
 
-                {(comment.username === myUser || admin) && <button className='comment-buttons' onClick={() => {
-                    deleteComment(comment._id).then((result) => {
-                        if (result.status === 'ok' && result.data === 'deleted') {
-                            // Delete comment from comments if it was deleted from server
-                            delete replyBoxes[comments.indexOf(comment)];
-                            delete editBoxes[comments.indexOf(comment)];
-                            delete comments[comments.indexOf(comment)];
-
-                            // Update components
-                            setComments([...comments]);
-                        }
-                        else if (result.status === 'ok' && result.data === 'modified') {
-                            // Modify comment to [deleted] if it was modified on server
-                            comments[comments.indexOf(comment)].content = '[Deleted by user]';
-                            comments[comments.indexOf(comment)].username = '[deleted]';
-                            comments[comments.indexOf(comment)].parentUser = '[deleted]';
-
-                            // Change parentUser of replies (there's probably a better way to do this)
-                            const replies = comments.filter((e) => { if (e) return e.parentId === comment._id; else return 0; });
-                            if (replies.length !== 0) {
-                                replies.map((reply) => {
-                                    comments[comments.indexOf(reply)].parentUser = '[deleted]';
-                                    return 0;
-                                });
-                            }
-
-                            // Update components
-                            setComments([...comments]);
-                        }
-                    })
+                {(comment.username === myUser || admin) && !delConfirm[comments.indexOf(comment)] && <button className='comment-buttons' onClick={() => {
+                    if (delConfirm) {
+                        delConfirm[comments.indexOf(comment)] = true;
+                        setDelConfirm([...delConfirm]);
+                    }
                 }}>delete</button>}
+
+                {delConfirm[comments.indexOf(comment)] &&
+                    <span className='delete-confirm'>
+                        are you sure?
+                        <button className='delete-buttons' onClick={() => {
+                            deleteComment(comment._id).then((result) => {
+                                if (result.status === 'ok' && result.data === 'deleted') {
+                                    // Delete comment from comments if it was deleted from server
+                                    delete delConfirm[comments.indexOf(comment)];
+                                    delete replyBoxes[comments.indexOf(comment)];
+                                    delete editBoxes[comments.indexOf(comment)];
+                                    delete comments[comments.indexOf(comment)];
+        
+                                    // Update components
+                                    setComments([...comments]);
+                                }
+                                else if (result.status === 'ok' && result.data === 'modified') {
+                                    // Modify comment to [deleted] if it was modified on server
+                                    comments[comments.indexOf(comment)].content = '[Deleted by user]';
+                                    comments[comments.indexOf(comment)].username = '[deleted]';
+                                    comments[comments.indexOf(comment)].parentUser = '[deleted]';
+
+                                    // Close everything
+                                    delConfirm[comments.indexOf(comment)] = false;
+                                    replyBoxes[comments.indexOf(comment)] = false;
+                                    editBoxes[comments.indexOf(comment)] = false;
+                                    setDelConfirm([...delConfirm]);
+                                    setReplyBoxes([...replyBoxes]);
+                                    setEditBoxes([...editBoxes]);
+        
+                                    // Change parentUser of replies (there's probably a better way to do this)
+                                    const replies = comments.filter((e) => { if (e) return e.parentId === comment._id; else return 0; });
+                                    if (replies.length !== 0) {
+                                        replies.map((reply) => {
+                                            comments[comments.indexOf(reply)].parentUser = '[deleted]';
+                                            return 0;
+                                        });
+                                    }
+        
+                                    // Update components
+                                    setComments([...comments]);
+                                }
+                            })
+                        }}>yes</button>
+                        /
+                        <button className='delete-buttons' onClick={() => {
+                            if (delConfirm) {
+                                delConfirm[comments.indexOf(comment)] = false;
+                                setDelConfirm([...delConfirm]);
+                            }
+                        }}>no</button>
+                    </span>
+                }
 
                 <button className='comment-buttons' id={`reply-${comment._id}`} onClick={() => loadReply(comments.indexOf(comment))}>{replyBoxes[comments.indexOf(comment)] ? 'cancel' : 'reply'}</button>
 
@@ -255,10 +291,17 @@ const Comments = (req) => {
                                     return new Date(b.date).getTime() - new Date(a.date).getTime();
                                 }));
                                 setComments([...comments]);
+
+                                // Set reply and edit boxes
+                                setDelConfirm([false, ...delConfirm])
+                                setReplyBoxes([false, ...replyBoxes]);
+                                setEditBoxes([false, ...editBoxes]);
                             }
                         })}>Reply</Button>
                     </div>
                 }
+
+                <span id={`comment-${comment._id}-err`} className='comment-error-message'></span>
             </div>
         )
     }
@@ -272,11 +315,12 @@ const Comments = (req) => {
                     setComments(data.comments.sort((a, b) => {
                         return new Date(b.date).getTime() - new Date(a.date).getTime();
                     }));
-                }
 
-                if (data.comments) {
-                    setReplyBoxes(new Array(data.comments.length).fill(false));
-                    setEditBoxes(new Array(data.comments.length).fill(false));
+                    if (data.comments) {
+                        setDelConfirm(new Array(data.comments.length).fill(false));
+                        setReplyBoxes(new Array(data.comments.length).fill(false));
+                        setEditBoxes(new Array(data.comments.length).fill(false));
+                    }
                 }
             })
             .catch(err => {
@@ -301,13 +345,15 @@ const Comments = (req) => {
                         setComments([...comments]);
 
                         // Close new reply
+                        setDelConfirm([false, ...delConfirm]);
                         setReplyBoxes([false, ...replyBoxes]);
-                        setEditBoxes([false, ...replyBoxes]);
+                        setEditBoxes([false, ...editBoxes]);
                     } else if (newComment) {
                         // If single comment added, only add that one
                         setComments([newComment]);
 
                         // Set replies
+                        setDelConfirm([false]);
                         setReplyBoxes([false]);
                         setEditBoxes([false]);
                     }

@@ -33,9 +33,11 @@ const PublicProfile = () => {
                 if (data.status !== 'ok')
                     setError(true);
                 else {
-                    data.comments = data.comments.sort((a, b) => {
-                        return new Date(b.date).getTime() - new Date(a.date).getTime();
-                    });
+                    if (data.comments) {
+                        data.comments = data.comments.sort((a, b) => {
+                            return new Date(b.date).getTime() - new Date(a.date).getTime();
+                        });
+                    }
 
                     setUserInfo(data);
                 }
@@ -56,12 +58,12 @@ const PublicProfile = () => {
 
     return (
         <div className='profile'>
-            {error && <NotFound />}
+            {error && <NotFound style={{ marginTop: '-155px' }} />}
             {!error && userInfo &&
                 <div>
                     <h2>{userInfo.user.username}</h2>
 
-                    {userId === myUser && <Button onClick={() => setEdit(!edit)}>{edit ? 'Cancel' : 'Edit profile'}</Button>}
+                    {userInfo.user.username === myUser && <Button onClick={() => setEdit(!edit)}>{edit ? 'Cancel' : 'Edit profile'}</Button>}
                     {edit && 
                         <div className='edit-profile-container'>
                             <span className='edit-text'>Favorite NBA team:</span>
@@ -160,13 +162,21 @@ const PublicProfile = () => {
                                         {new Date(comment.date).toLocaleDateString() + ' '}
                                         {new Date(comment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
                                     </span>
+                                    {comment.edited && comment.editDate && 
+                                        <span className='edit-date'>
+                                            {'(last edited: '}
+                                            {new Date(comment.editDate).toLocaleDateString() + ' '}
+                                            {new Date(comment.editDate).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
+                                            {')'}
+                                        </span>
+                                    }
                                 </p>
                                 <div>
-                                    <p id={`${comment._id}-content`} className='content'>
-                                        {comment.parentId !== 'root' && <Link className='user-link' to={`/user/${comment.parentUser}`}>@{comment.parentUser}</Link>}
-                                        {comment.parentId !== 'root' && ' '}
-                                        {filter.clean(comment.content)}
-                                    </p>
+                                <span id={`${comment._id}-content`} className='content'>
+                                    {comment.parentId !== 'root' && <Link className='user-link' to={`/user/${comment.parentUser}`}>@{comment.parentUser}</Link>}
+                                    {comment.parentId !== 'root' && ' '}
+                                    {filter.clean(comment.content)}
+                                </span>
                                 </div>
                             </div>
                         );

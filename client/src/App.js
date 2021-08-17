@@ -50,7 +50,7 @@ const App = () => {
                             <Route exact path='/mls' component={MLS} />
                             <Route exact path='/' component={Home} />
                             <Route exact path='/edit-profile' component={Profile} />
-                            <Route path='/user/:userId' component={PublicProfile} />
+                            <Route exact path='/user/:userId' component={PublicProfile} />
                             <Route component={NotFound} />
                         </Switch>
                 </UserContext.Provider>

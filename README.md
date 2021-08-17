@@ -7,7 +7,8 @@ To see a list of the most recent changes, visit the [changelog](https://github.c
 Currently displays NBA and MLS scores
 
 - Can access current, past, and future fixtures
-- Box scores can be generated for present and most\* past NBA/MLS games
+- Box scores can be generated for present and most\* past NBA games
+- All box scores are present for MLS games
 
 <sub>\*only ones using nba api v3<sub>
 
@@ -17,9 +18,18 @@ Features a register, login, and commenting system using MongoDB
 
 TODO:
 
-- Delete comment confirmation
+TODAY//
+
+- Stringify user data, parse inside each js file
 - Let users select favorite team
-- Team stats (posession, score, etc) in MLS box scores
+
+MAYBE TODAY//
+
 - Team scores database (retrieves if not stored)
-- Player stats database (?)
+
+NOT TODAY//
+
+- Change NBA api (ESPN, bbref, or something else)
+- Team stats (posession, score, etc) in MLS box scores
+- Comment context permalink
 - Team builder

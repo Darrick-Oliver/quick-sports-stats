@@ -246,24 +246,23 @@ app.post('/api/register', async (req, res) => {
             admin: user.admin
         }});
     } catch (err) {
-        if (err.code === 11000) {
-            // Duplicate key
-            if (err.keyPattern.username) {
+        if (err.errors) {
+            // Validation error
+            if (err.errors.username) {
                 return res.json({
                     status: 'error',
                     type: 'username',
-                    error: 'Username already in use'
+                    error: err.errors.username.message
                 });
-            }
-            else if (err.keyPattern.email) {
+            } else if (err.errors.email) {
                 return res.json({
                     status: 'error',
                     type: 'email',
-                    error: 'Email already in use'
+                    error: err.errors.email.message
                 });
             }
         }
-        return res.json({ status: 'error', error: err });
+        return res.json({ status: 'error', error: JSON.stringify(err) });
     }
 });
 
@@ -370,7 +369,7 @@ app.post('/api/comments/post', requireAuth, async (req, res) => {
             parentUser = parent[0].username;
         } catch (err) {
             console.log(err);
-            return res.json({ status: 'error', error: 'Invalid parent' });
+            return res.json({ status: 'error', error: 'Parent comment does not exist' });
         }
     }
 
@@ -475,13 +474,17 @@ app.post('/api/comments/edit', requireAuth, async (req, res) => {
 
 // Get user info
 app.get('/api/user/:userId', async (req, res) => {
-    const user = await User.findOne({ username: req.params.userId }).lean();
+    const user = await User.findOne({ username: {
+        $regex : new RegExp(req.params.userId, "i") } }
+    ).lean();
 
     if (!user)
         return res.json({ status: 'error', error: 'User not found' });
     const userInfo = { username: user.username };
 
-    const comments = await Comment.find({ username: req.params.userId });
+    const comments = await Comment.find({ username: {
+        $regex : new RegExp(req.params.userId, "i") } }
+    );
     if (comments.length > 0) {
         // Return all comments
         return res.json({ status: 'ok', user: userInfo, comments: comments });
