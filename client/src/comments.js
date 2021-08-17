@@ -10,6 +10,7 @@ const Filter = require('bad-words'), filter = new Filter();
 const Comments = (req) => {
     const [comments, setComments] = useState(null);
     const [replyBoxes, setReplyBoxes] = useState(null);
+    const [editBoxes, setEditBoxes] = useState(null);
     const myUser = useContext(UserContext).user;
     const admin = useContext(UserContext).admin;
 
@@ -89,11 +90,53 @@ const Comments = (req) => {
         return result.data;
     }
 
+    // Sends edits to the server
+    const editComment = async (_id, i, prevContent) => {
+        const content = document.getElementById(`edit-${_id}-text`).value;
+
+        // Check if any edits were made
+        if (content === prevContent) {
+            // If not, just close edit box
+            editBoxes[i] = false;
+            setEditBoxes([...editBoxes]);
+            return;
+        }
+
+        const result = await fetch(`/api/comments/edit`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                content,
+                _id
+            })
+        }).then((res) => res.json());
+        
+        if (result.status === 'ok') {
+            // Close edit box on success
+            editBoxes[i] = false;
+            setEditBoxes([...editBoxes]);
+        } else if (result.status === 'error') {
+            document.getElementById(`edit-${_id}-err`).innerHTML = `${result.error}`;
+        }
+        
+        return result;
+    }
+
     // Loads a reply box to the requested comment
-    const loadReply = async (i) => {
+    const loadReply = (i) => {
         if (replyBoxes) {
             replyBoxes[i] = !replyBoxes[i];
             setReplyBoxes([...replyBoxes]);
+        }
+    }
+
+    // Loads a reply box to the requested comment
+    const loadEdit = (i) => {
+        if (editBoxes) {
+            editBoxes[i] = !editBoxes[i];
+            setEditBoxes([...editBoxes]);
         }
     }
 
@@ -133,20 +176,45 @@ const Comments = (req) => {
                         {new Date(comment.date).toLocaleDateString() + ' '}
                         {new Date(comment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
                     </span>
+                    {comment.edited && comment.editDate && 
+                        <span className='edit-date'>
+                            {'(last edited: '}
+                            {new Date(comment.editDate).toLocaleDateString() + ' '}
+                            {new Date(comment.editDate).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
+                            {')'}
+                        </span>
+                    }
                 </p>
                 <div id={comment._id}>
-                    <p id={`${comment._id}-content`} className='content'>
+                    <span id={`${comment._id}-content`} className='content'>
                         {comment.parentId !== 'root' && comment.parentUser !== '[deleted]' && <Link className='user-link' to={`./user/${comment.parentUser}`}>@{comment.parentUser}</Link>}
                         {comment.parentId !== 'root' && comment.parentUser !== '[deleted]' && ' '}
-                        {filter.clean(comment.content)}
-                    </p>
+                        {editBoxes[comments.indexOf(comment)] ? 
+                            <div className='reply-box edit-box'>
+                                <textarea id={`edit-${comment._id}-text`} autoFocus className='comment-textarea reply-textarea' defaultValue={comment.content} /><br />
+                                <div id={`edit-${comment._id}-err`} className='comment-error-message'></div>
+                                <Button id='submit-edit' variant='outline-success' onClick={() => editComment(comment._id, comments.indexOf(comment), comment.content).then((result) => {
+                                    // Update edited comment
+                                    if (result.comment && result.comment.length === 1) {
+                                        comments[comments.indexOf(comment)] = result.comment[0];
+
+                                        // Update components
+                                        setComments([...comments]);
+                                    }
+                                })}>Submit</Button>
+                            </div>
+                        : filter.clean(comment.content)}
+                    </span>
                 </div>
+
+                {comment.username === myUser && <button className='comment-buttons' id={`edit-${comment._id}`} onClick={() => loadEdit(comments.indexOf(comment))}>{editBoxes[comments.indexOf(comment)] ? 'cancel' : 'edit'}</button>}
 
                 {(comment.username === myUser || admin) && <button className='comment-buttons' onClick={() => {
                     deleteComment(comment._id).then((result) => {
                         if (result.status === 'ok' && result.data === 'deleted') {
                             // Delete comment from comments if it was deleted from server
                             delete replyBoxes[comments.indexOf(comment)];
+                            delete editBoxes[comments.indexOf(comment)];
                             delete comments[comments.indexOf(comment)];
 
                             // Update components
@@ -156,6 +224,7 @@ const Comments = (req) => {
                             // Modify comment to [deleted] if it was modified on server
                             comments[comments.indexOf(comment)].content = '[Deleted by user]';
                             comments[comments.indexOf(comment)].username = '[deleted]';
+                            comments[comments.indexOf(comment)].parentUser = '[deleted]';
 
                             // Change parentUser of replies (there's probably a better way to do this)
                             const replies = comments.filter((e) => { if (e) return e.parentId === comment._id; else return 0; });
@@ -205,8 +274,10 @@ const Comments = (req) => {
                     }));
                 }
 
-                if (data.comments)
+                if (data.comments) {
                     setReplyBoxes(new Array(data.comments.length).fill(false));
+                    setEditBoxes(new Array(data.comments.length).fill(false));
+                }
             })
             .catch(err => {
                 console.error("Error fetching data:", err);
@@ -231,12 +302,14 @@ const Comments = (req) => {
 
                         // Close new reply
                         setReplyBoxes([false, ...replyBoxes]);
+                        setEditBoxes([false, ...replyBoxes]);
                     } else if (newComment) {
                         // If single comment added, only add that one
                         setComments([newComment]);
 
                         // Set replies
                         setReplyBoxes([false]);
+                        setEditBoxes([false]);
                     }
                 })}>Submit</Button>
             </div>
@@ -245,7 +318,7 @@ const Comments = (req) => {
                     {comments.map(comment => {
                         return (
                             // Make sure comment exists
-                            comment && comment.parentId === 'root' && replyBoxes &&
+                            comment && comment.parentId === 'root' && replyBoxes && editBoxes && 
                             <div className='comment-section' key={comment._id}>
                                 {generateComment(comment, 0)}
                                 {showReplies(comments, comment, 0)}

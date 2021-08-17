@@ -206,6 +206,15 @@ app.post('/api/register', async (req, res) => {
         });
     }
 
+    // Check for special characters in username
+    if (username.match(/^[a-zA-Z0-9_.-]*$/) === null) {
+        return res.json({ 
+            status: 'error',
+            type: 'username',
+            error: 'Username cannot contain special characters'
+        });
+    }
+
     // Hash password
     const password = await bcrypt.hash(pass, 10);
 
@@ -219,6 +228,23 @@ app.post('/api/register', async (req, res) => {
             favNBA: 'none',
             favMLS: 'none'
         });
+        
+        // Log user in after success
+        let user = await User.findOne({ username: username }).lean();
+        const token = jwt.sign({
+            id: user._id,
+            username: user.username,
+            admin: user.admin
+        }, process.env.JWT_SECRET, {
+            expiresIn: '3d'
+        });
+        const maxAge = 3 * 24 * 60 * 60; // 3 days (in seconds)
+        res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
+
+        return res.json({ status: 'ok', data: token, user: {
+            username: user.username,
+            admin: user.admin
+        }});
     } catch (err) {
         if (err.code === 11000) {
             // Duplicate key
@@ -239,8 +265,6 @@ app.post('/api/register', async (req, res) => {
         }
         return res.json({ status: 'error', error: err });
     }
-
-    return res.json({ status: 'ok' });
 });
 
 // Log in to account
@@ -407,7 +431,7 @@ app.get('/api/comments/:_id/delete', requireAuth, async (req, res) => {
     } else {
         try {
             // Otherwise, change content and username to [deleted]
-            await Comment.updateOne({ _id: _id }, { content: '[Deleted by user]', username: '[deleted]' });
+            await Comment.updateOne({ _id: _id }, { content: '[Deleted by user]', username: '[deleted]', parentUser: '[deleted]' });
 
             // Set all replies' parentUser to [deleted]
             await Comment.updateMany({ parentId: _id }, { parentUser: '[deleted]' });
@@ -416,6 +440,36 @@ app.get('/api/comments/:_id/delete', requireAuth, async (req, res) => {
         } catch (err) {
             return res.json({ status: 'error', error: err });
         }
+    }
+});
+
+// Edit comments
+app.post('/api/comments/edit', requireAuth, async (req, res) => {
+    let { content, _id } = req.body;
+
+    // Ensure user is the user that posted
+    let comment = await Comment.find({ _id: _id });
+    if (comment.length && (res.locals.token.username !== comment[0].username)) {
+        return res.json({ status: 'error', error: 'You cannot edit other users\' comments' });
+    } else if (!comment.length) {
+        return res.json({ status: 'error', error: 'Comment does not exist' });
+    }
+
+    try {
+        // If user updates within 5 minutes, the edit won't be recorded
+        const now = new Date();
+        const creation = new Date(comment[0].date);
+        if (((Math.abs(now - creation)/1000)/60) < 5 ) {
+            await Comment.updateOne({ _id: _id }, { content: content });
+        } else {
+            await Comment.updateOne({ _id: _id }, { content: content, edited: true, editDate: new Date() });
+        }
+
+        // Retrieve comment again and return
+        comment = await Comment.find({ _id: _id });
+        return res.json({ status: 'ok', comment: comment });
+    } catch (err) {
+        return res.json({ status: 'error', error: err });
     }
 });
 

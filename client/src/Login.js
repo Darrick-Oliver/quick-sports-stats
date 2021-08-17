@@ -22,7 +22,7 @@ Modal.setAppElement('#root');
 const Login = () => {
     const [regPopup, setRP] = useState(false);
     const [logPopup, setLP] = useState(false);
-    let { user, setUser, admin, setAdmin } = useContext(UserContext);
+    let { user, setUser, setAdmin } = useContext(UserContext);
 
     // Register account
     const regAttempt = async (event) => {
@@ -79,13 +79,13 @@ const Login = () => {
 
         // Check status
         if (result.status === 'ok') {
-            // Show login screen
-            setLP(true);
-            document.getElementById("login-announce").innerHTML = "Account creation successful, please re-enter your login info";
-            document.getElementById("login-announce").classList.add('form-message-success');
-
-            // Close register
+            // Close registration modal
             setRP(false);
+
+            // Set username and admin
+            setUser(result.user.username);
+            setAdmin(result.user.admin);
+            return;
         } else {
             switch (result.type) {
                 case 'username':
@@ -144,6 +144,7 @@ const Login = () => {
                 password
             })
         }).then((res) => res.json());
+
         if (result.status === 'ok') {
             setUser(result.user.username);
             setAdmin(result.user.admin);

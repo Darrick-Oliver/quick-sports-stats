@@ -1,6 +1,6 @@
 # Areto
 
-<a href="https://areto.herokuapp.com" target="_blank">Areto Homepage</a> (hosted on Heroku)
+<a href="https://areto.herokuapp.com" target="_blank">Areto Homepage</a> (hosted on Heroku, may take a while to load at first)
 
 Currently displays NBA and MLS scores
 
@@ -15,7 +15,7 @@ Features a register, login, and commenting system using MongoDB
 
 TODO:
 
-- Add ability to edit comments
+- Delete comment confirmation
 - Let users select favorite team
 - Team stats (posession, score, etc) in MLS box scores
 - Team scores database (retrieves if not stored)

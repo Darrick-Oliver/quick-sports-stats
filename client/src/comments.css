@@ -61,6 +61,7 @@
 }
 
 .content {
+  display: block;
   margin-top: -10px;
   margin-left: 10px;
   margin-bottom: 5px;
@@ -126,4 +127,16 @@
 .username:hover {
   text-decoration: none;
   color: #9ba2df;
+}
+
+.edit-box {
+  margin-left: -15px;
+}
+
+.edit-date {
+  margin-left: 8px;
+  font-size: 13px;
+  color: #8f8f8f;
+  margin-top: -15px;
+  background-color: #ffff6588;
 }
