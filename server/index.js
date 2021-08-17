@@ -211,13 +211,13 @@ app.post('/api/register', async (req, res) => {
 
     // Attempt to create user in database
     try {
-        const response = await User.create({
+        await User.create({
             username,
             email,
             password,
             admin: false,
-            favNBA: null,
-            favMLS: null
+            favNBA: 'none',
+            favMLS: 'none'
         });
     } catch (err) {
         if (err.code === 11000) {
@@ -237,6 +237,7 @@ app.post('/api/register', async (req, res) => {
                 });
             }
         }
+        return res.json({ status: 'error', error: err });
     }
 
     return res.json({ status: 'ok' });
@@ -271,7 +272,10 @@ app.post('/api/login', async (req, res) => {
         const maxAge = 3 * 24 * 60 * 60; // 3 days (in seconds)
 
         res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
-        return res.json({ status: 'ok', data: token, user: user.username });
+        return res.json({ status: 'ok', data: token, user: {
+            username: user.username,
+            admin: user.admin
+        }});
     }
 
     return res.json({ status: 'error', error: 'Invalid username/password' });
@@ -285,35 +289,16 @@ app.get('/api/logout', async (req, res) => {
 });
 
 // Return user info
-app.get('/api/me', async (req, res) => {
-    // Get cookies from header
-    let cookies = req.headers.cookie;
-
-    if (cookies) {
-        // Extract jwt token from cookies
-        let token = null;
-        const value = `; ${cookies}`;
-        const parts = value.split('; jwt=');
-        if (parts.length === 2)
-            token = parts.pop().split(';').shift();
-        else
-            return res.json({ status: 'error', error: 'Not logged in', user: null });
-
-        // Verify token
-        jwt.verify(token, process.env.JWT_SECRET, async (err, decodedToken) => {
-            if (err) {
-                return res.json({ status: 'error', error: err.message, user: null });
-            } else {
-                const user = await User.findById(decodedToken.id);
-                if (user) {
-                    return res.json({ status: 'ok', user: user.username });
-                } else {
-                    return res.json({ status: 'error', error: 'Login not found', user: null });
-                }
-            }
-        });
+app.get('/api/me', requireAuth, async (req, res) => {
+    // Return user info if available
+    const user = await User.findById(res.locals.token.id);
+    if (user) {
+        return res.json({ status: 'ok', user: {
+            username: user.username,
+            admin: user.admin
+        } });
     } else {
-        return res.json({ status: 'error', error: 'Not logged in', user: null });
+        return res.json({ status: 'error', error: 'Login not found', user: null });
     }
 });
 
@@ -409,12 +394,28 @@ app.get('/api/comments/:_id/delete', requireAuth, async (req, res) => {
         return res.json({ status: 'error', error: 'Comment does not exist' });
     }
 
-    // Delete the comment
-    try {
-        await Comment.deleteOne({ _id: _id });
-        return res.json({ status: 'ok' });
-    } catch (err) {
-        return res.json({ status: 'error', error: err })
+    // Find any replies to that comment
+    const replies = await Comment.find({ parentId: _id });
+    if (replies.length === 0) {
+        // No replies, delete the comment
+        try {
+            await Comment.deleteOne({ _id: _id });
+            return res.json({ status: 'ok', data: 'deleted' });
+        } catch (err) {
+            return res.json({ status: 'error', error: err })
+        }
+    } else {
+        try {
+            // Otherwise, change content and username to [deleted]
+            await Comment.updateOne({ _id: _id }, { content: '[Deleted by user]', username: '[deleted]' });
+
+            // Set all replies' parentUser to [deleted]
+            await Comment.updateMany({ parentId: _id }, { parentUser: '[deleted]' });
+
+            return res.json({ status: 'ok', data: 'modified' });
+        } catch (err) {
+            return res.json({ status: 'error', error: err });
+        }
     }
 });
 

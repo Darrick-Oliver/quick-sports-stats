@@ -22,17 +22,18 @@ Modal.setAppElement('#root');
 const Login = () => {
     const [regPopup, setRP] = useState(false);
     const [logPopup, setLP] = useState(false);
-    let { user, setUser } = useContext(UserContext);
+    let { user, setUser, admin, setAdmin } = useContext(UserContext);
 
     // Register account
     const regAttempt = async (event) => {
         event.preventDefault();
-        let user = document.getElementById("reg-user");
+        let uname = document.getElementById("reg-user");
         let em = document.getElementById("reg-email");
         let pwd = document.getElementById("reg-pass");
         const pass_conf = document.getElementById("reg-pass-confirm");
         let err = 0;
 
+        // Error checking
         if (pwd.value !== pass_conf.value) {
             pwd.classList.add('form-input-error');
             pass_conf.classList.add('form-input-error');
@@ -59,7 +60,8 @@ const Login = () => {
         if (err) {
             return;
         }
-        const username = user.value;
+
+        const username = uname.value;
         const email = em.value;
         const pass = pwd.value;
         // Send data as JSON
@@ -88,7 +90,7 @@ const Login = () => {
             switch (result.type) {
                 case 'username':
                     document.getElementById("reg-user-err").innerHTML = result.error;
-                    user.classList.add('form-input-error');
+                    uname.classList.add('form-input-error');
                     break;
                 case 'email':
                     document.getElementById("reg-email-err").innerHTML = result.error;
@@ -109,16 +111,16 @@ const Login = () => {
     // Log in to account
     const loginAttempt = async (event) => {
         event.preventDefault();
-        const user = document.getElementById("login-user");
+        const uname = document.getElementById("login-user");
         const pass = document.getElementById("login-pass");
 
-        let username = user.value;
+        let username = uname.value;
         const password = pass.value;
         let email = null;
 
         // Clear errors
-        if (user.classList.contains('form-input-error')) {
-            user.classList.remove('form-input-error');
+        if (uname.classList.contains('form-input-error')) {
+            uname.classList.remove('form-input-error');
             document.getElementById("login-user-err").innerHTML = "";
         }
         if (pass.classList.contains('form-input-error')) {
@@ -143,11 +145,12 @@ const Login = () => {
             })
         }).then((res) => res.json());
         if (result.status === 'ok') {
-            setUser(result.user);
+            setUser(result.user.username);
+            setAdmin(result.user.admin);
             setLP(false);
         } else {
             document.getElementById("login-user-err").innerHTML = result.error;
-            user.classList.add('form-input-error');
+            uname.classList.add('form-input-error');
             pass.classList.add('form-input-error');
         }
         return;
@@ -165,6 +168,7 @@ const Login = () => {
             return;
         }
         setUser(null);
+        setAdmin(false);
         return;
     }
 

@@ -12,20 +12,24 @@ import NotFound from './routes/NotFound.js';
 
 export const UserContext = React.createContext({
   user: null,
-  setUser: () => {}
+  setUser: () => {},
+  admin: null,
+  setAdmin: () => {}
 });
 
 const App = () => {
     const [user, setUser] = useState(null);
+    const [admin, setAdmin] = useState(false);
+    const value = { user, setUser, admin, setAdmin };
 
-    const value = { user, setUser };
-
+    // Get user info from server
     useEffect(() => {
         fetch('/api/me')
             .then((res) => res.json())
             .then((data) => {
                 if (data.status === 'ok') {
-                    setUser(data.user);
+                    setUser(data.user.username);
+                    setAdmin(data.user.admin);
                 }
             })
             .catch(err => {
@@ -39,7 +43,7 @@ const App = () => {
                     <UserContext.Provider value={value}>
                         <div className='top'>
                             <Link to='/'><h1>Areto Fantasy</h1></Link>
-                            <Login onLogin={(newUser) => setUser(newUser)}/>
+                            <Login />
                         </div>
                         <Switch>
                             <Route exact path='/nba' component={NBA} />
