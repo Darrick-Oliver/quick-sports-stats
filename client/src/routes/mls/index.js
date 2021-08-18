@@ -35,7 +35,9 @@ const getStatus = (scoreboard, id) => {
         if (gameScore.period === 'FullTime')
             return <h3>Final</h3>;
         else if (gameScore.period === 'PreMatch')
-            return <h3>{new Date(gameScore.date).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</h3>
+            return <h3>{new Date(gameScore.date).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</h3>;
+        else if (gameScore.minute_display)
+            return <h3 style={{ color: 'red', fontWeight: 'bold' }}>{gameScore.minute_display}</h3>
     } else {
         return;
     }

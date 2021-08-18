@@ -16,24 +16,23 @@ require('dotenv').config();
 
 const PORT = process.env.PORT || 3001;
 
-// Server
 mongoose.connect(`mongodb+srv://${process.env.MDB_USER}:${process.env.MDB_PASS}@areto-db.f2kke.mongodb.net/areto-main?retryWrites=true&w=majority`, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true
 }).then(() => console.log("Connected to MongoDB")).catch(err => console.error(`Error connecting to MongoDB: ${err}`));
 
-// Dev tests
-// mongoose.connect('mongodb://localhost:27017/areto-db', {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-//     useCreateIndex: true
-// }).then(() => console.log("Connected to MongoDB")).catch(err => console.error(`Error connecting to MongoDB: ${err}`));
-
 const app = express();
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.static(path.resolve(__dirname, '../client/build')));
+
+const MLSTeams = ['ATL', 'ATX', 'CHI', 'CIN', 'CLB', 'CLT', 'COL', 'DAL', 'DC', 'HOU', 'LA', 'LAFC',
+                'MIA', 'MIN', 'MTL', 'NE', 'NSH', 'NYC', 'ORL', 'PHI', 'POR', 'RBNY', 'RSL', 'SEA', 
+                'SJ', 'SKC', 'STL', 'TOR', 'VAN'];
+const NBATeams = ['1610612737', '1610612738', '1610612739', '1610612740', '1610612741', '1610612742', '1610612743', '1610612744', '1610612745', '1610612746', '1610612747',
+                '1610612748', '1610612749', '1610612750', '1610612751', '1610612752', '1610612753', '1610612754', '1610612755', '1610612756', '1610612757', '1610612758',
+                '1610612759', '1610612760', '1610612761', '1610612762', '1610612763', '1610612764', '1610612765', '1610612766'];
 
 // NBA get scoreboard today
 app.get('/api/nba', async (req, res) => {
@@ -318,7 +317,9 @@ app.get('/api/me', requireAuth, async (req, res) => {
     if (user) {
         return res.json({ status: 'ok', user: {
             username: user.username,
-            admin: user.admin
+            admin: user.admin,
+            favNBA: user.favNBA,
+            favMLS: user.favMLS
         } });
     } else {
         return res.json({ status: 'error', error: 'Login not found', user: null });
@@ -485,7 +486,11 @@ app.get('/api/user/:userId', async (req, res) => {
     // Check if user was found
     if (!user)
         return res.json({ status: 'error', error: 'User not found' });
-    const userInfo = { username: user.username };
+    const userInfo = {
+        username: user.username,
+        favMLS: user.favMLS,
+        favNBA: user.favNBA
+    };
 
     const comments = await Comment.find({ username: {
         $regex : new RegExp(regexUserId, "i") } }
@@ -496,6 +501,29 @@ app.get('/api/user/:userId', async (req, res) => {
     } else {
         // Return null if no comments found
         return res.json({ status: 'ok', user: userInfo, comments: null });
+    }
+});
+
+// Set favorite teams
+app.post('/api/user/:userId/set-teams', requireAuth, async (req, res) => {
+    let { mlsId, nbaId } = req.body;
+
+    // Check for mismatched usernames
+    if (res.locals.token.username !== req.params.userId)
+        return res.json({ status: 'error', error: 'You cannot change other users\' settings' });
+
+    // Error checking
+    if (mlsId !== 'none' && !MLSTeams.includes(mlsId))
+        return res.json({ status: 'error', error: 'Invalid MLS team id' });
+    else if (nbaId !== 'none' && !NBATeams.includes(nbaId))
+        return res.json({ status: 'error', error: 'Invalid NBA team id' });
+
+    // Update favorite teams
+    try {
+        await User.updateOne({ username: res.locals.token.username }, { favMLS: mlsId, favNBA: nbaId });
+        return res.json({ status: 'ok' });
+    } catch (err) {
+        return res.json({ status: 'error', error: err });
     }
 });
 

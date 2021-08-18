@@ -18,16 +18,8 @@ Features a register, login, and commenting system using MongoDB
 
 TODO:
 
-TODAY//
-
-- Let users select favorite team
-
-MAYBE TODAY//
-
+- Show users' favorite teams in comments
 - Team scores database (retrieves if not stored)
-
-NOT TODAY//
-
 - Change NBA api (ESPN, bbref, or something else)
 - Team stats (posession, score, etc) in MLS box scores
 - Comment context permalink
