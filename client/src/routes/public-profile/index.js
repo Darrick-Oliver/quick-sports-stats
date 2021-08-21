@@ -32,8 +32,8 @@ const PublicProfile = () => {
     const [error, setError] = useState(false);
     const [edit, setEdit] = useState(false);
     const myUser = JSON.parse(useContext(UserContext).user);
-    const [nbaId, setNbaId] = useState(null);
-    const [mlsId, setMlsId] = useState(null);
+    const [nbaId, setNbaId] = useState('none');
+    const [mlsId, setMlsId] = useState('none');
     const setUser = useContext(UserContext).setUser;
 
     // Set title

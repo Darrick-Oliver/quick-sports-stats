@@ -3,6 +3,7 @@ import { Button } from 'react-bootstrap';
 import '../../css/bootstrap.min.css';
 import BoxScore from './BoxScore.js';
 import Comments from '../../comments.js';
+import { NBAteams } from '../../teams';
 
 let dateObj = new Date();
 const currDate = new Date();
@@ -11,24 +12,31 @@ const getImage = (name) => {
     return `${process.env.PUBLIC_URL}/assets/images/nba_logos/${name}.svg`;
 }
 
-const getGameTime = (game) => {
-    return new Date(game.gameTimeUTC).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+const getGameTime = (time) => {
+    return new Date(time).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
 }
 
 const getStatus = (game) => {
-    let status = game.gameStatusText;
-    if (status.includes('ET'))
-        status = getGameTime(game);
-    else if (status.includes('PT')) {
-        let quarter = status.match(/Q\d/)[0];
-        let minutes = status.match(/PT\d\d/)[0].match(/\d\d/)[0];
-        let seconds = status.match(/M\d\d/)[0].match(/\d\d/)[0];
-        return <h3 style={{ color: 'red', fontWeight: 'bold' }}>{quarter + ' ' + minutes + ':' + seconds}</h3>;
+    try {
+        if (!game.status.type.completed && game.status.type.state == 'pre')
+            return <h3>{getGameTime(game.date)}</h3>
+        else if (!game.status.type.completed)
+            return <h3 style={{ color: 'red', fontWeight: 'bold' }}>{'Q' + game.status.period + ' ' + game.status.displayClock}</h3>;
+        else
+            return <h3>Final</h3>
+    } catch (err) {
+        // Really stupid
+        return <h3>{err}</h3>
     }
-    else if (status.includes('Q') || status.includes('Half'))
-        return <h3 style={{ color: 'red', fontWeight: 'bold' }}>{status}</h3>
+}
 
-    return <h3>{status}</h3>;
+const idFromEId = (eId) => {
+    for (let i = 0; i < NBAteams.length; i += 1) {
+        if (NBAteams[i].eId === eId) {
+            return NBAteams[i].id;
+        }
+    }
+    return null;
 }
 
 const NBA = () => {
@@ -52,7 +60,7 @@ const NBA = () => {
 
     // Box score button handler
     const boxPress = (game) => {
-        const url = `/api/nba/${game.gameId}`;
+        const url = `/api/nba/boxscore/${game.id}`;
         setGameInfo(null);
         setGameData(null);
         setGITemp(game);
@@ -101,20 +109,11 @@ const NBA = () => {
     // Fetch from date
     useEffect(() => {
         if (!data) {
-            let url = '';
-            const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-
             const month = ("0" + (dateObj.getMonth() + 1)).slice(-2);
             const day = ("0" + dateObj.getDate()).slice(-2);
             const year = dateObj.getFullYear();
 
-            if (dateObj.toLocaleString('en-US', options) === currDate.toLocaleString('en-US', options)) {
-                url = '/api/nba';
-            } else {
-                url = `/api/nba/date/${month}${day}${year}`;
-            }
-
-            fetch(url)
+            fetch(`/api/nba/date/${month}${day}${year}`)
                 .then((res) => res.json())
                 .then((data) => {
                     setData(data.data);
@@ -159,13 +158,13 @@ const NBA = () => {
             <div className='games'>{!data ? '' : (
                 data.games.map(game => {
                     return (
-                        <div key={game.gameId}>
+                        <div key={game.id}>
                             <h2>
-                                <img src={getImage(game.homeTeam.teamId)} alt={game.homeTeam.teamName} height='50'></img>
-                                {game.homeTeam.teamTricode} vs {game.awayTeam.teamTricode}
-                                <img src={getImage(game.awayTeam.teamId)} alt={game.awayTeam.teamName} height='50'></img>
+                                <img src={getImage(idFromEId(game.competitors[0].id))} alt={game.competitors[0].team.displayName} height='50'></img>
+                                {game.competitors[0].team.abbreviation} vs {game.competitors[1].team.abbreviation}
+                                <img src={getImage(idFromEId(game.competitors[1].id))} alt={game.competitors[1].team.displayName} height='50'></img>
                             </h2>
-                            <p>{game.homeTeam.score} : {game.awayTeam.score}</p>
+                            <p>{game.competitors[0].score} : {game.competitors[1].score}</p>
                             {getStatus(game)}
                             <Button variant='dark' onClick={() => boxPress(game)}>Box Score</Button>{' '}
                         </div>
@@ -180,7 +179,7 @@ const NBA = () => {
                     : <BoxScore gameData={gameData} />}
             </div>
             {gameData && boxClicked && <hr className='separator' />}
-            {boxClicked && gameInfo && <Comments id={gameInfo.gameId} type='nba' />}
+            {boxClicked && gameInfo && <Comments id={gameInfo.id} type='nba' />}
         </div>
     );
 }

@@ -1,10 +1,10 @@
 const express = require("express");
 const fetch = require("node-fetch");
-const template = require("nba-client-template");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const path = require("path");
+const sdv = require('sportsdataverse');
 
 const User = require('./model/user');
 const Comment = require('./model/comment');
@@ -34,61 +34,44 @@ const NBATeams = ['1610612737', '1610612738', '1610612739', '1610612740', '16106
                 '1610612748', '1610612749', '1610612750', '1610612751', '1610612752', '1610612753', '1610612754', '1610612755', '1610612756', '1610612757', '1610612758',
                 '1610612759', '1610612760', '1610612761', '1610612762', '1610612763', '1610612764', '1610612765', '1610612766'];
 
-// NBA get scoreboard today
-app.get('/api/nba', async (req, res) => {
-    const api_url = 'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json';
-    let json = null;
-    try {
-        const fetch_response = await fetch(api_url);
-        json = await fetch_response.json();
-
-        // Check game data
-        if (!json.scoreboard.games.length) {
-            return res.json({ status: 'error', error: 'No games scheduled', data: { games: [] } });
-        }
-    } catch (err) {
-        return res.json({ status: 'error', error: err, data: { games: [] } });
-    }
-
-    return res.json({ status: 'ok', data: json.scoreboard });
-});
-
 // NBA get boxscore
-app.get('/api/nba/:gameId', async (req, res) => {
-    const api_url = `https://cdn.nba.com/static/json/liveData/boxscore/boxscore_${req.params.gameId}.json`;
-    let json = null;
+app.get('/api/nba/boxscore/:id', async (req, res) => {
     try {
-        const fetch_response = await fetch(api_url);
-        json = await fetch_response.json();
+        const result = await sdv.nba.getBoxScore(req.params.id);
+        if (result.players)
+            return res.json({ status: 'ok', data: result });
+        else
+            return res.json({ status: 'error', error: 'Box score unavailable', data: null });
     } catch (err) {
         return res.json({ status: 'error', error: err, data: null });
     }
-
-    return res.json({ status: 'ok', data: json.game });
 });
 
 // NBA get scoreboard by date
-const templateHeaders = () => ({ ...template.headers })
 app.get('/api/nba/date/:date', async (req, res) => {
-    const date = `${req.params.date.slice(4)}-${req.params.date.slice(0, 2)}-${req.params.date.slice(2, 4)}`;
-    const api_url = `https://stats.nba.com/stats/scoreboardv3?GameDate=${date}&LeagueID=00`;
-    let json = null;
-    try {
-        const options = {
-            headers: templateHeaders()
-        };
-        const fetch_response = await fetch(api_url, options);
-        json = await fetch_response.json();
+    const year = req.params.date.slice(4), month = req.params.date.slice(0, 2), day = req.params.date.slice(2, 4);
 
-        // Check game data
-        if (!json.scoreboard.games.length) {
+    const inputs = {
+        year: parseInt(year), month: parseInt(month), day: parseInt(day)
+    };
+    try {
+        const result = await sdv.nba.getScoreboard(inputs);
+        if (result.events.length === 0) {
+            // No games scheduled
             return res.json({ status: 'error', error: 'No games scheduled', data: { games: [] } });
+        } else {
+            return res.json({ 
+                status: 'ok', 
+                data: { 
+                    games: result.events.map((game) => {
+                        return game.competitions[0];
+                    })
+                }
+            });
         }
     } catch (err) {
         return res.json({ status: 'error', error: err, data: { games: [] } });
-    }
-
-    return res.json({ status: 'ok', data: json.scoreboard });
+    }    
 });
 
 // MLS get games by date
