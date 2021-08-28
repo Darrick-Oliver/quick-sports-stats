@@ -1,0 +1,71 @@
+.standings-content {
+  margin: 20px;
+  background-color: white;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.standings-table {
+  font-size: 14px;
+}
+
+.card {
+  transition: 0.2s;
+  margin-top: 20px;
+  padding: 20px 50px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.card:hover {
+  filter: drop-shadow(0 0 5px #cccccc);
+}
+
+@media (max-width: 1100px) {
+  .card {
+    width: 95%;
+  }
+}
+@media (min-width: 1100px) {
+  .card {
+    width: 1100px;
+  }
+}
+
+.standings-table table {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.standings-table table,
+th,
+td {
+  margin-left: auto;
+  margin-right: auto;
+  padding: 5px 10px;
+}
+
+.standings-table tr:nth-child(even) {
+  color: black;
+  background-color: #f2f2f2;
+}
+
+.standings-table tbody tr:hover {
+  background-color: #c5c5c5;
+}
+
+.standings-table th {
+  background-color: #2e2e2e;
+  color: white;
+}
+
+.standings-table tfoot {
+  border-top: 1px solid rgb(180, 180, 180);
+  font-weight: bold;
+  color: black;
+}
+
+.standings-table h2 {
+  text-align: center;
+  padding: 10px;
+}

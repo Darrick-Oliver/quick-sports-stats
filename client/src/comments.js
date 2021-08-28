@@ -181,7 +181,7 @@ const Comments = (req) => {
         return (
             <div className='comment' style={{ marginLeft: indent }} id={commentData.comment._id}>
                 <p className='tagline'>
-                    <Link className='username' to={`./user/${commentData.comment.username}`}>{commentData.comment.username}</Link>
+                    <Link className='username' to={`/user/${commentData.comment.username}`}>{commentData.comment.username}</Link>
                     {req.type === 'mls' && commentData.userInfo.favMLS !== 'none' && <img style={{marginLeft: 5}} src={getImage(commentData.userInfo.favMLS, 'mls')} alt={commentData.userInfo.favMLS} height='25' />}
                     {req.type === 'nba' && commentData.userInfo.favNBA !== 'none' && <img style={{marginLeft: 5}} src={getImage(commentData.userInfo.favNBA, 'nba')} alt={commentData.userInfo.favNBA} height='25' />}
                     {' • '}
@@ -200,7 +200,7 @@ const Comments = (req) => {
                 </p>
                 <div id={commentData.comment._id}>
                     <span id={`${commentData.comment._id}-content`} className='content'>
-                        {commentData.comment.parentId !== 'root' && commentData.comment.parentUser !== '[deleted]' && <Link className='user-link' to={`./user/${commentData.comment.parentUser}`}>@{commentData.comment.parentUser}</Link>}
+                        {commentData.comment.parentId !== 'root' && commentData.comment.parentUser !== '[deleted]' && <Link className='user-link' to={`/user/${commentData.comment.parentUser}`}>@{commentData.comment.parentUser}</Link>}
                         {commentData.comment.parentId !== 'root' && commentData.comment.parentUser !== '[deleted]' && ' '}
                         {editBoxes[comments.indexOf(commentData)] ? 
                             <div className='reply-box edit-box'>

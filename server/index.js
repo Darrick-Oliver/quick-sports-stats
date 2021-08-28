@@ -123,10 +123,9 @@ app.get('/api/mls/game/:gameId', async (req, res) => {
 
 // MLS get boxscore
 app.get('/api/mls/game/:gameId/boxscore', async (req, res) => {
-    const api_url = `https://stats-api.mlssoccer.com/v1/players/matches?&match_game_id=${req.params.gameId}&season_opta_id=2021&competition_opta_id=98&order_by=-player_match_stat_goals&include=match&include=statistics&include=club&include=player&order_by=player_last_name`;
     let json = null;
     try {
-        const fetch_response = await fetch(api_url);
+        const fetch_response = await fetch(`https://stats-api.mlssoccer.com/v1/players/matches?&match_game_id=${req.params.gameId}&season_opta_id=2021&competition_opta_id=98&order_by=-player_match_stat_goals&include=match&include=statistics&include=club&include=player&order_by=player_last_name`);
         json = await fetch_response.json();
 
         // Check game data
@@ -138,6 +137,16 @@ app.get('/api/mls/game/:gameId/boxscore', async (req, res) => {
     }
 
     return res.json({ status: 'ok', data: json });
+});
+
+app.get('/api/mls/standings', async (req, res) => {
+    try {
+        const fetch_response = await fetch('https://site.api.espn.com/apis/v2/sports/soccer/usa.1/standings');
+        const json = await fetch_response.json();
+        return res.json({ status: 'ok', data: json.children });
+    } catch (err) {
+        return res.json({ status: 'error', error: err });
+    }
 });
 
 // Register account
@@ -490,7 +499,7 @@ app.get('/api/user/:userId', async (req, res) => {
 
     // Find the user
     const user = await User.findOne({ username: {
-        $regex : new RegExp(regexUserId, "i") } }
+        $regex : new RegExp(`^${regexUserId}$`, "i") } }
     ).lean();
 
     // Check if user was found
@@ -503,7 +512,7 @@ app.get('/api/user/:userId', async (req, res) => {
     };
 
     const comments = await Comment.find({ username: {
-        $regex : new RegExp(regexUserId, "i") } }
+        $regex : new RegExp(`^${regexUserId}$`, "i") } }
     );
     if (comments.length > 0) {
         // Return all comments

@@ -13,7 +13,10 @@ Features a register, login, and commenting system using MongoDB
 
 TODO:
 
-- Current NBA/MLS tables
+- Case insensitive login
+- Separate Goalkeeper stats from rest of team
+- Current NBA standings
 - Comment context permalink
 - Team stats in box scores
+- Forum posts area
 - Team builder

@@ -46,6 +46,7 @@ const App = () => {
                             <Switch>
                                 <Route exact path='/nba' component={NBA} />
                                 <Route exact path='/mls' component={MLS} />
+                                <Route path='/mls/:section' component={MLS} />
                                 <Route exact path='/' component={Home} />
                                 <Route exact path='/edit-profile' component={Profile} />
                                 <Route exact path='/user/:userId' component={PublicProfile} />
