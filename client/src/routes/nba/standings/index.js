@@ -1,9 +1,20 @@
 import './index.css';
 import React, { useState, useEffect } from 'react';
+import { NBAteams } from '../../../teams';
 
 // Gets requested logo from public folder
 const getImage = (name) => {
-    return `${process.env.PUBLIC_URL}/assets/images/mls_logos/${name}.svg`;
+    return `${process.env.PUBLIC_URL}/assets/images/nba_logos/${name}.svg`;
+}
+
+// Returns NBA id given eID
+const idFromEId = (eId) => {
+    for (let i = 0; i < NBAteams.length; i += 1) {
+        if (NBAteams[i].eId === eId) {
+            return NBAteams[i].id;
+        }
+    }
+    return null;
 }
 
 const Standings = () => {
@@ -13,15 +24,14 @@ const Standings = () => {
     // Fetch standings data
     useEffect(() => {
         if (!standings) {
-            fetch('/api/mls/standings')
+            fetch('/api/nba/standings')
                 .then((res) => res.json())
                 .then((res) => {
                     if (res.status !== 'ok') {
                         setErr(res.error);
                     } else {
-
-                        setStandings(res.data);
                         console.log(res.data);
+                        setStandings(res.data);
                     }
                     if (res.data.length === 0)
                         setErr('Schedule unavailable');
@@ -39,8 +49,7 @@ const Standings = () => {
                 <div className='standings-container'>
                     {standings.map((conference) => {
                         conference.standings.entries.sort((a, b) => {
-                            if (b.stats[6].value - a.stats[6].value !== 0) return b.stats[6].value - a.stats[6].value;
-                            else return b.stats[9].value - a.stats[9].value;
+                            return a.stats[0].value - b.stats[0].value;
                         })
                         return (
                             <div className='standings-table table-container card' key={conference.name}>
@@ -50,45 +59,39 @@ const Standings = () => {
                                         <tr>
                                             <th>POS</th>
                                             <th style={{ textAlign: 'left' }}>NAME</th>
-                                            <th>GP</th>
                                             <th>W</th>
-                                            <th>T</th>
                                             <th>L</th>
-                                            <th>GF</th>
-                                            <th>GA</th>
-                                            <th>GD</th>
-                                            <th>PTS</th>
+                                            <th>W%</th>
+                                            <th>GB</th>
+                                            <th>APF</th>
+                                            <th>APA</th>
+                                            <th>DIFF</th>
+                                            <th>STK</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {conference.standings.entries.map((entry, i) => {
-                                            let fill = '#ffffff';
-
-                                            // Fix NYCFC
-                                            if (entry.team.abbreviation === 'NY') entry.team.abbreviation = 'NYC';
-
-                                            if (entry.note)
-                                                fill = entry.note.rank === 1 ? '#4285f4' : '#fa7b17';
+                                            const fill = entry.stats[0].value < 7 ? '#4285f4' : '#fa7b17';
 
                                             return (
                                                 <tr key={entry.team.id}>
                                                     <td>
-                                                        {entry.note && 
+                                                        {entry.stats[0].value < 11 && 
                                                             <svg width='4' height='35' style={{marginRight: 5}}>
                                                                 <rect width='4' height='35' style={{ fill: fill }} />
                                                             </svg>
                                                         }
                                                         {i + 1}
                                                     </td>
-                                                    <td style={{ textAlign: 'left' }}><img style={{ height: 40, marginRight: 5 }} src={getImage(entry.team.abbreviation)} alt={entry.team.abbreviation} />{entry.team.displayName}</td>
-                                                    <td>{entry.stats[3].value}</td>
-                                                    <td>{entry.stats[0].value}</td>
-                                                    <td>{entry.stats[2].value}</td>
+                                                    <td style={{ textAlign: 'left' }}><img style={{ height: 40, marginRight: 5 }} src={getImage(idFromEId(entry.team.id))} alt={entry.team.abbreviation} />{entry.team.displayName}</td>
                                                     <td>{entry.stats[1].value}</td>
+                                                    <td>{entry.stats[2].value}</td>
+                                                    <td>{(entry.stats[3].value*100).toFixed(1)}</td>
                                                     <td>{entry.stats[4].value}</td>
-                                                    <td>{entry.stats[5].value}</td>
-                                                    <td>{entry.stats[9].value}</td>
-                                                    <td>{entry.stats[6].value}</td>
+                                                    <td>{entry.stats[5].value.toFixed(1)}</td>
+                                                    <td>{entry.stats[6].value.toFixed(1)}</td>
+                                                    <td>{entry.stats[7].value.toFixed(1)}</td>
+                                                    <td>{entry.stats[8].value}</td>
                                                 </tr>
                                             )
                                         })}
@@ -98,13 +101,13 @@ const Standings = () => {
                                     <svg width='15' height='15' style={{marginTop: -2, marginRight: 5}}>
                                         <rect width='15' height='15' style={{fill: '#4285f4'}} />
                                     </svg>
-                                    Qualifies for Playoffs Conference semifinals
+                                    Qualifies for Playoffs
                                 </span>
                                 <span style={{marginLeft: 45, marginTop: 15, textAlign: 'left'}}>
                                     <svg width='15' height='15' style={{marginTop: -2, marginRight: 5}}>
                                         <rect width='15' height='15' style={{fill: '#fa7b17'}} />
                                     </svg>
-                                    Qualifies for Playoffs first round
+                                    Qualifies for Play-in tournament
                                 </span>
                             </div>
                         )

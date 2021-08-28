@@ -54,7 +54,8 @@ const getPassPercent = (player) => {
  *  Generates the totals for each stat on the given team
  *  Returns a table row with the summed stats in the correct columns
  */
- const generateTotals = (team) => {
+ const generateTotals = (team, keepers) => {
+    team = team.concat(keepers);
     return (
         <tr>
             <td colSpan='3'>Totals</td>
@@ -138,12 +139,96 @@ const getPassPercent = (player) => {
 
 
 /**
+ *  Generates the stats for each goalkeeper on the given team
+ */
+ const generateKeeperStats = (keepers) => {
+    keepers.sort((p1, p2) => {
+        if (p1.status > p2.status) return 1;
+        else if (p1.status < p2.status) return -1;
+        else if (p1.status === 'Sub') {
+            // Sub
+            if (p1.statistics.mins_played > p2.statistics.mins_played) return -1;
+            else if (p1.statistics.mins_played < p2.statistics.mins_played) return 1;
+            else if (Object.keys(p1.statistics).length > Object.keys(p2.statistics).length) return -1;
+            else if (Object.keys(p1.statistics).length < Object.keys(p2.statistics).length) return 1;
+            else return 0;
+        }
+        else {
+            // Starter
+            if (p1.position > p2.position) return 1;
+            else if (p1.position < p2.position) return -1;
+            else return 0;
+        }
+    });
+
+    return keepers.map(keeper => {
+        if (Object.keys(keeper.statistics).length > 0) {
+            return (
+                <tr key={keeper.id}>
+                    <td>{keeper.player.first_name.charAt(0)}. {keeper.player.last_name}{keeper.is_captain && ' (C)'}</td>
+                    <td>{keeper.status === 'Start' ? keeper.position : 'Sub'}</td>
+                    <td>{keeper.statistics.mins_played ? keeper.statistics.mins_played : '-'}</td>
+                    <td>{keeper.statistics.saves ? keeper.statistics.saves : 0 }</td>
+                    <td>{keeper.statistics.goals_conceded ? keeper.statistics.goals_conceded : 0}</td>
+                    <td>{keeper.statistics.expected_goals_conceded ? keeper.statistics.expected_goals_conceded.toFixed(2) : 0}</td>
+                    <td>{keeper.statistics.keeper_throws ? keeper.statistics.keeper_throws : 0}</td>
+                    <td>{keeper.statistics.total_long_balls ? keeper.statistics.total_long_balls : 0}</td>
+                    <td>{keeper.statistics.punches ? keeper.statistics.punches : 0}</td>
+                    <td>{keeper.statistics.successful_passes ? keeper.statistics.successful_passes : 0}-{keeper.statistics.total_pass ? keeper.statistics.total_pass : 0}</td>
+                    <td>{getPassPercent(keeper)}</td>
+                    <td>{keeper.statistics.own_goals ? keeper.statistics.own_goals : 0}</td>
+                    <td>{keeper.statistics.goal_assist ? keeper.statistics.goal_assist : 0}</td>
+                    <td>{keeper.statistics.goals ? keeper.statistics.goals : 0}</td>
+                    <td>{keeper.statistics.yellow_card ? keeper.statistics.yellow_card : 0}</td>
+                    <td>{keeper.statistics.red_card ? keeper.statistics.red_card : 0}</td>
+                </tr>
+            )
+        }
+        else {
+            return (
+                <tr key={keeper.id}>
+                    <td>{keeper.player.first_name.charAt(0)}. {keeper.player.last_name}</td>
+                    <td colSpan='20' style={{textAlign: 'center'}}>
+                        DNP
+                    </td>
+                </tr>
+            )
+        }
+    })
+}
+
+
+/**
  *  Creates the full box score table, including the header and footer
  *  Returns the created box score table
  */
- const generateTable = (id, team) => {
+ const generateTable = (id, team, keepers) => {
+     console.log(keepers);
     return (
         <table id={id}>
+            <thead>
+                <tr>
+                    <th>PLAYER</th>
+                    <th>POS</th>
+                    <th>MINS</th>
+                    <th>SAVE</th>
+                    <th>GA</th>
+                    <th>xGA</th>
+                    <th>THRW</th>
+                    <th>LB</th>
+                    <th>PUN</th>
+                    <th>PC-PA</th>
+                    <th>PASS%</th>
+                    <th>OG</th>
+                    <th>AST</th>
+                    <th>GOALS</th>
+                    <th>YC</th>
+                    <th>RC</th>
+                </tr>
+            </thead>
+            <tbody>
+                {generateKeeperStats(keepers)}
+            </tbody>
             <thead>
                 <tr>
                     <th>PLAYER</th>
@@ -168,7 +253,7 @@ const getPassPercent = (player) => {
                 {generateTeamStats(team)}
             </tbody>
             <tfoot>
-                {generateTotals(team)}
+                {generateTotals(team, keepers)}
             </tfoot>
         </table>
     )
@@ -185,12 +270,20 @@ const BoxScore = (data) => {
 
     // Create home/away team stats
     let homeTeam = [];
+    let homeKeepers = [];
     let awayTeam = [];
+    let awayKeepers = [];
     for (let i = 0; i < stats.length; i += 1) {
         if (stats[i].club.opta_id === home.optaId) {
-            homeTeam.push(stats[i]);
+            if (stats[i].position === 'Goalkeeper')
+                homeKeepers.push(stats[i]);
+            else
+                homeTeam.push(stats[i]);
         } else {
-            awayTeam.push(stats[i]);
+            if (stats[i].position === 'Goalkeeper')
+                awayKeepers.push(stats[i]);
+            else
+                awayTeam.push(stats[i]);
         }
     }
 
@@ -208,13 +301,13 @@ const BoxScore = (data) => {
             <div className="card">
                 <h2><img src={getImage(home.abbreviation)} height='50' alt={home.abbreviation}></img> {home.fullName}</h2>
                 <div className="table-container">
-                    {generateTable('home', homeTeam)}
+                    {generateTable('home', homeTeam, homeKeepers)}
                 </div>
             </div>
             <div className="card">
                 <h2><img src={getImage(away.abbreviation)} height='50' alt={away.abbreviation}></img> {away.fullName}</h2>
                 <div className="table-container">
-                    {generateTable('away', awayTeam)}
+                    {generateTable('away', awayTeam, awayKeepers)}
                 </div>
             </div>
         </div>

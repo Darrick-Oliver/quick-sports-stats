@@ -5,13 +5,16 @@ import './index.css';
 import Scores from './scores/index.js';
 import Standings from './standings/index.js';
 import { useHistory, Link } from "react-router-dom";
+import NotFound from '../NotFound.js';
 
 const MLS = () => {
     const { section } = useParams();
     let history = useHistory();
     const [ sName, setSName ] = useState(null);
+    const [ err, setErr ] = useState(false);
 
     useEffect(() => {
+        setErr(false);
         if (!section) {
             history.push('/mls/scores');
         } else if (section.toLowerCase() === 'scores' || section.toLowerCase() === 'standings') {
@@ -19,12 +22,14 @@ const MLS = () => {
             setSName(section.toLowerCase());
         } else {
             setSName(null);
+            setErr(true)
         }
     }, [section, history]);
 
     return (
         <div>
-            {sName && 
+            {err && <NotFound />}
+            {sName && !err &&
                 <Tab.Container defaultActiveKey={sName}>
                     <div className='mls-nav'>
                         <Nav variant='pills'>

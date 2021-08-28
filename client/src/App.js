@@ -37,24 +37,25 @@ const App = () => {
     return (
         <div className='App wrapper'>
             <Router>
-                    <UserContext.Provider value={value}>
-                        <div className='top'>
-                            <Link to='/'><h1>Areto Fantasy</h1></Link>
-                            <Login />
-                        </div>
-                        <div className='main-content'>
-                            <Switch>
-                                <Route exact path='/nba' component={NBA} />
-                                <Route exact path='/mls' component={MLS} />
-                                <Route path='/mls/:section' component={MLS} />
-                                <Route exact path='/' component={Home} />
-                                <Route exact path='/edit-profile' component={Profile} />
-                                <Route exact path='/user/:userId' component={PublicProfile} />
-                                <Route component={NotFound} />
-                            </Switch>
-                        </div>
-                        <Footer />
-                    </UserContext.Provider>
+                <UserContext.Provider value={value}>
+                    <div className='top'>
+                        <Link to='/'><h1>Areto Fantasy</h1></Link>
+                        <Login />
+                    </div>
+                    <div className='main-content'>
+                        <Switch>
+                            <Route exact path='/nba' component={NBA} />
+                            <Route path='/nba/:section' component={NBA} />
+                            <Route exact path='/mls' component={MLS} />
+                            <Route path='/mls/:section' component={MLS} />
+                            <Route exact path='/' component={Home} />
+                            <Route exact path='/edit-profile' component={Profile} />
+                            <Route exact path='/user/:userId' component={PublicProfile} />
+                            <Route component={NotFound} />
+                        </Switch>
+                    </div>
+                    <Footer />
+                </UserContext.Provider>
             </Router>
         </div>
     );

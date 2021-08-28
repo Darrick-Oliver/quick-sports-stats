@@ -13,9 +13,6 @@ Features a register, login, and commenting system using MongoDB
 
 TODO:
 
-- Case insensitive login
-- Separate Goalkeeper stats from rest of team
-- Current NBA standings
 - Comment context permalink
 - Team stats in box scores
 - Forum posts area

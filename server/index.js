@@ -139,10 +139,24 @@ app.get('/api/mls/game/:gameId/boxscore', async (req, res) => {
     return res.json({ status: 'ok', data: json });
 });
 
+// MLS get standings
 app.get('/api/mls/standings', async (req, res) => {
     try {
         const fetch_response = await fetch('https://site.api.espn.com/apis/v2/sports/soccer/usa.1/standings');
         const json = await fetch_response.json();
+        return res.json({ status: 'ok', data: json.children });
+    } catch (err) {
+        return res.json({ status: 'error', error: err });
+    }
+});
+
+// NBA get standings
+app.get('/api/nba/standings', async (req, res) => {
+    try {
+        const baseUrl = `https://site.web.api.espn.com/apis/v2/sports/basketball/nba/standings`;
+        const result = await fetch(baseUrl);
+        const json = await result.json();
+
         return res.json({ status: 'ok', data: json.children });
     } catch (err) {
         return res.json({ status: 'error', error: err });
@@ -266,10 +280,22 @@ app.post('/api/login', async (req, res) => {
         return res.json({ status: 'error', error: 'Invalid username/password' });
     }
 
-    if (!email)
-        user = await User.findOne({ username: username }).lean();
-    else if (!username)
-        user = await User.findOne({ email: email }).lean();
+    if (!email) {
+        // Find user with username
+        const regexUsername = username.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+
+        user = await User.findOne({ username: {
+            $regex : new RegExp(`^${regexUsername}$`, "i") } }
+        ).lean();
+    }
+    else if (!username) {
+        // Find user with email
+        const regexEmail = email.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+
+        user = await User.findOne({ email: {
+            $regex : new RegExp(`^${regexEmail}$`, "i") } }
+        ).lean();
+    }
 
     if (!user) {
         return res.json({ status: 'error', error: 'Invalid username/password' });

@@ -1,6 +1,6 @@
 /* eslint-disable eqeqeq */
 import React from 'react';
-import { NBAteams } from '../../teams';
+import { NBAteams } from '../../../teams';
 
 
 /**
