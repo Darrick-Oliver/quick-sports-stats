@@ -1,0 +1,24 @@
+.footer {
+  height: 60px;
+  width: 100%;
+  line-height: 60px;
+  background-color: rgb(37, 37, 37);
+  color: white;
+  text-align: left;
+  padding-left: 50px;
+}
+
+.footer-link {
+  color: rgb(201, 201, 201);
+  text-decoration: none;
+}
+
+.footer-link {
+  color: rgb(143, 143, 143);
+}
+
+.footer-logo {
+  filter: brightness(0) invert(1);
+  margin-left: 10px;
+  height: 32px;
+}

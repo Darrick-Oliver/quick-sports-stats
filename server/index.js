@@ -279,7 +279,9 @@ app.post('/api/login', async (req, res) => {
         res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
         return res.json({ status: 'ok', data: token, user: {
             username: user.username,
-            admin: user.admin
+            admin: user.admin,
+            favMLS: user.favMLS,
+            favNBA: user.favNBA,
         }});
     }
 
@@ -352,7 +354,6 @@ app.post('/api/comments/post', requireAuth, async (req, res) => {
             const parent = await Comment.find({ _id: parentId });
             parentUser = parent[0].username;
         } catch (err) {
-            console.log(err);
             return res.json({ status: 'error', error: 'Parent comment does not exist' });
         }
     }
@@ -380,9 +381,35 @@ app.get('/api/comments/get/:type/:gameId', async (req, res) => {
     const type = req.params.type;
 
     const comments = await Comment.find({ type: type, gameId: gameId });
+
+    // Return flairs
+    let commentInfo = [];
+    for(let i = 0; i < comments.length; i += 1) {
+        const user = await User.find({ username: comments[i].username }).lean();
+        if (user.length) {
+            commentInfo.push({
+                comment: comments[i],
+                userInfo: {
+                    username: user[0].username,
+                    favMLS: user[0].favMLS,
+                    favNBA: user[0].favNBA
+                }
+            });
+        } else {
+            commentInfo.push({
+                comment: comments[i],
+                userInfo: {
+                    username: '[deleted]',
+                    favMLS: 'none',
+                    favNBA: 'none'
+                }
+            });
+        }
+    }
+
     if (comments.length > 0) {
         // Return all comments
-        return res.json({ status: 'ok', comments: comments });
+        return res.json({ status: 'ok', comments: commentInfo });
     } else {
         // Return nothing
         return res.json({ status: 'error', error: 'No comments', comments: null });

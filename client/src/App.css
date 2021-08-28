@@ -167,3 +167,14 @@ div.scoring-card:hover {
   margin-left: 5%;
   margin-right: 5%;
 }
+
+.wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1 1 0%;
+  background-color: whitesmoke;
+}

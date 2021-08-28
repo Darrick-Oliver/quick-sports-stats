@@ -9,6 +9,7 @@ import Home from './routes/home/index.js';
 import Profile from './routes/edit-profile/index.js';
 import PublicProfile from './routes/public-profile/index.js';
 import NotFound from './routes/NotFound.js';
+import Footer from './footer.js';
 
 export const UserContext = React.createContext({
   user: null,
@@ -34,22 +35,25 @@ const App = () => {
     }, []);
 
     return (
-        <div className='App'>
+        <div className='App wrapper'>
             <Router>
                     <UserContext.Provider value={value}>
                         <div className='top'>
                             <Link to='/'><h1>Areto Fantasy</h1></Link>
                             <Login />
                         </div>
-                        <Switch>
-                            <Route exact path='/nba' component={NBA} />
-                            <Route exact path='/mls' component={MLS} />
-                            <Route exact path='/' component={Home} />
-                            <Route exact path='/edit-profile' component={Profile} />
-                            <Route exact path='/user/:userId' component={PublicProfile} />
-                            <Route component={NotFound} />
-                        </Switch>
-                </UserContext.Provider>
+                        <div className='main-content'>
+                            <Switch>
+                                <Route exact path='/nba' component={NBA} />
+                                <Route exact path='/mls' component={MLS} />
+                                <Route exact path='/' component={Home} />
+                                <Route exact path='/edit-profile' component={Profile} />
+                                <Route exact path='/user/:userId' component={PublicProfile} />
+                                <Route component={NotFound} />
+                            </Switch>
+                        </div>
+                        <Footer />
+                    </UserContext.Provider>
             </Router>
         </div>
     );

@@ -1,11 +1,13 @@
 .nba {
   background-image: url("./stock/NBA_bckgnd_img.jpg");
-  background-position: center;
+  background-position: bottom;
   background-size: cover;
   height: 400px;
   width: 100%;
-  margin-top: -20px;
+  margin-top: -15px;
   position: relative;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
 }
 
 .nba::after,
@@ -21,12 +23,14 @@
 
 .mls {
   background-image: url("./stock/MLS_bckgnd_img.jpg");
-  background-position: center;
+  background-position: top;
   background-size: cover;
   height: 400px;
   width: 100%;
   margin-top: -20px;
   position: relative;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
 }
 
 .nba-title-container {

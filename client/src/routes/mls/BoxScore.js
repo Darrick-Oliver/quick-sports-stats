@@ -27,8 +27,10 @@ const sumStat = (team, stat) => {
 
 
 const getShotPercent = (player) => {
-    if (!player.statistics.ontarget_scoring_att)
-        return 0;
+    if (!player.statistics.ontarget_scoring_att && player.statistics.total_scoring_att)
+        return '0.0';
+    else if (!player.statistics.ontarget_scoring_att && !player.statistics.total_scoring_att)
+        return '-';
     else if (!player.statistics.total_scoring_att)
         return 'INF';
     else
@@ -37,8 +39,10 @@ const getShotPercent = (player) => {
 
 
 const getPassPercent = (player) => {
-    if (!player.statistics.successful_passes)
-        return 0;
+    if (!player.statistics.successful_passes && player.statistics.total_pass)
+        return '0.0';
+    else if (!player.statistics.successful_passes && !player.statistics.total_pass)
+        return '-';
     else if (!player.statistics.total_pass)
         return 'INF';
     else
@@ -55,9 +59,9 @@ const getPassPercent = (player) => {
         <tr>
             <td colSpan='3'>Totals</td>
             <td>{sumStat(team, 'goals')}</td>
-            <td>N/A</td>
+            <td>-</td>
             <td>{sumStat(team, 'goal_assist')}</td>
-            <td>N/A</td>
+            <td>-</td>
             <td>{sumStat(team, 'ontarget_scoring_att')}-{sumStat(team, 'total_scoring_att')}</td>
             <td>{(sumStat(team, 'ontarget_scoring_att')/sumStat(team, 'total_scoring_att') * 100).toFixed(1)}</td>
             <td>{sumStat(team, 'successful_passes')}-{sumStat(team, 'total_pass')}</td>
@@ -77,13 +81,32 @@ const getPassPercent = (player) => {
  *  Returns one table row for each player, with their stats filled in the correct column
  */
  const generateTeamStats = (team) => {
+    team.sort((p1, p2) => {
+        if (p1.status > p2.status) return 1;
+        else if (p1.status < p2.status) return -1;
+        else if (p1.status === 'Sub') {
+            // Sub
+            if (p1.statistics.mins_played > p2.statistics.mins_played) return -1;
+            else if (p1.statistics.mins_played < p2.statistics.mins_played) return 1;
+            else if (Object.keys(p1.statistics).length > Object.keys(p2.statistics).length) return -1;
+            else if (Object.keys(p1.statistics).length < Object.keys(p2.statistics).length) return 1;
+            else return 0;
+        }
+        else {
+            // Starter
+            if (p1.position > p2.position) return 1;
+            else if (p1.position < p2.position) return -1;
+            else return 0;
+        }
+    });
+
     return team.map(player => {
-        if (player.statistics.mins_played) {
+        if (Object.keys(player.statistics).length > 0) {
             return (
                 <tr key={player.id}>
                     <td>{player.player.first_name.charAt(0)}. {player.player.last_name}{player.is_captain && ' (C)'}</td>
                     <td>{player.status === 'Start' ? player.position : 'Sub'}</td>
-                    <td>{player.statistics.mins_played}</td>
+                    <td>{player.statistics.mins_played ? player.statistics.mins_played : '-'}</td>
                     <td>{player.statistics.goals ? player.statistics.goals : 0 }</td>
                     <td>{player.statistics.expected_goals ? player.statistics.expected_goals.toFixed(2) : 0}</td>
                     <td>{player.statistics.goal_assist ? player.statistics.goal_assist : 0}</td>
@@ -182,12 +205,6 @@ const BoxScore = (data) => {
     // Creating the Box Score Area
     return (
         <div>
-            <div className="scoring-card">
-                <h2>Team Stats</h2>
-                <div className="table-container">
-                    {/* {generateScores(homeTeam, awayTeam)} */}
-                </div>
-            </div>
             <div className="card">
                 <h2><img src={getImage(home.abbreviation)} height='50' alt={home.abbreviation}></img> {home.fullName}</h2>
                 <div className="table-container">

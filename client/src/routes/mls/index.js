@@ -38,6 +38,8 @@ const getStatus = (scoreboard, id) => {
             return <h3>{new Date(gameScore.date).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</h3>;
         else if (gameScore.minute_display)
             return <h3 style={{ color: 'red', fontWeight: 'bold' }}>{gameScore.minute_display}</h3>
+        else if (gameScore.period === 'Postponed')
+        return <h3 style={{ color: 'red' }}>Postponed</h3>;
     } else {
         return;
     }

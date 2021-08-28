@@ -30,12 +30,12 @@ const idFromEId = (eId) => {
  *  Generates the totals for each stat on the given team
  *  Returns a table row with the summed stats in the correct columns
  */
-const generateTotals = (team, plusMinus) => {
+const generateTotals = (id, team) => {
     return (
         <tr>
             <td colSpan='2'>Totals</td>
-            {team.totals.map((total) => {
-                return total ? <td>{total}</td> : <td>-</td>;
+            {team.totals.map((total, i) => {
+                return total ? <td key={`${id}-totals-${i}`}>{total}</td> : <td key={`${id}-totals-${i}`}>-</td>;
             })}
         </tr>
     )
@@ -49,18 +49,18 @@ const generateTeamStats = (team) => {
     return team.athletes.map(player => {
         if (!player.didNotPlay) {
             return (
-                <tr key={player.athlete.shortName}>
+                <tr key={player.athlete.guid}>
                     <td>{player.athlete.shortName}</td>
                     <td>{player.starter ? player.athlete.position.abbreviation : '-'}</td>
-                    {player.stats.map((stat) => {
-                        return <td>{stat}</td>
+                    {player.stats.map((stat, i) => {
+                        return <td key={`${player.athlete.guid}-stat-${i}`}>{stat}</td>
                     })}
                 </tr>
             )
         }
         else {
             return (
-                <tr key={player.athlete.shortName}>
+                <tr key={player.athlete.guid}>
                     <td>{player.athlete.shortName}</td>
                     <td colSpan='20' style={{textAlign: 'center'}}>
                         DNP
@@ -84,8 +84,8 @@ const generateTable = (id, team) => {
                 <tr>
                     <th>NAME</th>
                     <th>POS</th>
-                    {team.labels.map((label) => {
-                        return <th>{label}</th>
+                    {team.labels.map((label, i) => {
+                        return <th key={`${id}-label-${i}`}>{label}</th>
                     })}
                 </tr>
             </thead>
@@ -93,7 +93,7 @@ const generateTable = (id, team) => {
                 {generateTeamStats(team)}
             </tbody>
             <tfoot>
-                {generateTotals(team)}
+                {generateTotals(id, team)}
             </tfoot>
         </table>
     )

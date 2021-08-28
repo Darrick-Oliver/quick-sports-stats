@@ -31,9 +31,9 @@ const PublicProfile = () => {
     const [userInfo, setUserInfo] = useState(null);
     const [error, setError] = useState(false);
     const [edit, setEdit] = useState(false);
-    const myUser = JSON.parse(useContext(UserContext).user);
     const [nbaId, setNbaId] = useState('none');
     const [mlsId, setMlsId] = useState('none');
+    const myUser = JSON.parse(useContext(UserContext).user);
     const setUser = useContext(UserContext).setUser;
 
     // Set title
@@ -75,6 +75,11 @@ const PublicProfile = () => {
 
     // Submit selected teams
     const submit = async () => {
+        if (mlsId === myUser.favMLS && nbaId === myUser.favNBA) {
+            setEdit(false);
+            return;
+        }
+
         const result = await fetch(`/api/user/${userId}/set-teams`, {
             method: 'POST',
             headers: {
@@ -107,6 +112,15 @@ const PublicProfile = () => {
         }
     }
 
+    // Set defaults
+    const onEdit = () => {
+        if (!edit) {
+            setNbaId(myUser.favNBA);
+            setMlsId(myUser.favMLS);
+        }
+        setEdit(!edit);
+    }
+
     return (
         <div className='profile'>
             {error && <NotFound style={{ marginTop: '-155px' }} />}
@@ -114,17 +128,17 @@ const PublicProfile = () => {
                 <div>
                     <h2>
                         {userInfo.user.username}
-                        {userInfo.user.favMLS !== 'none' && <img style={{marginLeft: 10}} src={getImage(userInfo.user.favMLS, 'mls')} alt={getTeamName(userInfo.user.favMLS, 'mls')} height='50'></img>}
-                        {userInfo.user.favNBA !== 'none' && <img style={{marginLeft: 10}} src={getImage(userInfo.user.favNBA, 'nba')} alt={getTeamName(userInfo.user.favNBA, 'nba')} height='50'></img>}
+                        {userInfo.user.favMLS !== 'none' && <img style={{marginLeft: 10}} src={getImage(userInfo.user.favMLS, 'mls')} alt={getTeamName(userInfo.user.favMLS, 'mls')} height='50' />}
+                        {userInfo.user.favNBA !== 'none' && <img style={{marginLeft: 10}} src={getImage(userInfo.user.favNBA, 'nba')} alt={getTeamName(userInfo.user.favNBA, 'nba')} height='50' />}
                     </h2>
 
-                    {myUser && userInfo.user.username === myUser.username && <Button onClick={() => setEdit(!edit)}>{edit ? 'Cancel' : 'Edit profile'}</Button>}
+                    {myUser && userInfo.user.username === myUser.username && <Button onClick={onEdit}>{edit ? 'Cancel' : 'Edit profile'}</Button>}
                     {myUser && userInfo.user.username === myUser.username && edit && 
                         <div className='edit-profile-container'>
                             <span className='edit-text'>Favorite NBA team:</span>
                             <Dropdown>
                                 <Dropdown.Toggle variant='primary' id='nba-dropdown-text'>
-                                    {nbaId ? getTeamName(nbaId, 'nba') : 'None'}
+                                    {myUser.favNBA ? getTeamName(myUser.favNBA, 'nba') : 'None'}
                                 </Dropdown.Toggle>
 
                                 <Dropdown.Menu className='edit-dropdown'>
@@ -238,7 +252,7 @@ const PublicProfile = () => {
                             </div>
                         );
                     })}
-                    {!userInfo.comments && <h3>No comments</h3>}
+                    {!userInfo.comments && <h3 style={{ marginTop: 20 }}>No comments</h3>}
                 </div>
             }
         </div>

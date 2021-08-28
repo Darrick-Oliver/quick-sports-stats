@@ -18,7 +18,7 @@ const getGameTime = (time) => {
 
 const getStatus = (game) => {
     try {
-        if (!game.status.type.completed && game.status.type.state == 'pre')
+        if (!game.status.type.completed && game.status.type.state === 'pre')
             return <h3>{getGameTime(game.date)}</h3>
         else if (!game.status.type.completed)
             return <h3 style={{ color: 'red', fontWeight: 'bold' }}>{'Q' + game.status.period + ' ' + game.status.displayClock}</h3>;

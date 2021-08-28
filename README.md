@@ -13,8 +13,7 @@ Features a register, login, and commenting system using MongoDB
 
 TODO:
 
-- Show users' favorite teams in comments
-- Team scores database (retrieves if not stored)
-- Team stats (posession, score, etc) in MLS box scores
+- Current NBA/MLS tables
 - Comment context permalink
+- Team stats in box scores
 - Team builder
