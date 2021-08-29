@@ -19,9 +19,7 @@ const Standings = () => {
                     if (res.status !== 'ok') {
                         setErr(res.error);
                     } else {
-
                         setStandings(res.data);
-                        console.log(res.data);
                     }
                     if (res.data.length === 0)
                         setErr('Schedule unavailable');

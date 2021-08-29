@@ -102,7 +102,7 @@ const Login = () => {
                     pass_conf.classList.add('form-input-error');
                     break;
                 default:
-                    console.log(result.error);
+                    console.error(result.error);
             }
         }
         return;

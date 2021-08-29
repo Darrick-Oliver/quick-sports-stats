@@ -203,7 +203,6 @@ const getPassPercent = (player) => {
  *  Returns the created box score table
  */
  const generateTable = (id, team, keepers) => {
-     console.log(keepers);
     return (
         <table id={id}>
             <thead>
