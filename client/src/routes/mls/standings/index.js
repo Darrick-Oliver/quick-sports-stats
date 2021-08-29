@@ -36,9 +36,9 @@ const Standings = () => {
             {!standings ? <img id='load' src={`${process.env.PUBLIC_URL}/assets/loading/load_ring.svg`} alt='Fetching data...' /> : 
                 <div className='standings-container'>
                     {standings.map((conference) => {
+                        // Order by rank
                         conference.standings.entries.sort((a, b) => {
-                            if (b.stats[6].value - a.stats[6].value !== 0) return b.stats[6].value - a.stats[6].value;
-                            else return b.stats[9].value - a.stats[9].value;
+                            return a.stats[8].value - b.stats[8].value;
                         })
                         return (
                             <div className='standings-table table-container card' key={conference.name}>
