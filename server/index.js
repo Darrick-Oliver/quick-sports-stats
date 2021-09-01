@@ -631,7 +631,7 @@ app.post('/api/user/:userId/set-teams', requireAuth, async (req, res) => {
     }
 });
 
-// All other GET requests not handled before will return the app (broken)
-// app.get('*', (req, res) => {
-//     res.sendFile(path.resolve(__dirname, '../client/build/', 'index.html'));
-// });
+// All other GET requests not handled before will return the app
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../client/build/', 'index.html'));
+});
