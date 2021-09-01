@@ -4,8 +4,11 @@ import { useParams } from "react-router-dom";
 // import './index.css';
 import Scores from './scores/index.js';
 import Standings from './standings/index.js';
+import NBAStats from './stats/nba_stats.js';
 import { useHistory, Link } from "react-router-dom";
 import NotFound from '../NotFound.js';
+
+const pages = ['scores', 'standings', 'stats']
 
 const NBA = () => {
     const { section } = useParams();
@@ -17,7 +20,7 @@ const NBA = () => {
         setErr(false);
         if (!section) {
             history.push('/nba/scores');
-        } else if (section.toLowerCase() === 'scores' || section.toLowerCase() === 'standings') {
+        } else if (pages.includes(section.toLowerCase())) {
             document.title = `NBA ${section.toLowerCase()}`;
             setSName(section.toLowerCase());
         } else {
@@ -33,11 +36,14 @@ const NBA = () => {
                 <Tab.Container defaultActiveKey={sName}>
                     <div className='mls-nav'>
                         <Nav variant='pills'>
-                                <Nav.Item>
-                                    <Nav.Link as={Link} to='/nba/scores' eventKey='scores'>Scores</Nav.Link>
-                                </Nav.Item>
+                            <Nav.Item>
+                                <Nav.Link as={Link} to='/nba/scores' eventKey='scores'>Scores</Nav.Link>
+                            </Nav.Item>
                             <Nav.Item>
                                 <Nav.Link as={Link} to='/nba/standings' eventKey='standings' className='move-button'>Standings</Nav.Link>
+                            </Nav.Item>
+                            <Nav.Item>
+                                <Nav.Link as={Link} to='/nba/stats' eventKey='stats' className='move-button'>Player stats</Nav.Link>
                             </Nav.Item>
                         </Nav>
                     </div>
@@ -48,6 +54,9 @@ const NBA = () => {
                             </Tab.Pane>
                             <Tab.Pane eventKey='standings'>
                                 <Standings />
+                            </Tab.Pane>
+                            <Tab.Pane eventKey='stats'>
+                                <NBAStats />
                             </Tab.Pane>
                         </Tab.Content>
                     </Col>

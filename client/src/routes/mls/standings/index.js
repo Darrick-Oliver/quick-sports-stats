@@ -41,57 +41,59 @@ const Standings = () => {
                             return a.stats[8].value - b.stats[8].value;
                         })
                         return (
-                            <div className='standings-table table-container card' key={conference.name}>
+                            <div className='standings-table card' key={conference.name}>
                                 <h2>{conference.name}</h2>
-                                <table id={conference.name}>
-                                    <thead>
-                                        <tr>
-                                            <th>POS</th>
-                                            <th style={{ textAlign: 'left' }}>NAME</th>
-                                            <th>GP</th>
-                                            <th>W</th>
-                                            <th>T</th>
-                                            <th>L</th>
-                                            <th>GF</th>
-                                            <th>GA</th>
-                                            <th>GD</th>
-                                            <th>PTS</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {conference.standings.entries.map((entry, i) => {
-                                            let fill = '#ffffff';
+                                <div className='table-container'>
+                                    <table id={conference.name}>
+                                        <thead>
+                                            <tr>
+                                                <th>POS</th>
+                                                <th style={{ textAlign: 'left' }}>NAME</th>
+                                                <th>GP</th>
+                                                <th>W</th>
+                                                <th>T</th>
+                                                <th>L</th>
+                                                <th>GF</th>
+                                                <th>GA</th>
+                                                <th>GD</th>
+                                                <th>PTS</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {conference.standings.entries.map((entry, i) => {
+                                                let fill = '#ffffff';
 
-                                            // Fix NYCFC
-                                            if (entry.team.abbreviation === 'NY') entry.team.abbreviation = 'NYC';
+                                                // Fix NYCFC
+                                                if (entry.team.abbreviation === 'NY') entry.team.abbreviation = 'NYC';
 
-                                            if (entry.note)
-                                                fill = entry.note.rank === 1 ? '#4285f4' : '#fa7b17';
+                                                if (entry.note)
+                                                    fill = entry.note.rank === 1 ? '#4285f4' : '#fa7b17';
 
-                                            return (
-                                                <tr key={entry.team.id}>
-                                                    <td>
-                                                        {entry.note && 
-                                                            <svg width='4' height='35' style={{marginRight: 5}}>
-                                                                <rect width='4' height='35' style={{ fill: fill }} />
-                                                            </svg>
-                                                        }
-                                                        {i + 1}
-                                                    </td>
-                                                    <td style={{ textAlign: 'left' }}><img style={{ height: 40, marginRight: 5 }} src={getImage(entry.team.abbreviation)} alt={entry.team.abbreviation} />{entry.team.displayName}</td>
-                                                    <td>{entry.stats[3].value}</td>
-                                                    <td>{entry.stats[0].value}</td>
-                                                    <td>{entry.stats[2].value}</td>
-                                                    <td>{entry.stats[1].value}</td>
-                                                    <td>{entry.stats[4].value}</td>
-                                                    <td>{entry.stats[5].value}</td>
-                                                    <td>{entry.stats[9].value}</td>
-                                                    <td>{entry.stats[6].value}</td>
-                                                </tr>
-                                            )
-                                        })}
-                                    </tbody>
-                                </table>
+                                                return (
+                                                    <tr key={entry.team.id}>
+                                                        <td>
+                                                            {entry.note && 
+                                                                <svg width='4' height='35' style={{marginRight: 5}}>
+                                                                    <rect width='4' height='35' style={{ fill: fill }} />
+                                                                </svg>
+                                                            }
+                                                            {i + 1}
+                                                        </td>
+                                                        <td style={{ textAlign: 'left' }}><img style={{ height: 40, marginRight: 5 }} src={getImage(entry.team.abbreviation)} alt={entry.team.abbreviation} />{entry.team.displayName}</td>
+                                                        <td>{entry.stats[3].value}</td>
+                                                        <td>{entry.stats[0].value}</td>
+                                                        <td>{entry.stats[2].value}</td>
+                                                        <td>{entry.stats[1].value}</td>
+                                                        <td>{entry.stats[4].value}</td>
+                                                        <td>{entry.stats[5].value}</td>
+                                                        <td>{entry.stats[9].value}</td>
+                                                        <td>{entry.stats[6].value}</td>
+                                                    </tr>
+                                                )
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
                                 <span style={{marginLeft: 45, marginTop: 25, textAlign: 'left'}}>
                                     <svg width='15' height='15' style={{marginTop: -2, marginRight: 5}}>
                                         <rect width='15' height='15' style={{fill: '#4285f4'}} />

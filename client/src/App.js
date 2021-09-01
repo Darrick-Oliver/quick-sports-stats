@@ -6,7 +6,6 @@ import Login from './Login.js';
 import NBA from './routes/nba/index.js';
 import MLS from './routes/mls/index.js';
 import Home from './routes/home/index.js';
-import Profile from './routes/edit-profile/index.js';
 import PublicProfile from './routes/public-profile/index.js';
 import NotFound from './routes/NotFound.js';
 import Footer from './footer.js';
@@ -49,7 +48,6 @@ const App = () => {
                             <Route exact path='/mls' component={MLS} />
                             <Route path='/mls/:section' component={MLS} />
                             <Route exact path='/' component={Home} />
-                            <Route exact path='/edit-profile' component={Profile} />
                             <Route exact path='/user/:userId' component={PublicProfile} />
                             <Route component={NotFound} />
                         </Switch>

@@ -1,6 +1,9 @@
 /* eslint-disable eqeqeq */
 import React from 'react';
 
+import subInIcon from '../resources/sub_in_arrow.svg';
+import subOutIcon from'../resources/sub_out_arrow.svg';
+
 
 /**
  *  Used for retrieving photos from the /images folder using only the image name
@@ -95,8 +98,11 @@ const getPassPercent = (player) => {
         }
         else {
             // Starter
-            if (p1.position > p2.position) return 1;
-            else if (p1.position < p2.position) return -1;
+            if (p1.position === p2.position) return 0;
+            else if (p1.position > p2.position && p2.position !== 'Forward') return 1;
+            else if (p1.position > p2.position && p2.position === 'Forward') return -1;
+            else if (p1.position < p2.position && p1.position !== 'Forward') return -1;
+            else if (p1.position > p2.position && p1.position === 'Forward') return 1;
             else return 0;
         }
     });
@@ -106,7 +112,10 @@ const getPassPercent = (player) => {
             return (
                 <tr key={player.id}>
                     <td>{player.player.first_name.charAt(0)}. {player.player.last_name}{player.is_captain && ' (C)'}</td>
-                    <td>{player.status === 'Start' ? player.position : 'Sub'}</td>
+                    <td>{player.status === 'Start' ? 
+                        <span>{player.position}{player.statistics.mins_played && player.statistics.mins_played !== 90 && <img src={subOutIcon} height='15' alt='sub-out' />}</span>
+                        : <span>Sub<img src={subInIcon} height='15' alt='sub-in' /></span>}
+                    </td>
                     <td>{player.statistics.mins_played ? player.statistics.mins_played : '-'}</td>
                     <td>{player.statistics.goals ? player.statistics.goals : 0 }</td>
                     <td>{player.statistics.expected_goals ? player.statistics.expected_goals.toFixed(2) : 0}</td>
@@ -166,7 +175,10 @@ const getPassPercent = (player) => {
             return (
                 <tr key={keeper.id}>
                     <td>{keeper.player.first_name.charAt(0)}. {keeper.player.last_name}{keeper.is_captain && ' (C)'}</td>
-                    <td>{keeper.status === 'Start' ? keeper.position : 'Sub'}</td>
+                    <td>{keeper.status === 'Start' ? 
+                        <span>{keeper.position}{keeper.statistics.mins_played && keeper.statistics.mins_played !== 90 && <img src={subOutIcon} height='15' alt='sub-out' />}</span>
+                        : <span>Sub<img src={subInIcon} height='15' alt='sub-in' /></span>}
+                    </td>
                     <td>{keeper.statistics.mins_played ? keeper.statistics.mins_played : '-'}</td>
                     <td>{keeper.statistics.saves ? keeper.statistics.saves : 0 }</td>
                     <td>{keeper.statistics.goals_conceded ? keeper.statistics.goals_conceded : 0}</td>

@@ -5,34 +5,38 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const path = require("path");
 const sdv = require('sportsdataverse');
+const cheerio = require('cheerio');
+require('dotenv').config();
 
+// Models
 const User = require('./model/user');
 const Comment = require('./model/comment');
 const { requireAuth } = require('./middleware/authMiddleware');
 
+// Constants
 const COMMENT_MAXLEN = 500;
-
-require('dotenv').config();
-
+const BBREF_COLS = 29;
+const STAT_INDEX = ['player', 'position', 'age', 'team', 'games_played', 'games_started', 'minutes_played', 'fg_made', 'fg_attempted', 'fg_percent', 'threes_made', 'threes_attempted', 'threes_percent', 'twos_made', 'twos_attempted', 'twos_percent', 'eff_fg_percent', 'ft_made', 'ft_attempted', 'ft_percent', 'off_rebounds', 'def_rebounds', 'tot_rebounds', 'assists', 'steals', 'blocks', 'turnovers', 'personal_fouls', 'points'];
+const MLSTeams = ['ATL', 'ATX', 'CHI', 'CIN', 'CLB', 'CLT', 'COL', 'DAL', 'DC', 'HOU', 'LA', 'LAFC', 'MIA', 'MIN', 'MTL', 'NE', 'NSH', 'NYC', 'ORL', 'PHI', 'POR', 'RBNY', 'RSL', 'SEA', 'SJ', 'SKC', 'STL', 'TOR', 'VAN'];
+const NBATeams = ['1610612737', '1610612738', '1610612739', '1610612740', '1610612741', '1610612742', '1610612743', '1610612744', '1610612745', '1610612746', '1610612747', '1610612748', '1610612749', '1610612750', '1610612751', '1610612752', '1610612753', '1610612754', '1610612755', '1610612756', '1610612757', '1610612758', '1610612759', '1610612760', '1610612761', '1610612762', '1610612763', '1610612764', '1610612765', '1610612766'];
 const PORT = process.env.PORT || 3001;
 
+// MongoDB connection
 mongoose.connect(`mongodb+srv://${process.env.MDB_USER}:${process.env.MDB_PASS}@areto-db.f2kke.mongodb.net/areto-main?retryWrites=true&w=majority`, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true
 }).then(() => console.log("Connected to MongoDB")).catch(err => console.error(`Error connecting to MongoDB: ${err}`));
 
+// Express setup
 const app = express();
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.static(path.resolve(__dirname, '../client/build')));
 
-const MLSTeams = ['ATL', 'ATX', 'CHI', 'CIN', 'CLB', 'CLT', 'COL', 'DAL', 'DC', 'HOU', 'LA', 'LAFC',
-                'MIA', 'MIN', 'MTL', 'NE', 'NSH', 'NYC', 'ORL', 'PHI', 'POR', 'RBNY', 'RSL', 'SEA', 
-                'SJ', 'SKC', 'STL', 'TOR', 'VAN'];
-const NBATeams = ['1610612737', '1610612738', '1610612739', '1610612740', '1610612741', '1610612742', '1610612743', '1610612744', '1610612745', '1610612746', '1610612747',
-                '1610612748', '1610612749', '1610612750', '1610612751', '1610612752', '1610612753', '1610612754', '1610612755', '1610612756', '1610612757', '1610612758',
-                '1610612759', '1610612760', '1610612761', '1610612762', '1610612763', '1610612764', '1610612765', '1610612766'];
+/*
+ *  NBA API
+ */
 
 // NBA get boxscore
 app.get('/api/nba/boxscore/:id', async (req, res) => {
@@ -73,6 +77,70 @@ app.get('/api/nba/date/:date', async (req, res) => {
         return res.json({ status: 'error', error: err, data: { games: [] } });
     }    
 });
+
+// NBA get standings
+app.get('/api/nba/standings', async (req, res) => {
+    try {
+        const baseUrl = `https://site.web.api.espn.com/apis/v2/sports/basketball/nba/standings`;
+        const result = await fetch(baseUrl);
+        const json = await result.json();
+
+        return res.json({ status: 'ok', data: json.children });
+    } catch (err) {
+        return res.json({ status: 'error', error: err });
+    }
+});
+
+// NBA get all player stats
+app.get('/api/nba/players/all/:season', async (req, res) => {
+    const { season } = req.params;
+
+    try {
+        // Get HTML from ESPN and turn into text data
+        const result = await fetch(`https://www.basketball-reference.com/leagues/NBA_${season}_per_game.html`);
+        const body = await result.text();
+
+        const $ = cheerio.load(body);
+        const statList = [];
+
+        // Form list with table data
+        $('td').each((i, stat) => {
+            statList.push($(stat).text());
+        });
+
+        // Get number of columns
+        const BBREF_ROWS = statList.length / BBREF_COLS;
+
+        // Make json object
+        const playerList = [];
+        for (let i = 0; i < BBREF_ROWS; i += 1) {
+            const player = {};
+            for (let j = 0; j < BBREF_COLS; j += 1) {
+                player[STAT_INDEX[j]] = statList[i*BBREF_COLS + j];
+            }
+            playerList.push(player);
+        }
+
+        // Remove duplicates (TOT stats only)
+        const alreadySeen = [];
+        for (let i = 0; i < playerList.length; i += 1) {
+            if (alreadySeen[playerList[i].player]) {
+                playerList.splice(i, 1);
+                i -= 1;
+            }
+            else
+                alreadySeen[playerList[i].player] = true
+        }
+
+        return res.json({ status: 'ok', data: playerList });
+    } catch (err) {
+        return res.json({ status: 'error', error: err })
+    }
+});
+
+/*
+ *  MLS API
+ */
 
 // MLS get games by date
 app.get('/api/mls/date/:date', async (req, res) => {
@@ -150,18 +218,9 @@ app.get('/api/mls/standings', async (req, res) => {
     }
 });
 
-// NBA get standings
-app.get('/api/nba/standings', async (req, res) => {
-    try {
-        const baseUrl = `https://site.web.api.espn.com/apis/v2/sports/basketball/nba/standings`;
-        const result = await fetch(baseUrl);
-        const json = await result.json();
-
-        return res.json({ status: 'ok', data: json.children });
-    } catch (err) {
-        return res.json({ status: 'error', error: err });
-    }
-});
+/*
+ *  Areto account API
+ */
 
 // Register account
 app.post('/api/register', async (req, res) => {
@@ -572,7 +631,7 @@ app.post('/api/user/:userId/set-teams', requireAuth, async (req, res) => {
     }
 });
 
-// All other GET requests not handled before will return the app
-app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
-});
+// All other GET requests not handled before will return the app (broken)
+// app.get('*', (req, res) => {
+//     res.sendFile(path.resolve(__dirname, '../client/build/', 'index.html'));
+// });
