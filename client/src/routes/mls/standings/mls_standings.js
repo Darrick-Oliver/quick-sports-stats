@@ -1,4 +1,4 @@
-import './index.css';
+import './mls_standings.css';
 import React, { useState, useEffect } from 'react';
 
 // Gets requested logo from public folder

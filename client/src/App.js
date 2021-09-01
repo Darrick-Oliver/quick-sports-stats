@@ -3,10 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import './css/bootstrap.min.css';
 import Login from './Login.js';
-import NBA from './routes/nba/index.js';
-import MLS from './routes/mls/index.js';
+import NBA from './routes/nba/nba_index.js';
+import MLS from './routes/mls/mls_index.js';
 import Home from './routes/home/index.js';
-import PublicProfile from './routes/public-profile/index.js';
+import PublicProfile from './routes/public-profile/public_profile.js';
 import NotFound from './routes/NotFound.js';
 import Footer from './footer.js';
 

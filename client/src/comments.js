@@ -16,6 +16,7 @@ const Comments = (req) => {
     const [replyBoxes, setReplyBoxes] = useState(null);
     const [editBoxes, setEditBoxes] = useState(null);
     const [delConfirm, setDelConfirm] = useState(null);
+    const [checkedComments, setCheckedComments] = useState(false);
     const myUser = JSON.parse(useContext(UserContext).user);
 
     // Handles comment submission
@@ -332,25 +333,29 @@ const Comments = (req) => {
 
     // Fetch comments from areto db
     useEffect(() => {
-        fetch(`/api/comments/get/${req.type}/${req.id}`)
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.status === 'ok') {
-                    setComments(data.comments.sort((a, b) => {
-                        return new Date(b.comment.date).getTime() - new Date(a.comment.date).getTime();
-                    }));
+        if (!checkedComments) {
+            console.log(checkedComments)
+            fetch(`/api/comments/get/${req.type}/${req.id}`)
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.status === 'ok') {
+                        setComments(data.comments.sort((a, b) => {
+                            return new Date(b.comment.date).getTime() - new Date(a.comment.date).getTime();
+                        }));
 
-                    if (data.comments) {
-                        setDelConfirm(new Array(data.comments.length).fill(false));
-                        setReplyBoxes(new Array(data.comments.length).fill(false));
-                        setEditBoxes(new Array(data.comments.length).fill(false));
+                        if (data.comments) {
+                            setDelConfirm(new Array(data.comments.length).fill(false));
+                            setReplyBoxes(new Array(data.comments.length).fill(false));
+                            setEditBoxes(new Array(data.comments.length).fill(false));
+                        }
                     }
-                }
-            })
-            .catch(err => {
-                console.error("Error fetching data:", err);
-            });
-    }, [req]);
+                    setCheckedComments(true);
+                })
+                .catch(err => {
+                    console.error("Error fetching data:", err);
+                });
+        }
+    }, [req, checkedComments]);
 
     return (
         <div className='comments'>

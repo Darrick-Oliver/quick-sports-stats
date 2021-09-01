@@ -1,3 +1,4 @@
+import './nba_scores.css';
 import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import '../../../css/bootstrap.min.css';
@@ -5,8 +6,13 @@ import BoxScore from './BoxScore.js';
 import Comments from '../../../comments.js';
 import { NBAteams } from '../../../teams';
 
-let dateObj = new Date();
+import navigateRightIcon from '../resources/navigate_next.svg';
+import navigateLeftIcon from'../resources/navigate_before.svg';
+
+let selectedDate = new Date();
+let navDate = new Date();
 const currDate = new Date();
+const days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'S'];
 
 const getImage = (name) => {
     return `${process.env.PUBLIC_URL}/assets/images/nba_logos/${name}.svg`;
@@ -44,14 +50,10 @@ const Scores = () => {
     const [queryURL, setQueryURL] = useState(null);
     const [gameData, setGameData] = useState(null);
     const [giTemp, setGITemp] = useState(null);
-    const [date, setDate] = useState(null);
     const [errmsg, setErrmsg] = useState(null);
     const [gameInfo, setGameInfo] = useState(null);
     const [boxClicked, setBoxClicked] = useState(false);
-
-    // Initialize date
-    if (!date)
-        setDate(dateObj.toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }));
+    const [refreshDate, setRefreshDate] = useState(false);
 
     // Set title
     useEffect(() => {
@@ -75,29 +77,41 @@ const Scores = () => {
         }
     }
 
-    // Date buttons handler
-    const datePress = (dir) => {
-        if (data) {
-            dateObj.setDate(dateObj.getDate() + dir);
+    // Day press handler
+    const dayPress = (newDate) => {
+        selectedDate = newDate;
+        navDate = newDate;
+        
+        // Set all others to null
+        setGameData(null);
+        setData(null);
+        setQueryURL(null);
+        setErrmsg(null);
+        setBoxClicked(false);
+        setGameInfo(null);
+    }
 
-            // Set new date
-            setDate(dateObj.toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }));
+    // Week press handler
+    const weekPress = (where) => {
+        let diff = where === 'start' ? 7 : -7;
 
-            // Set all others to null
-            setGameData(null);
-            setData(null);
-            setQueryURL(null);
-            setErrmsg(null);
-            setBoxClicked(false);
-            setGameInfo(null);
-        }
+        // Get day
+        let first = new Date(navDate);
+        const firstDiff = first.getDate() + diff;
+        first.setDate(firstDiff);
+
+        // Set current date
+        navDate = first;
+        
+        // Re render
+        setRefreshDate(!refreshDate);
     }
 
     // Set date to today
     const dateToday = () => {
         if (data) {
-            dateObj.setTime(currDate.getTime());
-            setDate(dateObj.toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }));
+            selectedDate.setTime(currDate.getTime());
+            navDate.setTime(currDate.getTime());
             setGameData(null);
             setData(null);
             setErrmsg(null);
@@ -109,9 +123,9 @@ const Scores = () => {
     // Fetch from date
     useEffect(() => {
         if (!data) {
-            const month = ("0" + (dateObj.getMonth() + 1)).slice(-2);
-            const day = ("0" + dateObj.getDate()).slice(-2);
-            const year = dateObj.getFullYear();
+            const month = ("0" + (selectedDate.getMonth() + 1)).slice(-2);
+            const day = ("0" + selectedDate.getDate()).slice(-2);
+            const year = selectedDate.getFullYear();
 
             fetch(`/api/nba/date/${month}${day}${year}`)
                 .then((res) => res.json())
@@ -145,16 +159,44 @@ const Scores = () => {
         }
     }, [queryURL, giTemp]);
 
+    // Render calendar controls
+    const renderControls = () => {
+        // Get days in week to loop over
+        let week = [];
+        for (let i = 0; i < 7; i += 1)
+            week.push(i);
+        
+        return (
+            <div className='controls'>
+                <img className='controls-week-navigation' src={navigateLeftIcon} alt='Back 1 week' onClick={() => {weekPress('end')}} />
+                {week.map((day) => {
+                    // Get first day
+                    let first = new Date(navDate);
+                    const firstDiff = first.getDate() - first.getDay();
+                    first.setDate(firstDiff);
+
+                    // Increment date to match date
+                    first.setDate(first.getDate() + day);
+
+                    // Determine if date is selected
+                    let classes = first.toDateString() === selectedDate.toDateString() ? 'calendar-button-selected round' : 'calendar-button round';
+
+                    return (
+                        <button key={`calendar-day-${day}`} id={`calendar-day-${day}`} className={classes} onClick={() => {dayPress(first)}}>
+                            <div style={{fontSize: 10}}>{first.getDate()}</div>
+                            <div>{days[first.getDay()]}</div>
+                        </button>
+                    )
+                })}
+                <img className='controls-week-navigation' src={navigateRightIcon} alt='Forward 1 week' onClick={() => {weekPress('start')}} />
+            </div>
+        )
+    }
+
     return (
         <div className='score-content'>
-            <span id='controls'>
-                <Button variant='success' onClick={() => datePress(-7)} title='Back 1 week'>{"<<"}</Button>{' '}
-                <Button variant='success' onClick={() => datePress(-1)} title='Back 1 day'>{"<"}</Button>
-                <Button variant='link' style={{ color: 'black' }} onClick={() => dateToday()}>{date}</Button>
-                <Button variant='success' onClick={() => datePress(1)} title='Forward 1 day'>{">"}</Button>{' '}
-                <Button variant='success' onClick={() => datePress(7)} title='Forward 1 week'>{">>"}</Button>
-            </span>
-            <br />
+            <h4 className='calendar-header' onClick={() => {dateToday()}}>{navDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</h4>
+            {renderControls()}
             <div className='games'>{!data ? '' : (
                 data.games.map(game => {
                     return (
@@ -175,7 +217,7 @@ const Scores = () => {
 
             <div className='boxscore'>
                 {gameData && boxClicked && <span><hr className='separator' /><br /></span>}
-                {!gameData ? (errmsg === 'No games scheduled' ? <span><br /><h2>{errmsg}</h2></span> : boxClicked && <span><br /><h2>{errmsg}</h2></span>)
+                {!gameData ? (errmsg === 'No games scheduled' ? <h2>{errmsg}</h2> : boxClicked && <h2 style={{marginTop: 20}}>{errmsg}</h2>)
                     : <BoxScore gameData={gameData} />}
             </div>
             {gameData && boxClicked && <hr className='separator' />}

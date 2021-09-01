@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Nav, Tab, Col } from 'react-bootstrap';
 import { useParams } from "react-router-dom";
-// import './index.css';
-import Scores from './scores/index.js';
-import Standings from './standings/index.js';
-import NBAStats from './stats/nba_stats.js';
+import './mls_index.css';
+import Scores from './scores/mls_scores.js';
+import Standings from './standings/mls_standings.js';
 import { useHistory, Link } from "react-router-dom";
 import NotFound from '../NotFound.js';
 
-const pages = ['scores', 'standings', 'stats']
-
-const NBA = () => {
+const MLS = () => {
     const { section } = useParams();
     let history = useHistory();
     const [ sName, setSName ] = useState(null);
@@ -19,9 +16,9 @@ const NBA = () => {
     useEffect(() => {
         setErr(false);
         if (!section) {
-            history.push('/nba/scores');
-        } else if (pages.includes(section.toLowerCase())) {
-            document.title = `NBA ${section.toLowerCase()}`;
+            history.push('/mls/scores');
+        } else if (section.toLowerCase() === 'scores' || section.toLowerCase() === 'standings') {
+            document.title = `MLS ${section.toLowerCase()}`;
             setSName(section.toLowerCase());
         } else {
             setSName(null);
@@ -36,14 +33,11 @@ const NBA = () => {
                 <Tab.Container defaultActiveKey={sName}>
                     <div className='mls-nav'>
                         <Nav variant='pills'>
+                                <Nav.Item>
+                                    <Nav.Link as={Link} to='/mls/scores' eventKey='scores'>Scores</Nav.Link>
+                                </Nav.Item>
                             <Nav.Item>
-                                <Nav.Link as={Link} to='/nba/scores' eventKey='scores'>Scores</Nav.Link>
-                            </Nav.Item>
-                            <Nav.Item>
-                                <Nav.Link as={Link} to='/nba/standings' eventKey='standings' className='move-button'>Standings</Nav.Link>
-                            </Nav.Item>
-                            <Nav.Item>
-                                <Nav.Link as={Link} to='/nba/stats' eventKey='stats' className='move-button'>Player stats</Nav.Link>
+                                <Nav.Link as={Link} to='/mls/standings' eventKey='standings' className='move-button'>Standings</Nav.Link>
                             </Nav.Item>
                         </Nav>
                     </div>
@@ -55,9 +49,6 @@ const NBA = () => {
                             <Tab.Pane eventKey='standings'>
                                 <Standings />
                             </Tab.Pane>
-                            <Tab.Pane eventKey='stats'>
-                                <NBAStats />
-                            </Tab.Pane>
                         </Tab.Content>
                     </Col>
                 </Tab.Container>
@@ -66,4 +57,4 @@ const NBA = () => {
     );
 }
 
-export default NBA;
+export default MLS;

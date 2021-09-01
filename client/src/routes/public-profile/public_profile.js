@@ -1,4 +1,4 @@
-import './index.css';
+import './public_profile.css';
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from "react-router-dom";
 import { Button, Dropdown } from 'react-bootstrap';
@@ -136,7 +136,7 @@ const PublicProfile = () => {
                     {myUser && userInfo.user.username === myUser.username && edit && 
                         <div className='edit-profile-container'>
                             <span className='edit-text'>Favorite NBA team:</span>
-                            <Dropdown>
+                            <Dropdown className='edit-profile-dropdown'>
                                 <Dropdown.Toggle variant='primary' id='nba-dropdown-text'>
                                     {myUser.favNBA ? getTeamName(myUser.favNBA, 'nba') : 'None'}
                                 </Dropdown.Toggle>
@@ -176,9 +176,9 @@ const PublicProfile = () => {
                                 </Dropdown.Menu>
                             </Dropdown>
                             
-                            <br />
+                            <br /><div style={{ height: 10 }} />
                             <span className='edit-text'>Favorite MLS team:</span>
-                            <Dropdown style={{ marginTop: 10 }}>
+                            <Dropdown className='edit-profile-dropdown' style={{ paddingTop: 90 }}>
                                 <Dropdown.Toggle variant='primary' id='mls-dropdown-text'>
                                     {mlsId ? getTeamName(mlsId, 'mls') : 'None'}
                                 </Dropdown.Toggle>
