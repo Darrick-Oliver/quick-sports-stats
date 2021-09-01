@@ -97,13 +97,13 @@ const Standings = () => {
                                         </tbody>
                                     </table>
                                 </div>
-                                <span style={{marginLeft: 45, marginTop: 25, textAlign: 'left'}}>
+                                <span style={{marginLeft: 45, marginTop: 15, textAlign: 'left'}}>
                                     <svg width='15' height='15' style={{marginTop: -2, marginRight: 5}}>
                                         <rect width='15' height='15' style={{fill: '#4285f4'}} />
                                     </svg>
                                     Qualifies for Playoffs
                                 </span>
-                                <span style={{marginLeft: 45, marginTop: 15, textAlign: 'left'}}>
+                                <span style={{marginLeft: 45, marginTop: 15, textAlign: 'left', marginBottom: 15}}>
                                     <svg width='15' height='15' style={{marginTop: -2, marginRight: 5}}>
                                         <rect width='15' height='15' style={{fill: '#fa7b17'}} />
                                     </svg>

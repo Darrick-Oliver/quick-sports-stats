@@ -13,6 +13,8 @@ Features a register, login, and commenting system using MongoDB
 
 TODO:
 
+- FIX: comment requests spammed when box score is opened and standings/player stats is clicked
+
 - Player data for MLS
 - Reset password link
 - Comment context permalink
