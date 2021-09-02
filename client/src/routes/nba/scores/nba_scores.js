@@ -168,7 +168,7 @@ const Scores = () => {
         
         return (
             <div className='controls'>
-                <img className='controls-week-navigation' src={navigateLeftIcon} alt='Back 1 week' onClick={() => {weekPress('end')}} />
+                <img className='controls-week-navigation round' src={navigateLeftIcon} alt='Back 1 week' onClick={() => {weekPress('end')}} />
                 {week.map((day) => {
                     // Get first day
                     let first = new Date(navDate);
@@ -188,7 +188,7 @@ const Scores = () => {
                         </button>
                     )
                 })}
-                <img className='controls-week-navigation' src={navigateRightIcon} alt='Forward 1 week' onClick={() => {weekPress('start')}} />
+                <img className='controls-week-navigation round' src={navigateRightIcon} alt='Forward 1 week' onClick={() => {weekPress('start')}} />
             </div>
         )
     }
