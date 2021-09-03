@@ -178,7 +178,7 @@ const PublicProfile = () => {
                             
                             <br /><div style={{ height: 10 }} />
                             <span className='edit-text'>Favorite MLS team:</span>
-                            <Dropdown className='edit-profile-dropdown' style={{ paddingTop: 90 }}>
+                            <Dropdown className='edit-profile-dropdown'>
                                 <Dropdown.Toggle variant='primary' id='mls-dropdown-text'>
                                     {mlsId ? getTeamName(mlsId, 'mls') : 'None'}
                                 </Dropdown.Toggle>

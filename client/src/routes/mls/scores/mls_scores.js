@@ -231,9 +231,9 @@ const Scores = () => {
                     return (
                         <div key={game.optaId}>
                             <h2>
-                                <img src={getImage(game.home.abbreviation)} alt={game.home.abbreviation} height='50'></img>
+                                <img src={getImage(game.home.abbreviation)} alt={game.home.abbreviation} draggable={false} height='50'></img>
                                 {game.home.abbreviation} vs {game.away.abbreviation}
-                                <img src={getImage(game.away.abbreviation)} alt={game.away.abbreviation} height='50'></img>
+                                <img src={getImage(game.away.abbreviation)} alt={game.away.abbreviation} draggable={false} height='50'></img>
                             </h2>
                             {scoreboards && getScore(scoreboards, game.optaId)}
                             {scoreboards && getStatus(scoreboards, game.optaId)}

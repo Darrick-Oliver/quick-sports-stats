@@ -168,7 +168,7 @@ const Scores = () => {
         
         return (
             <div className='controls'>
-                <img className='controls-week-navigation round' src={navigateLeftIcon} alt='Back 1 week' onClick={() => {weekPress('end')}} />
+                <img className='controls-week-navigation round' src={navigateLeftIcon} draggable={false} alt='Back 1 week' onClick={() => {weekPress('end')}} />
                 {week.map((day) => {
                     // Get first day
                     let first = new Date(navDate);
@@ -188,7 +188,7 @@ const Scores = () => {
                         </button>
                     )
                 })}
-                <img className='controls-week-navigation round' src={navigateRightIcon} alt='Forward 1 week' onClick={() => {weekPress('start')}} />
+                <img className='controls-week-navigation round' src={navigateRightIcon} draggable={false} alt='Forward 1 week' onClick={() => {weekPress('start')}} />
             </div>
         )
     }
@@ -202,9 +202,9 @@ const Scores = () => {
                     return (
                         <div key={game.id}>
                             <h2>
-                                <img src={getImage(idFromEId(game.competitors[0].id))} alt={game.competitors[0].team.displayName} height='50'></img>
+                                <img src={getImage(idFromEId(game.competitors[0].id))} alt={game.competitors[0].team.displayName} draggable={false} height='50'></img>
                                 {game.competitors[0].team.abbreviation} vs {game.competitors[1].team.abbreviation}
-                                <img src={getImage(idFromEId(game.competitors[1].id))} alt={game.competitors[1].team.displayName} height='50'></img>
+                                <img src={getImage(idFromEId(game.competitors[1].id))} alt={game.competitors[1].team.displayName} draggable={false} height='50'></img>
                             </h2>
                             <p>{game.competitors[0].score} : {game.competitors[1].score}</p>
                             {getStatus(game)}

@@ -82,7 +82,7 @@ const Standings = () => {
                                                             }
                                                             {i + 1}
                                                         </td>
-                                                        <td style={{ textAlign: 'left' }}><img style={{ height: 40, marginRight: 5 }} src={getImage(idFromEId(entry.team.id))} alt={entry.team.abbreviation} />{entry.team.displayName}</td>
+                                                        <td style={{ textAlign: 'left' }}><img style={{ height: 40, marginRight: 5 }} src={getImage(idFromEId(entry.team.id))} draggable={false} alt={entry.team.abbreviation} />{entry.team.displayName}</td>
                                                         <td>{entry.stats[1].value}</td>
                                                         <td>{entry.stats[2].value}</td>
                                                         <td>{(entry.stats[3].value*100).toFixed(1)}</td>
