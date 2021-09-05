@@ -107,12 +107,12 @@ td {
   padding: 10px;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .boxscore div.card {
     width: 95%;
   }
 }
-@media (min-width: 1100px) {
+@media (min-width: 1200px) {
   .boxscore div.card {
     width: 1100px;
   }

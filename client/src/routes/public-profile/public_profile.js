@@ -10,6 +10,49 @@ import { NBAteams, MLSteams } from '../../teams';
 
 const Filter = require('bad-words'), filter = new Filter();
 
+const timeSince = (date) => {
+    if (typeof date !== 'object') {
+      date = new Date(date);
+    }
+  
+    var seconds = Math.floor((new Date() - date) / 1000);
+    var intervalType;
+  
+    var interval = Math.floor(seconds / 31536000);
+    if (interval >= 1) {
+      intervalType = 'year';
+    } else {
+      interval = Math.floor(seconds / 2592000);
+      if (interval >= 1) {
+        intervalType = 'month';
+      } else {
+        interval = Math.floor(seconds / 86400);
+        if (interval >= 1) {
+          intervalType = 'day';
+        } else {
+          interval = Math.floor(seconds / 3600);
+          if (interval >= 1) {
+            intervalType = "hour";
+          } else {
+            interval = Math.floor(seconds / 60);
+            if (interval >= 1) {
+              intervalType = "minute";
+            } else {
+              interval = seconds;
+              intervalType = "second";
+            }
+          }
+        }
+      }
+    }
+  
+    if (interval > 1 || interval === 0) {
+      intervalType += 's';
+    }
+  
+    return interval + ' ' + intervalType;
+}
+
 const getTeamName = (id, type) => {
     let teams = type === 'nba' ? NBAteams : MLSteams;
 
@@ -229,16 +272,12 @@ const PublicProfile = () => {
                                 <p className='tagline'>
                                     <Link className='username' to={`/user/${comment.username}`}>{comment.username}</Link>
                                     {' • '}
-                                    <span className='date'>
-                                        {new Date(comment.date).toLocaleDateString() + ' '}
-                                        {new Date(comment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
+                                    <span className='date' title={new Date(comment.date).toString()}>
+                                        {timeSince(comment.date) + ' ago'}
                                     </span>
                                     {comment.edited && comment.editDate && 
-                                        <span className='edit-date'>
-                                            {'(last edited: '}
-                                            {new Date(comment.editDate).toLocaleDateString() + ' '}
-                                            {new Date(comment.editDate).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
-                                            {')'}
+                                        <span className='edit-date' title={new Date(comment.editDate).toString()}>
+                                            {`(last edited: ${timeSince(comment.editDate) + ' ago'})`}
                                         </span>
                                     }
                                 </p>

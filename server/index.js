@@ -29,6 +29,19 @@ const getAllReplies = async (parentId) => {
         return null;
     }
 }
+const getParent = async (commentId) => {
+    const comment = await Comment.find({ commentId: commentId });
+    if (comment[0].parentId !== 0) {
+        const result = await getParent(comment[0].parentId);
+        if (result) {
+            return result;
+        } else {
+            return comment[0].parentId;
+        }
+    } else {
+        return 0;
+    }
+}
 
 // Constants
 const COMMENT_MAXLEN = 500;
@@ -584,6 +597,21 @@ app.get('/api/comments/d/get/:commentId', async (req, res) => {
     } else {
         return res.json({ status: 'error', error: 'No comments', comments: null });
     }
+});
+
+// Retrieve original parentId from a reply's commentId
+app.get('/api/comments/d/parent/:commentId', async (req, res) => {
+    const commentId = req.params.commentId;
+
+    // Id 0 reserved for root
+    if (commentId === 0) {
+        return res.json({ status: 'error', error: 'No comments', comments: null })
+    }
+
+    // Get parent comment
+    const parentId = await getParent(commentId);
+
+    return res.json({ status: 'ok', data: parentId });
 });
 
 // Delete comments

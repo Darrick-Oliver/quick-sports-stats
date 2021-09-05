@@ -9,6 +9,49 @@ import { Link } from "react-router-dom";
 
 const Filter = require('bad-words'), filter = new Filter();
 
+const timeSince = (date) => {
+    if (typeof date !== 'object') {
+      date = new Date(date);
+    }
+  
+    var seconds = Math.floor((new Date() - date) / 1000);
+    var intervalType;
+  
+    var interval = Math.floor(seconds / 31536000);
+    if (interval >= 1) {
+      intervalType = 'year';
+    } else {
+      interval = Math.floor(seconds / 2592000);
+      if (interval >= 1) {
+        intervalType = 'month';
+      } else {
+        interval = Math.floor(seconds / 86400);
+        if (interval >= 1) {
+          intervalType = 'day';
+        } else {
+          interval = Math.floor(seconds / 3600);
+          if (interval >= 1) {
+            intervalType = "hour";
+          } else {
+            interval = Math.floor(seconds / 60);
+            if (interval >= 1) {
+              intervalType = "minute";
+            } else {
+              interval = seconds;
+              intervalType = "second";
+            }
+          }
+        }
+      }
+    }
+  
+    if (interval > 1 || interval === 0) {
+      intervalType += 's';
+    }
+  
+    return interval + ' ' + intervalType;
+}
+
 const getImage = (id, type) => {
     return `${process.env.PUBLIC_URL}/assets/images/${type}_logos/${id}.svg`;
 }
@@ -20,6 +63,7 @@ const CommentContext = () => {
     const [replyBoxes, setReplyBoxes] = useState(null);
     const [editBoxes, setEditBoxes] = useState(null);
     const [delConfirm, setDelConfirm] = useState(null);
+    const [parent, setParent] = useState(null);
     const myUser = JSON.parse(useContext(UserContext).user);
 
     // Set title
@@ -30,6 +74,7 @@ const CommentContext = () => {
 
     // Fetch comments
     useEffect(() => {
+        setComments(null);
         fetch(`/api/comments/d/get/${commentId}`)
             .then((res) => res.json())
             .then((data) => {
@@ -43,6 +88,19 @@ const CommentContext = () => {
                     setDelConfirm(new Array(data.comments.length).fill(false));
                     setReplyBoxes(new Array(data.comments.length).fill(false));
                     setEditBoxes(new Array(data.comments.length).fill(false));
+                }
+            })
+    }, [commentId]);
+
+    // Fetch original comment's parentId
+    useEffect(() => {
+        fetch(`/api/comments/d/parent/${commentId}`)
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.status === 'error') {
+                    setError(true);
+                } else {
+                    setParent(data.data);
                 }
             })
     }, [commentId]);
@@ -179,22 +237,18 @@ const CommentContext = () => {
         // If parent comment, change background color
         const commentBackground = commentData.comment.commentId === parseInt(commentId) ? 'content comment-selected' : 'content';
         return (
-            <div className='comment' style={{ marginLeft: indent }} id={commentData.comment.commentId}>
+            <div className='comment' style={{ marginLeft: indent, width: `calc(95% - ${indent}px)` }} id={commentData.comment.commentId}>
                 <p className='tagline'>
                     <Link className='username' to={`/user/${commentData.comment.username}`}>{commentData.comment.username}</Link>
                     {commentData.userInfo.favMLS !== 'none' && <img style={{marginLeft: 5}} src={getImage(commentData.userInfo.favMLS, 'mls')} alt={commentData.userInfo.favMLS} height='25' />}
                     {commentData.userInfo.favNBA !== 'none' && <img style={{marginLeft: 5}} src={getImage(commentData.userInfo.favNBA, 'nba')} alt={commentData.userInfo.favNBA} height='25' />}
                     {' • '}
-                    <span className='date'>
-                        {new Date(commentData.comment.date).toLocaleDateString() + ' '}
-                        {new Date(commentData.comment.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
+                    <span className='date' title={new Date(commentData.comment.date).toString()}>
+                        {timeSince(commentData.comment.date) + ' ago'}
                     </span>
                     {commentData.comment.edited && commentData.comment.editDate && 
-                        <span className='edit-date'>
-                            {'(last edited: '}
-                            {new Date(commentData.comment.editDate).toLocaleDateString() + ' '}
-                            {new Date(commentData.comment.editDate).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
-                            {')'}
+                        <span className='edit-date' title={new Date(commentData.comment.editDate).toString()}>
+                            {`(last edited: ${timeSince(commentData.comment.editDate) + ' ago'})`}
                         </span>
                     }
                 </p>
@@ -340,14 +394,21 @@ const CommentContext = () => {
             {!error && comments &&
                 <div className='comments-container context-container-comment'>
                     {comments.map(commentData => {
-                        return (
-                            // Make sure comment exists
-                            commentData && commentData.comment.commentId === parseInt(commentId) && replyBoxes && editBoxes && 
-                            <div className='comment-section' key={commentData.comment.commentId}>
-                                {generateComment(commentData, 0)}
-                                {showReplies(comments, commentData, 0)}
-                            </div>
-                        );
+                        if (commentData && commentData.comment.commentId === parseInt(commentId) && replyBoxes && editBoxes) {
+                            return (
+                                <div className='comment-section' key={commentData.comment.commentId}>
+                                    {(parent && commentData.comment.parentId) ?
+                                        <div className='context-notification'>
+                                            <span>You are viewing a reply. To see the full context, </span>
+                                            <Link className='user-link' to={`/comments/d/${parent}`}>click here</Link>
+                                        </div>
+                                    : null}
+                                    {generateComment(commentData, 0)}
+                                    {showReplies(comments, commentData, 0)}
+                                </div>
+                            );
+                        }
+                        return null;
                     })}
                 </div>
             }
