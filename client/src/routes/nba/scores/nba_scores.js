@@ -55,11 +55,6 @@ const Scores = () => {
     const [boxClicked, setBoxClicked] = useState(false);
     const [refreshDate, setRefreshDate] = useState(false);
 
-    // Set title
-    useEffect(() => {
-        document.title = 'NBA Scores';
-    }, []);
-
     // Box score button handler
     const boxPress = (game) => {
         const url = `/api/nba/boxscore/${game.id}`;
@@ -120,7 +115,7 @@ const Scores = () => {
         }
     }
 
-    // Fetch from date
+    // Fetch from date when changed
     useEffect(() => {
         if (!data) {
             const month = ("0" + (selectedDate.getMonth() + 1)).slice(-2);
@@ -140,6 +135,27 @@ const Scores = () => {
                 });
         }
     }, [data]);
+
+    // Refresh data every 60 seconds
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const month = ("0" + (selectedDate.getMonth() + 1)).slice(-2);
+            const day = ("0" + selectedDate.getDate()).slice(-2);
+            const year = selectedDate.getFullYear();
+
+            fetch(`/api/nba/date/${month}${day}${year}`)
+                .then((res) => res.json())
+                .then((data) => {
+                    setData(data.data);
+                    if (data.status !== 'ok')
+                        setErrmsg(data.error);
+                })
+                .catch(err => {
+                    console.error("Error fetching data: ", err);
+                });
+        }, 60000);
+        return () => clearInterval(interval);
+    }, []);
 
     // Fetch box score
     useEffect(() => {

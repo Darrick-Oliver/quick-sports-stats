@@ -7,6 +7,7 @@ import NBA from './routes/nba/nba_index.js';
 import MLS from './routes/mls/mls_index.js';
 import Home from './routes/home/index.js';
 import PublicProfile from './routes/public-profile/public_profile.js';
+import CommentContext from './routes/comment-context/comment_context.js';
 import NotFound from './routes/NotFound.js';
 import Footer from './footer.js';
 
@@ -49,6 +50,7 @@ const App = () => {
                             <Route path='/mls/:section' component={MLS} />
                             <Route exact path='/' component={Home} />
                             <Route exact path='/user/:userId' component={PublicProfile} />
+                            <Route exact path='/comments/d/:commentId' component={CommentContext} />
                             <Route component={NotFound} />
                         </Switch>
                     </div>

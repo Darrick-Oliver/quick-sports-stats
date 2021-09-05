@@ -20,7 +20,7 @@ const NBA = () => {
         if (!section) {
             history.push('/nba/scores');
         } else if (pages.includes(section.toLowerCase())) {
-            document.title = `NBA ${section.toLowerCase()}`;
+            document.title = `Areto - NBA ${section.toLowerCase()}`;
             setSName(section.toLowerCase());
         } else {
             setSName(null);

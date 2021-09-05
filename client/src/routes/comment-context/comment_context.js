@@ -1,8 +1,10 @@
-import './comments.css';
+import './comment_context.css';
 import React, { useState, useEffect, useContext } from 'react';
+import { useParams } from "react-router-dom";
+import '../../css/bootstrap.min.css';
+import NotFound from '../NotFound.js';
+import { UserContext } from '../../App.js';
 import { Button } from 'react-bootstrap';
-import './css/bootstrap.min.css';
-import { UserContext } from './App.js';
 import { Link } from "react-router-dom";
 
 const Filter = require('bad-words'), filter = new Filter();
@@ -11,46 +13,39 @@ const getImage = (id, type) => {
     return `${process.env.PUBLIC_URL}/assets/images/${type}_logos/${id}.svg`;
 }
 
-const Comments = (req) => {
+const CommentContext = () => {
+    const { commentId } = useParams();
+    const [error, setError] = useState(false);
     const [comments, setComments] = useState(null);
     const [replyBoxes, setReplyBoxes] = useState(null);
     const [editBoxes, setEditBoxes] = useState(null);
     const [delConfirm, setDelConfirm] = useState(null);
-    const [checkedComments, setCheckedComments] = useState(false);
     const myUser = JSON.parse(useContext(UserContext).user);
 
-    // Handles comment submission
-    const submitComment = async (type, gameId) => {
-        const content = document.getElementById('comment-text').value;
-        const parentId = 0;
-        // Submit comment
-        const result = await fetch('/api/comments/post', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                content,
-                type,
-                gameId,
-                parentId
+    // Set title
+    useEffect(() => {
+        document.title = `Areto - Discussion`;
+        setError(false);
+    }, []);
+
+    // Fetch comments
+    useEffect(() => {
+        fetch(`/api/comments/d/get/${commentId}`)
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.status === 'error') {
+                    setError(true);
+                } else {
+                    setComments(data.comments.sort((a, b) => {
+                        return new Date(b.comment.date).getTime() - new Date(a.comment.date).getTime();
+                    }));
+                    
+                    setDelConfirm(new Array(data.comments.length).fill(false));
+                    setReplyBoxes(new Array(data.comments.length).fill(false));
+                    setEditBoxes(new Array(data.comments.length).fill(false));
+                }
             })
-        }).then((res) => res.json());
-
-        // Check for errors
-        if (result.status === 'error') {
-            document.getElementById('comment-err').innerHTML = `${result.error}`;
-            return;
-        } else {
-            document.getElementById('comment-err').innerHTML = '';
-        }
-
-        // Clear textarea
-        document.getElementById('comment-text').value = '';
-
-        // Refresh comments
-        return result.data;
-    }
+    }, [commentId]);
 
     // Sends a delete request to the server
     const deleteComment = async (id) => {
@@ -181,12 +176,14 @@ const Comments = (req) => {
 
     // Generates comment formatting
     const generateComment = (commentData, indent) => {
+        // If parent comment, change background color
+        const commentBackground = commentData.comment.commentId === parseInt(commentId) ? 'content comment-selected' : 'content';
         return (
             <div className='comment' style={{ marginLeft: indent }} id={commentData.comment.commentId}>
                 <p className='tagline'>
                     <Link className='username' to={`/user/${commentData.comment.username}`}>{commentData.comment.username}</Link>
-                    {req.type === 'mls' && commentData.userInfo.favMLS !== 'none' && <img style={{marginLeft: 5}} src={getImage(commentData.userInfo.favMLS, 'mls')} alt={commentData.userInfo.favMLS} height='25' />}
-                    {req.type === 'nba' && commentData.userInfo.favNBA !== 'none' && <img style={{marginLeft: 5}} src={getImage(commentData.userInfo.favNBA, 'nba')} alt={commentData.userInfo.favNBA} height='25' />}
+                    {commentData.userInfo.favMLS !== 'none' && <img style={{marginLeft: 5}} src={getImage(commentData.userInfo.favMLS, 'mls')} alt={commentData.userInfo.favMLS} height='25' />}
+                    {commentData.userInfo.favNBA !== 'none' && <img style={{marginLeft: 5}} src={getImage(commentData.userInfo.favNBA, 'nba')} alt={commentData.userInfo.favNBA} height='25' />}
                     {' • '}
                     <span className='date'>
                         {new Date(commentData.comment.date).toLocaleDateString() + ' '}
@@ -202,7 +199,7 @@ const Comments = (req) => {
                     }
                 </p>
                 <div id={commentData.comment.commentId}>
-                    <span id={`${commentData.comment.commentId}-content`} className='content'>
+                    <span id={`${commentData.comment.commentId}-content`} className={commentBackground}>
                         {commentData.comment.parentId !== 0 && commentData.comment.parentUser !== '[deleted]' && <Link className='user-link' to={`/user/${commentData.comment.parentUser}`}>@{commentData.comment.parentUser}</Link>}
                         {commentData.comment.parentId !== 0 && commentData.comment.parentUser !== '[deleted]' && ' '}
                         {editBoxes[comments.indexOf(commentData)] ? 
@@ -304,7 +301,7 @@ const Comments = (req) => {
                     <div className='reply-box'>
                         <textarea id={`reply-${commentData.comment.commentId}-text`} autoFocus className='comment-textarea reply-textarea' /><br />
                         <div id={`reply-${commentData.comment.commentId}-err`} className='comment-error-message'></div>
-                        <Button id='submit-reply' variant='outline-success' onClick={() => replyToComment(req.type, req.id, commentData.comment.commentId, comments.indexOf(commentData)).then((newReply) => {
+                        <Button id='submit-reply' variant='outline-success' onClick={() => replyToComment(commentData.comment.type, commentData.comment.gameId, commentData.comment.commentId, comments.indexOf(commentData)).then((newReply) => {
                             const newReplyFormatted = {
                                 comment: newReply,
                                 userInfo: {
@@ -335,85 +332,27 @@ const Comments = (req) => {
         )
     }
 
-    // Fetch comments from areto db
-    useEffect(() => {
-        if (!checkedComments) {
-            fetch(`/api/comments/get/${req.type}/${req.id}`)
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.status === 'ok') {
-                        setComments(data.comments.sort((a, b) => {
-                            return new Date(b.comment.date).getTime() - new Date(a.comment.date).getTime();
-                        }));
-
-                        if (data.comments) {
-                            setDelConfirm(new Array(data.comments.length).fill(false));
-                            setReplyBoxes(new Array(data.comments.length).fill(false));
-                            setEditBoxes(new Array(data.comments.length).fill(false));
-                        }
-                    }
-                    setCheckedComments(true);
-                })
-                .catch(err => {
-                    console.error("Error fetching data:", err);
-                });
-        }
-    }, [req, checkedComments]);
-
     return (
-        <div className='comments'>
-            <div className='submit-comment-container'>
-                <h1>Comments</h1>
-                <br />
-                <textarea id='comment-text' className='comment-textarea' /><br />
-                <div id='comment-err' className='comment-error-message'></div>
-                <Button id='submit-comment' variant='outline-success' onClick={() => submitComment(req.type, req.id).then((newComment) => {
-                    const newCommentFormatted = {
-                        comment: newComment,
-                        userInfo: {
-                            favMLS: myUser.favMLS,
-                            favNBA: myUser.favNBA,
-                            username: myUser.username
-                        }
-                    };
-                    if (newComment && comments) {
-                        // Add comment to comments and sort
-                        comments.push(newCommentFormatted);
-                        setComments(comments.sort((a, b) => {
-                            return new Date(b.comment.date).getTime() - new Date(a.comment.date).getTime();
-                        }));
-                        setComments([...comments]);
-
-                        // Close new reply
-                        setDelConfirm([false, ...delConfirm]);
-                        setReplyBoxes([false, ...replyBoxes]);
-                        setEditBoxes([false, ...editBoxes]);
-                    } else if (newComment) {
-                        // If single comment added, only add that one
-                        setComments([newCommentFormatted]);
-
-                        // Set replies
-                        setDelConfirm([false]);
-                        setReplyBoxes([false]);
-                        setEditBoxes([false]);
-                    }
-                })}>Submit</Button>
-            </div>
-            {comments &&
-                <div className='comments-container'>
+        <div className='context-container'>
+            {error && <NotFound style={{ marginTop: '-155px' }} />}
+            {!error && <h2 className='context-title'>Discussion</h2>}
+            {!error && !comments && <img id='load' src={`${process.env.PUBLIC_URL}/assets/loading/load_ring.svg`} alt='Fetching data...' />}
+            {!error && comments &&
+                <div className='comments-container context-container-comment'>
                     {comments.map(commentData => {
                         return (
                             // Make sure comment exists
-                            commentData && commentData.comment.parentId === 0 && replyBoxes && editBoxes && 
+                            commentData && commentData.comment.commentId === parseInt(commentId) && replyBoxes && editBoxes && 
                             <div className='comment-section' key={commentData.comment.commentId}>
                                 {generateComment(commentData, 0)}
                                 {showReplies(comments, commentData, 0)}
                             </div>
                         );
                     })}
-                </div>}
+                </div>
+            }
         </div>
     );
 }
 
-export default Comments;
+export default CommentContext;

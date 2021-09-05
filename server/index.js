@@ -11,7 +11,24 @@ require('dotenv').config();
 // Models
 const User = require('./model/user');
 const Comment = require('./model/comment');
+const Counter = require('./model/counter');
+
+// Functions
 const { requireAuth } = require('./middleware/authMiddleware');
+const getAllReplies = async (parentId) => {
+    let replies = await Comment.find({ parentId: parentId });
+    if (replies.length) {
+        const length = replies.length;
+        for (let i = 0; i < length; i += 1) {
+            const moreReplies = await getAllReplies(replies[i].commentId);
+            if (moreReplies)
+                replies = replies.concat(moreReplies);
+        }
+        return replies;
+    } else {
+        return null;
+    }
+}
 
 // Constants
 const COMMENT_MAXLEN = 500;
@@ -443,9 +460,9 @@ app.post('/api/comments/post', requireAuth, async (req, res) => {
             error: `Number of characters exceeds maximum (${content.length}/${COMMENT_MAXLEN})`
         });
     }
-    if (parentId !== 'root') {
+    if (parentId !== 0) {
         try {
-            const parent = await Comment.find({ _id: parentId });
+            const parent = await Comment.find({ commentId: parentId });
             parentUser = parent[0].username;
         } catch (err) {
             return res.json({ status: 'error', error: 'Parent comment does not exist' });
@@ -454,7 +471,9 @@ app.post('/api/comments/post', requireAuth, async (req, res) => {
 
     // Create comment
     try {
+        const counter = await Counter.find({ usage: 'comments' });
         const response = await Comment.create({
+            commentId: counter[0].count,
             username,
             content,
             type,
@@ -463,8 +482,13 @@ app.post('/api/comments/post', requireAuth, async (req, res) => {
             parentUser,
             date
         });
+
+        // Update counter on success
+        await Counter.updateOne({ usage: 'comments' }, { count: counter[0].count + 1 });
+
         return res.json({ status: 'ok', data: response });
     } catch (err) {
+        console.error(err);
         return res.json({ status: 'error', error: 'Invalid content' });
     }
 });
@@ -510,12 +534,64 @@ app.get('/api/comments/get/:type/:gameId', async (req, res) => {
     }
 });
 
+// Retrieve comments and replies from commentId
+app.get('/api/comments/d/get/:commentId', async (req, res) => {
+    const commentId = req.params.commentId;
+
+    // Id 0 reserved for root
+    if (commentId === 0) {
+        return res.json({ status: 'error', error: 'No comments', comments: null })
+    }
+
+    // Get parent comment
+    const comments = await Comment.find({ commentId: commentId });
+    const replies = await getAllReplies(commentId);
+
+    // Concat parent comment and replies
+    if (replies) {
+        replies.forEach((reply) => {
+            comments.push(reply);
+        });
+    }
+
+    // Return flairs
+    let commentInfo = [];
+    for (let i = 0; i < comments.length; i += 1) {
+        const user = await User.find({ username: comments[i].username }).lean();
+        if (user.length) {
+             commentInfo.push({
+                comment: comments[i],
+                userInfo: {
+                    username: user[0].username,
+                    favMLS: user[0].favMLS,
+                    favNBA: user[0].favNBA
+                }
+            });
+        } else {
+            commentInfo.push({
+                comment: comments[i],
+                userInfo: {
+                    username: '[deleted]',
+                    favMLS: 'none',
+                    favNBA: 'none'
+                }
+            });
+        }
+    };
+
+    if (commentInfo.length > 0) {
+        return res.json({ status: 'ok', comments: commentInfo });
+    } else {
+        return res.json({ status: 'error', error: 'No comments', comments: null });
+    }
+});
+
 // Delete comments
-app.get('/api/comments/:_id/delete', requireAuth, async (req, res) => {
-    const _id = req.params._id;
+app.get('/api/comments/:commentId/delete', requireAuth, async (req, res) => {
+    const commentId = req.params.commentId;
 
     // Ensure user is an admin, or is the user that posted
-    const comment = await Comment.find({ _id: _id });
+    const comment = await Comment.find({ commentId: commentId });
     if (comment.length && (res.locals.token.username !== comment[0].username) && !res.locals.token.admin) {
         return res.json({ status: 'error', error: 'You cannot delete other users\' comments' });
     } else if (!comment.length) {
@@ -523,11 +599,11 @@ app.get('/api/comments/:_id/delete', requireAuth, async (req, res) => {
     }
 
     // Find any replies to that comment
-    const replies = await Comment.find({ parentId: _id });
+    const replies = await Comment.find({ parentId: commentId });
     if (replies.length === 0) {
         // No replies, delete the comment
         try {
-            await Comment.deleteOne({ _id: _id });
+            await Comment.deleteOne({ commentId: commentId });
             return res.json({ status: 'ok', data: 'deleted' });
         } catch (err) {
             return res.json({ status: 'error', error: err })
@@ -535,10 +611,10 @@ app.get('/api/comments/:_id/delete', requireAuth, async (req, res) => {
     } else {
         try {
             // Otherwise, change content and username to [deleted]
-            await Comment.updateOne({ _id: _id }, { content: '[Deleted by user]', username: '[deleted]', parentUser: '[deleted]' });
+            await Comment.updateOne({ commentId: commentId }, { content: '[Deleted by user]', username: '[deleted]', parentUser: '[deleted]' });
 
             // Set all replies' parentUser to [deleted]
-            await Comment.updateMany({ parentId: _id }, { parentUser: '[deleted]' });
+            await Comment.updateMany({ parentId: commentId }, { parentUser: '[deleted]' });
 
             return res.json({ status: 'ok', data: 'modified' });
         } catch (err) {
@@ -549,10 +625,10 @@ app.get('/api/comments/:_id/delete', requireAuth, async (req, res) => {
 
 // Edit comments
 app.post('/api/comments/edit', requireAuth, async (req, res) => {
-    let { content, _id } = req.body;
+    let { content, commentId } = req.body;
 
     // Ensure user is the user that posted
-    let comment = await Comment.find({ _id: _id });
+    let comment = await Comment.find({ commentId: commentId });
     if (comment.length && (res.locals.token.username !== comment[0].username)) {
         return res.json({ status: 'error', error: 'You cannot edit other users\' comments' });
     } else if (!comment.length) {
@@ -564,13 +640,13 @@ app.post('/api/comments/edit', requireAuth, async (req, res) => {
         const now = new Date();
         const creation = new Date(comment[0].date);
         if (((Math.abs(now - creation)/1000)/60) < 5 ) {
-            await Comment.updateOne({ _id: _id }, { content: content });
+            await Comment.updateOne({ commentId: commentId }, { content: content });
         } else {
-            await Comment.updateOne({ _id: _id }, { content: content, edited: true, editDate: new Date() });
+            await Comment.updateOne({ commentId: commentId }, { content: content, edited: true, editDate: new Date() });
         }
 
         // Retrieve comment again and return
-        comment = await Comment.find({ _id: _id });
+        comment = await Comment.find({ commentId: commentId });
         return res.json({ status: 'ok', comment: comment });
     } catch (err) {
         return res.json({ status: 'error', error: err });

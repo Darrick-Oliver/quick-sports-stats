@@ -13,9 +13,9 @@ Features a register, login, and commenting system using MongoDB
 
 TODO:
 
+- Make profiles better
 - Player data for MLS
 - Reset password link
-- Comment context permalink
 - Team stats in box scores
 - Forum posts area
 - Team builder

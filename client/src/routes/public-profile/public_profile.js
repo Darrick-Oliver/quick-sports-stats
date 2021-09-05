@@ -38,7 +38,7 @@ const PublicProfile = () => {
 
     // Set title
     useEffect(() => {
-        document.title = `${userId}'s profile`;
+        document.title = `Areto - ${userId}'s profile`;
         setError(false);
     }, [userId]);
 
@@ -225,7 +225,7 @@ const PublicProfile = () => {
                     {userInfo.comments && userInfo.comments.map(comment => {
                         return (
                             comment &&
-                            <div className='user-comment' key={comment._id}>
+                            <div className='user-comment' key={comment.commentId}>
                                 <p className='tagline'>
                                     <Link className='username' to={`/user/${comment.username}`}>{comment.username}</Link>
                                     {' • '}
@@ -243,12 +243,13 @@ const PublicProfile = () => {
                                     }
                                 </p>
                                 <div>
-                                <span id={`${comment._id}-content`} className='content'>
-                                    {comment.parentId !== 'root' && <Link className='user-link' to={`/user/${comment.parentUser}`}>@{comment.parentUser}</Link>}
-                                    {comment.parentId !== 'root' && ' '}
-                                    {filter.clean(comment.content)}
-                                </span>
+                                    <span id={`${comment.commentId}-content`} className='content'>
+                                        {comment.parentId !== 0 && <Link className='user-link' to={`/user/${comment.parentUser}`}>@{comment.parentUser}</Link>}
+                                        {comment.parentId !== 0 && ' '}
+                                        {filter.clean(comment.content)}
+                                    </span>
                                 </div>
+                                <Link to={`/comments/d/${comment.commentId}`}><button className='comment-buttons' id={`permalink-${comment.commentId}`}>permalink</button></Link>
                             </div>
                         );
                     })}

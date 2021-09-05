@@ -18,7 +18,7 @@ const MLS = () => {
         if (!section) {
             history.push('/mls/scores');
         } else if (section.toLowerCase() === 'scores' || section.toLowerCase() === 'standings') {
-            document.title = `MLS ${section.toLowerCase()}`;
+            document.title = `Areto - MLS ${section.toLowerCase()}`;
             setSName(section.toLowerCase());
         } else {
             setSName(null);
