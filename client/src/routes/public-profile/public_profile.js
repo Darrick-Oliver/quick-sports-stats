@@ -276,8 +276,12 @@ const PublicProfile = () => {
                                         {timeSince(comment.date) + ' ago'}
                                     </span>
                                     {comment.edited && comment.editDate && 
-                                        <span className='edit-date' title={new Date(comment.editDate).toString()}>
-                                            {`(last edited: ${timeSince(comment.editDate) + ' ago'})`}
+                                        <span className='edit-date'>
+                                            (last edited: 
+                                            <span title={new Date(comment.editDate).toString()}>
+                                                {' ' + timeSince(comment.editDate) + ' ago'}
+                                            </span>
+                                            )
                                         </span>
                                     }
                                 </p>

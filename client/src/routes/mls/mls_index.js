@@ -4,8 +4,11 @@ import { useParams } from "react-router-dom";
 import './mls_index.css';
 import Scores from './scores/mls_scores.js';
 import Standings from './standings/mls_standings.js';
+import MLSStats from './stats/mls_stats';
 import { useHistory, Link } from "react-router-dom";
 import NotFound from '../NotFound.js';
+
+const pages = ['scores', 'standings', 'stats']
 
 const MLS = () => {
     const { section } = useParams();
@@ -17,7 +20,7 @@ const MLS = () => {
         setErr(false);
         if (!section) {
             history.push('/mls/scores');
-        } else if (section.toLowerCase() === 'scores' || section.toLowerCase() === 'standings') {
+        } else if (pages.includes(section.toLowerCase())) {
             document.title = `Areto - MLS ${section.toLowerCase()}`;
             setSName(section.toLowerCase());
         } else {
@@ -33,11 +36,14 @@ const MLS = () => {
                 <Tab.Container defaultActiveKey={sName}>
                     <div className='mls-nav'>
                         <Nav variant='pills'>
-                                <Nav.Item>
-                                    <Nav.Link as={Link} to='/mls/scores' eventKey='scores'>Scores</Nav.Link>
-                                </Nav.Item>
+                            <Nav.Item>
+                                <Nav.Link as={Link} to='/mls/scores' eventKey='scores'>Scores</Nav.Link>
+                            </Nav.Item>
                             <Nav.Item>
                                 <Nav.Link as={Link} to='/mls/standings' eventKey='standings' className='move-button'>Standings</Nav.Link>
+                            </Nav.Item>
+                            <Nav.Item>
+                                <Nav.Link as={Link} to='/mls/stats' eventKey='stats' className='move-button'>Player stats</Nav.Link>
                             </Nav.Item>
                         </Nav>
                     </div>
@@ -48,6 +54,9 @@ const MLS = () => {
                             </Tab.Pane>
                             <Tab.Pane eventKey='standings'>
                                 <Standings />
+                            </Tab.Pane>
+                            <Tab.Pane eventKey='stats'>
+                                <MLSStats />
                             </Tab.Pane>
                         </Tab.Content>
                     </Col>

@@ -224,7 +224,7 @@ const Comments = (req) => {
         );
     }
 
-    // 
+    // Handles opening and closing of comments
     const openCloseComment = (i) => {
         if (closeBoxes) {
             closeBoxes[i] = !closeBoxes[i];
@@ -237,7 +237,8 @@ const Comments = (req) => {
         return (
             <div className='comment' style={{ marginLeft: indent, width: `calc(95% - ${indent}px)` }} id={commentData.comment.commentId}>
                 <span className='tagline'>
-                    <button className='comment-buttons' onClick={() => {openCloseComment(comments.indexOf(commentData))}}>[ {closeBoxes[comments.indexOf(commentData)] ? '+' : '-'} ]</button>
+                    <span className='comment-buttons close-comment-button' onClick={() => {openCloseComment(comments.indexOf(commentData))}}>[ {closeBoxes[comments.indexOf(commentData)] ? '+' : '-'} ]</span>
+                    
                     <Link className='username' to={`/user/${commentData.comment.username}`}>{commentData.comment.username}</Link>
                     {req.type === 'mls' && commentData.userInfo.favMLS !== 'none' && <img style={{marginLeft: 5}} src={getImage(commentData.userInfo.favMLS, 'mls')} alt={commentData.userInfo.favMLS} height='25' />}
                     {req.type === 'nba' && commentData.userInfo.favNBA !== 'none' && <img style={{marginLeft: 5}} src={getImage(commentData.userInfo.favNBA, 'nba')} alt={commentData.userInfo.favNBA} height='25' />}
@@ -246,8 +247,12 @@ const Comments = (req) => {
                         {timeSince(commentData.comment.date) + ' ago'}
                     </span>
                     {commentData.comment.edited && commentData.comment.editDate && 
-                        <span className='edit-date' title={new Date(commentData.comment.editDate).toString()}>
-                            {`(last edited: ${timeSince(commentData.comment.editDate) + ' ago'})`}
+                        <span className='edit-date'>
+                            (last edited: 
+                            <span title={new Date(commentData.comment.editDate).toString()}>
+                                {' ' + timeSince(commentData.comment.editDate) + ' ago'}
+                            </span>
+                            )
                         </span>
                     }
                 </span>

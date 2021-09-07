@@ -56,7 +56,6 @@ export const MLSteams = [
     { id: 'POR', team: 'Portland Timbers' },
     { id: 'RSL', team: 'Real Salt Lake' },
     { id: 'SJ', team: 'San Jose Earthquakes' },
-    { id: 'SEA', team: 'Portland Trailblazers' },
     { id: 'SEA', team: 'Seattle Sounders FC' },
     { id: 'SKC', team: 'Sporting Kansas City' },
     { id: 'STL', team: 'St. Louis City SC' },

@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const path = require("path");
 const sdv = require('sportsdataverse');
 const cheerio = require('cheerio');
+const bbstats = require('bbref-player-stats');
 require('dotenv').config();
 
 // Models
@@ -45,8 +46,7 @@ const getParent = async (commentId) => {
 
 // Constants
 const COMMENT_MAXLEN = 500;
-const BBREF_COLS = 29;
-const STAT_INDEX = ['player', 'position', 'age', 'team', 'games_played', 'games_started', 'minutes_played', 'fg_made', 'fg_attempted', 'fg_percent', 'threes_made', 'threes_attempted', 'threes_percent', 'twos_made', 'twos_attempted', 'twos_percent', 'eff_fg_percent', 'ft_made', 'ft_attempted', 'ft_percent', 'off_rebounds', 'def_rebounds', 'tot_rebounds', 'assists', 'steals', 'blocks', 'turnovers', 'personal_fouls', 'points'];
+const MLS_STAT_INDECES = ['id', 'name', 'position', 'team', 'age', 'year', 'matches_played', 'matches_started', 'minutes_played', 'full_minutes', 'goals', 'assists', 'non_penalty_goals', 'pens_made', 'pens_attempted', 'yellows', 'reds'];
 const MLSTeams = ['ATL', 'ATX', 'CHI', 'CIN', 'CLB', 'CLT', 'COL', 'DAL', 'DC', 'HOU', 'LA', 'LAFC', 'MIA', 'MIN', 'MTL', 'NE', 'NSH', 'NYC', 'ORL', 'PHI', 'POR', 'RBNY', 'RSL', 'SEA', 'SJ', 'SKC', 'STL', 'TOR', 'VAN'];
 const NBATeams = ['1610612737', '1610612738', '1610612739', '1610612740', '1610612741', '1610612742', '1610612743', '1610612744', '1610612745', '1610612746', '1610612747', '1610612748', '1610612749', '1610612750', '1610612751', '1610612752', '1610612753', '1610612754', '1610612755', '1610612756', '1610612757', '1610612758', '1610612759', '1610612760', '1610612761', '1610612762', '1610612763', '1610612764', '1610612765', '1610612766'];
 const PORT = process.env.PORT || 3001;
@@ -126,43 +126,8 @@ app.get('/api/nba/players/all/:season', async (req, res) => {
     const { season } = req.params;
 
     try {
-        // Get HTML from ESPN and turn into text data
-        const result = await fetch(`https://www.basketball-reference.com/leagues/NBA_${season}_per_game.html`);
-        const body = await result.text();
-
-        const $ = cheerio.load(body);
-        const statList = [];
-
-        // Form list with table data
-        $('td').each((i, stat) => {
-            statList.push($(stat).text());
-        });
-
-        // Get number of columns
-        const BBREF_ROWS = statList.length / BBREF_COLS;
-
-        // Make json object
-        const playerList = [];
-        for (let i = 0; i < BBREF_ROWS; i += 1) {
-            const player = {};
-            for (let j = 0; j < BBREF_COLS; j += 1) {
-                player[STAT_INDEX[j]] = statList[i*BBREF_COLS + j];
-            }
-            playerList.push(player);
-        }
-
-        // Remove duplicates (TOT stats only)
-        const alreadySeen = [];
-        for (let i = 0; i < playerList.length; i += 1) {
-            if (alreadySeen[playerList[i].player]) {
-                playerList.splice(i, 1);
-                i -= 1;
-            }
-            else
-                alreadySeen[playerList[i].player] = true
-        }
-
-        return res.json({ status: 'ok', data: playerList });
+        const data = await bbstats.getAllPlayers(season);
+        return res.json({ status: 'ok', data: data });
     } catch (err) {
         return res.json({ status: 'error', error: err })
     }
@@ -246,6 +211,69 @@ app.get('/api/mls/standings', async (req, res) => {
     } catch (err) {
         return res.json({ status: 'error', error: err });
     }
+});
+
+// MLS get all player stats (current season)
+app.get('/api/mls/players/all', async (req, res) => {
+    const $ = await fetch('https://fbref.com/en/comps/22/stats/Major-League-Soccer-Stats')
+        .then(async (result) => {
+            let data = await result.text();
+            // Remove comments
+            data = data.replace(/<!--/g, '');
+            data = data.replace(/-->/g, '');
+            return cheerio.load(data);
+        });
+    
+    // Form list with table data
+    const playerList = [];
+    $('table[id=stats_standard]').find('tbody > tr').each((i, rows) => {
+        let player = {};
+        $(rows).find('td').each((j, data) => {
+            if (!j) {
+                // Get player id
+                const link = $(data).find('a').attr('href');
+                let result = link.match(/\/en\/players\/.+\//);
+                result = result[0].substring(12);
+                result = result.substring(0, result.length - 1);
+
+                // Push id and name
+                player[MLS_STAT_INDECES[j]] = result;
+                player[MLS_STAT_INDECES[j + 1]] = $(data).text()
+            } else if (j < 17 && j > 1) {
+                // Push totals
+                player[MLS_STAT_INDECES[j]] = $(data).text();
+            }
+        });
+        if (Object.keys(player).length)
+            playerList.push(player);
+    })
+
+    // Remove duplicates
+    const alreadySeen = [];
+    for (let i = 0; i < playerList.length; i += 1) {
+        if (alreadySeen[playerList[i].name]) {
+            // Index of first player seen
+            const ind = alreadySeen[playerList[i].name] - 1;
+
+            // Add stats if duplicate
+            for (let j = 6; j < Object.keys(playerList[i]).length; j += 1) {
+                if (j === 9) {
+                    playerList[ind][MLS_STAT_INDECES[j]] = (parseFloat(playerList[ind][MLS_STAT_INDECES[j]]) + parseFloat(playerList[i][MLS_STAT_INDECES[j]])).toFixed(1).toString();
+                } else {
+                    playerList[ind][MLS_STAT_INDECES[j]] = (parseInt(playerList[ind][MLS_STAT_INDECES[j]]) + parseInt(playerList[i][MLS_STAT_INDECES[j]])).toString();
+                }
+            }
+
+            // Remove last
+            playerList.splice(i, 1);
+            i -= 1;
+        }
+        else {
+            alreadySeen[playerList[i].name] = i + 1;
+        }
+    }
+
+    return res.json({ status: 'ok', data: playerList })
 });
 
 /*

@@ -118,9 +118,9 @@ const NBAStats = () => {
                                 </thead>
                                 <tbody>
                                     {sortedStats.map((player, i) => {
-                                        return <tr key={player.player}>
+                                        return <tr key={player.name}>
                                             <td>{i + 1}</td>
-                                            <td>{player.player}</td>
+                                            <td>{player.name}</td>
                                             <td>{player.position}</td>
                                             <td>{player.minutes_played}</td>
                                             <td>{player.points}</td>

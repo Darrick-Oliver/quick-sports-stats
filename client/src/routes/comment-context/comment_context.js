@@ -247,8 +247,12 @@ const CommentContext = () => {
                         {timeSince(commentData.comment.date) + ' ago'}
                     </span>
                     {commentData.comment.edited && commentData.comment.editDate && 
-                        <span className='edit-date' title={new Date(commentData.comment.editDate).toString()}>
-                            {`(last edited: ${timeSince(commentData.comment.editDate) + ' ago'})`}
+                        <span className='edit-date'>
+                            (last edited: 
+                            <span title={new Date(commentData.comment.editDate).toString()}>
+                                {' ' + timeSince(commentData.comment.editDate) + ' ago'}
+                            </span>
+                            )
                         </span>
                     }
                 </p>
