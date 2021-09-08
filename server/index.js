@@ -32,7 +32,7 @@ const getAllReplies = async (parentId) => {
 }
 const getParent = async (commentId) => {
     const comment = await Comment.find({ commentId: commentId });
-    if (comment[0].parentId !== 0) {
+    if (comment[0] && comment[0].parentId !== 0) {
         const result = await getParent(comment[0].parentId);
         if (result) {
             return result;

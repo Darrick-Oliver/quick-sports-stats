@@ -13,8 +13,7 @@ Features a register, login, and commenting system using MongoDB
 
 TODO:
 
-- Make profiles better
-- Player data for MLS
+- Clean up code
 - Reset password link
 - Team stats in box scores
 - Forum posts area
