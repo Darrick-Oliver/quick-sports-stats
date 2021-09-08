@@ -6,7 +6,7 @@
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
-    "bbref-player-stats": "^1.0.9",
+    "bbref-player-stats": "^1.0.10",
     "bcryptjs": "^2.4.3",
     "bootstrap": "^5.1.0",
     "cheerio": "^1.0.0-rc.10",

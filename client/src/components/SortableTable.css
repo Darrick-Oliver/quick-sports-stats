@@ -1,0 +1,76 @@
+.sortable-th-input {
+  background-color: rgb(71, 71, 71);
+  color: white;
+  border: none;
+}
+
+.stats-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.stats-box {
+  margin-top: 10px;
+  font-size: 14px;
+  margin-left: auto;
+  margin-right: auto;
+  overflow-x: scroll;
+}
+
+.stats-box table {
+  border-radius: 5px;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.stats-box table,
+th,
+td {
+  margin-left: auto;
+  margin-right: auto;
+  padding: 5px 10px;
+}
+
+.stats-box tr:nth-child(even) {
+  color: black;
+  background-color: #f2f2f2;
+}
+
+.stats-box tbody tr:hover {
+  background-color: #c5c5c5;
+}
+
+.stats-box th {
+  background-color: #2e2e2e;
+  color: white;
+}
+
+.stats-box tfoot {
+  border-top: 1px solid rgb(180, 180, 180);
+  font-weight: bold;
+  color: black;
+}
+
+.sort-header:hover {
+  cursor: pointer;
+}
+
+.stats-card {
+  background-color: white;
+  color: black;
+  padding: 20px;
+  text-align: center;
+  margin: auto;
+  transition: 0.3s;
+  max-width: 1300px;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-clip: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 0.25rem;
+  margin-bottom: 30px;
+}
