@@ -61,8 +61,10 @@ const SortableTable = (props) => {
                 else if (!b[sortStat])
                     return dir === 'descending' ? -1 : 1;
                 
-                if (isNumeric(a[sortStat]) && isNumeric(b[sortStat]))
-                    return dir === 'descending' ? parseFloat(b[sortStat]) - parseFloat(a[sortStat]) : parseFloat(a[sortStat]) - parseFloat(b[sortStat]);
+                const aStat = a[sortStat].replace(/,/g, '');
+                const bStat = b[sortStat].replace(/,/g, '');
+                if (isNumeric(aStat) && isNumeric(bStat))
+                    return dir === 'descending' ? parseFloat(bStat) - parseFloat(aStat) : parseFloat(aStat) - parseFloat(bStat);
                 else
                     return dir === 'descending' ? b[sortStat].localeCompare(a[sortStat]) : a[sortStat].localeCompare(b[sortStat]);
             });

@@ -55,7 +55,7 @@ const timeSince = (date) => {
     return interval + ' ' + intervalType;
 }
 
-const Comments = (req) => {
+const Comments = (props) => {
     const [comments, setComments] = useState(null);
     const [replyBoxes, setReplyBoxes] = useState(null);
     const [editBoxes, setEditBoxes] = useState(null);
@@ -240,8 +240,8 @@ const Comments = (req) => {
                     <span className='comment-buttons close-comment-button' onClick={() => {openCloseComment(comments.indexOf(commentData))}}>[ {closeBoxes[comments.indexOf(commentData)] ? '+' : '-'} ]</span>
                     
                     <Link className='username' to={`/user/${commentData.comment.username}`}>{commentData.comment.username}</Link>
-                    {req.type === 'mls' && commentData.userInfo.favMLS !== 'none' && <img style={{marginLeft: 5}} src={getImage(commentData.userInfo.favMLS, 'mls')} alt={commentData.userInfo.favMLS} height='25' />}
-                    {req.type === 'nba' && commentData.userInfo.favNBA !== 'none' && <img style={{marginLeft: 5}} src={getImage(commentData.userInfo.favNBA, 'nba')} alt={commentData.userInfo.favNBA} height='25' />}
+                    {props.type === 'mls' && commentData.userInfo.favMLS !== 'none' && <img style={{marginLeft: 5}} src={getImage(commentData.userInfo.favMLS, 'mls')} alt={commentData.userInfo.favMLS} height='25' />}
+                    {props.type === 'nba' && commentData.userInfo.favNBA !== 'none' && <img style={{marginLeft: 5}} src={getImage(commentData.userInfo.favNBA, 'nba')} alt={commentData.userInfo.favNBA} height='25' />}
                     {' • '}
                     <span className='date' title={new Date(commentData.comment.date).toString()}>
                         {timeSince(commentData.comment.date) + ' ago'}
@@ -365,7 +365,7 @@ const Comments = (req) => {
                             <div className='reply-box'>
                                 <textarea id={`reply-${commentData.comment.commentId}-text`} autoFocus className='comment-textarea reply-textarea' /><br />
                                 <div id={`reply-${commentData.comment.commentId}-err`} className='comment-error-message'></div>
-                                <Button id='submit-reply' variant='outline-success' onClick={() => replyToComment(req.type, req.id, commentData.comment.commentId, comments.indexOf(commentData)).then((newReply) => {
+                                <Button id='submit-reply' variant='outline-success' onClick={() => replyToComment(props.type, props.id, commentData.comment.commentId, comments.indexOf(commentData)).then((newReply) => {
                                     const newReplyFormatted = {
                                         comment: newReply,
                                         userInfo: {
@@ -402,7 +402,7 @@ const Comments = (req) => {
     // Fetch comments from areto db
     useEffect(() => {
         if (!checkedComments) {
-            fetch(`/api/comments/get/${req.type}/${req.id}`)
+            fetch(`/api/comments/get/${props.type}/${props.id}`)
                 .then((res) => res.json())
                 .then((data) => {
                     if (data.status === 'ok') {
@@ -423,7 +423,7 @@ const Comments = (req) => {
                     console.error("Error fetching data:", err);
                 });
         }
-    }, [req, checkedComments]);
+    }, [props, checkedComments]);
 
     return (
         <div className='comments'>
@@ -432,7 +432,7 @@ const Comments = (req) => {
                 <br />
                 <textarea id='comment-text' className='comment-textarea' /><br />
                 <div id='comment-err' className='comment-error-message'></div>
-                <Button id='submit-comment' variant='outline-success' onClick={() => submitComment(req.type, req.id).then((newComment) => {
+                <Button id='submit-comment' variant='outline-success' onClick={() => submitComment(props.type, props.id).then((newComment) => {
                     const newCommentFormatted = {
                         comment: newComment,
                         userInfo: {
