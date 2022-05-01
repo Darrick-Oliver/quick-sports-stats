@@ -1,6 +1,6 @@
 # QuickStats
 
-[Homepage](https://areto.herokuapp.com) (hosted on Heroku, may take a while to load at first)
+[Homepage](https://quick-stats.herokuapp.com/) (hosted on Heroku, may take a while to load at first)
 
 To see a list of the most recent changes, visit the [changelog](https://github.com/Darrick-Oliver/quick-sports-stats/wiki/Changelog)
 
