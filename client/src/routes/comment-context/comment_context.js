@@ -68,7 +68,7 @@ const CommentContext = () => {
 
     // Set title
     useEffect(() => {
-        document.title = `Areto - Discussion`;
+        document.title = `QuickStats - Discussion`;
         setError(false);
     }, []);
 

@@ -55,3 +55,27 @@
 .filter-button:focus {
   background-color: #3c4044;
 }
+
+.season-navigation {
+  height: 100%;
+  display: inline;
+  vertical-align: middle;
+  background-color: white;
+  transition: 0.2s;
+  /* padding-top: 100%; */
+  margin: 0px 8px
+}
+
+.season-navigation:hover {
+  background-color: rgb(238, 238, 238);
+  cursor: pointer;
+}
+
+.stats-header {
+  height: 25px;
+}
+
+.stats-header h2 {
+  display: inline;
+  vertical-align: middle;
+}

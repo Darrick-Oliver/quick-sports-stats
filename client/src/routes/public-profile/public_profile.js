@@ -81,7 +81,7 @@ const PublicProfile = () => {
 
     // Set title
     useEffect(() => {
-        document.title = `Areto - ${userId}'s profile`;
+        document.title = `QuickStats - ${userId}'s profile`;
         setError(false);
     }, [userId]);
 

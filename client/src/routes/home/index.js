@@ -5,7 +5,7 @@ import '../../css/bootstrap.min.css';
 
 const Home = () => {
     useEffect(() => {
-        document.title = 'Areto';
+        document.title = 'QuickStats';
     }, []);
 
     return (

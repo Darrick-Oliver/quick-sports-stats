@@ -39,7 +39,7 @@ const App = () => {
             <Router>
                 <UserContext.Provider value={value}>
                     <div className='top'>
-                        <Link to='/'><h1>Areto Fantasy</h1></Link>
+                        <Link to='/'><h1>QuickStats</h1></Link>
                         <Login />
                     </div>
                     <div className='main-content'>
