@@ -1,5 +1,5 @@
 {
-  "name": "areto-heroku",
+  "name": "quickstats",
   "version": "1.0.0",
   "private": true,
   "dependencies": {
@@ -11,6 +11,8 @@
     "bootstrap": "^5.1.0",
     "cheerio": "^1.0.0-rc.10",
     "concurrently": "^6.2.0",
+    "heroku": "^7.60.2",
+    "heroku-cli": "^7.0.9",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.13.5",
     "mongoose-unique-validator": "^2.0.3",
